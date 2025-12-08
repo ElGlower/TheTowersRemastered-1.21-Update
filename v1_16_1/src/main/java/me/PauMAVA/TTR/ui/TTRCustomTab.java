@@ -1,93 +1,85 @@
-/*
- * TheTowersRemastered (TTR)
- * Copyright (c) 2019-2021  Pau Machetti Vallverdú
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package me.PauMAVA.TTR.ui;
 
-import io.netty.handler.codec.DecoderException;
 import me.PauMAVA.TTR.TTRCore;
-import me.PauMAVA.TTR.lang.Locale;
-import me.PauMAVA.TTR.lang.PluginString;
-import me.PauMAVA.TTR.util.ReflectionUtils;
-import me.PauMAVA.TTR.util.TTRPrefix;
+import me.PauMAVA.TTR.match.MatchStatus;
+import me.PauMAVA.TTR.teams.TTRTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-
 public class TTRCustomTab extends BukkitRunnable {
 
-    private String prefix;
-    private String suffix;
-    private int i;
+    private final TTRCore plugin;
 
     public TTRCustomTab(TTRCore plugin) {
-        this.prefix = "";
-        this.suffix = ChatColor.AQUA + "(c) 2019-2021" + ChatColor.BOLD + " PauMAVA";
-        this.i = 1;
-        Locale locale = plugin.getLanguageManager().getSelectedLocale();
-        if (!locale.getShortName().equalsIgnoreCase("unknown") && !locale.getShortName().equalsIgnoreCase("en")) {
-            this.suffix += ChatColor.RESET + "" + ChatColor.GREEN + "\n" + PluginString.TRANSLATION_MADE_BY + ChatColor.BOLD + "" + ChatColor.GREEN + locale.getAuthor();
-        }
-        this.suffix += ChatColor.RESET + "\n" + ChatColor.GREEN + "The Towers Remastered (TTR)";
+        this.plugin = plugin;
     }
 
     @Override
     public void run() {
-        switch (i) {
-            case 1:
-            case 3:
-            case 5: {
-                this.prefix = TTRPrefix.TTR_GAME + "";
-                break;
-            }
-            case 2:
-            case 4: {
-                this.prefix = TTRPrefix.TTR_GAME_DARK + "";
-                break;
-            }
-            case 8: {
-                i = 1;
-            }
+        if (!plugin.enabled()) return;
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            updateTabList(player);
         }
-        i++;
-        sendPacket();
     }
 
-    private void sendPacket() {
-        try {
-            Object packet = ReflectionUtils.createNMSInstance("PacketPlayOutPlayerListHeaderFooter", List.of(), List.of());
-            Field header = packet.getClass().getDeclaredField("header");
-            Field footer = packet.getClass().getDeclaredField("footer");
-            header.setAccessible(true);
-            footer.setAccessible(true);
-            Object headerChatComponentText = ReflectionUtils.createNMSInstance("ChatComponentText", List.of(String.class), List.of(this.prefix));
-            Object footerChatComponentText = ReflectionUtils.createNMSInstance("ChatComponentText", List.of(String.class), List.of(this.suffix));
-            header.set(packet, headerChatComponentText);
-            footer.set(packet, footerChatComponentText);
-            for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-                ReflectionUtils.sendNMSPacketToPlayer(player, packet);
+    private void updateTabList(Player player) {
+        // --- HEADER ---
+        // Barra decorativa + Título Centrado + Estado
+        String header = "\n" +
+                ChatColor.DARK_GRAY + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" + "\n" +
+                ChatColor.GOLD + "" + ChatColor.BOLD + " THE TOWERS " + ChatColor.YELLOW + "REMASTERED" + "\n" +
+                "\n" +
+                ChatColor.GRAY + "Estado: " + getMatchStatus() + "\n" +
+                ChatColor.DARK_GRAY + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" + "\n";
+
+        // --- FOOTER ---
+        // Información técnica y link
+        String footer = "\n" +
+                ChatColor.DARK_GRAY + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" + "\n" +
+                ChatColor.AQUA + "Jugadores: " + ChatColor.WHITE + Bukkit.getOnlinePlayers().size() + "/" + Bukkit.getMaxPlayers() +
+                ChatColor.GRAY + "  |  " +
+                ChatColor.GREEN + "Ping: " + player.getPing() + "ms" + "\n" +
+                "\n" +
+                ChatColor.YELLOW + "play.tuservidor.com" + "\n";
+
+        player.setPlayerListHeaderFooter(header, footer);
+
+        // --- NOMBRES DE JUGADORES (Con Color) ---
+        updatePlayerName(player);
+    }
+
+    private void updatePlayerName(Player player) {
+        TTRTeam team = plugin.getTeamHandler().getPlayerTeam(player);
+        String formattedName;
+
+        if (team != null) {
+            ChatColor color = plugin.getConfigManager().getTeamColor(team.getIdentifier());
+            // Formato: [R] Nombre
+            formattedName = ChatColor.DARK_GRAY + "[" + color + team.getIdentifier().charAt(0) + ChatColor.DARK_GRAY + "] "
+                    + color + player.getName();
+        } else {
+            // Sin equipo (Espectador o Lobby)
+            if (player.isOp()) {
+                formattedName = ChatColor.RED + "ADMIN " + ChatColor.WHITE + player.getName();
+            } else {
+                formattedName = ChatColor.GRAY + player.getName();
             }
-        } catch (IllegalAccessException | NoSuchFieldException | DecoderException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
-            e.printStackTrace();
+        }
+
+        player.setPlayerListName(formattedName);
+    }
+
+    private String getMatchStatus() {
+        if (plugin.getCurrentMatch().getStatus() == MatchStatus.INGAME) {
+            String time = plugin.getCurrentMatch().getFormattedTime();
+            return ChatColor.GREEN + "En Curso " + ChatColor.GRAY + "(" + ChatColor.WHITE + time + ChatColor.GRAY + ")";
+        } else if (plugin.getCurrentMatch().getStatus() == MatchStatus.PREGAME) {
+            return ChatColor.YELLOW + "Esperando Jugadores...";
+        } else {
+            return ChatColor.RED + "Finalizado";
         }
     }
 }

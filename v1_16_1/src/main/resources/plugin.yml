@@ -1,12 +1,36 @@
 name: TheTowersRemastered
-version: 1.3
-api-version: 1.16
+version: 1.4-1.21
 main: me.PauMAVA.TTR.TTRCore
-
+api-version: 1.21
 commands:
-  ttrstart:
-    description: Start the match
   ttrenable:
-    description: Enbles the plugin on server start.
+    description: Habilita el juego
+    permission: ttr.admin
   ttrdisable:
-    description: Disables the plugin on server start.
+    description: Deshabilita el juego
+    permission: ttr.admin
+  ttrstart:
+    description: Inicia partida manualmente
+    permission: ttr.admin
+  ttrset:
+    description: Configurar mapa y spawns
+    permission: ttr.admin
+  ttrstop:
+    description: Detener partida forzosamente
+    permission: ttr.admin
+  ttrrevive:
+    description: Revivir jugador
+    permission: ttr.admin
+  ttrforcejoin:
+    description: Meter jugador a un equipo y equiparlo
+    permission: ttr.admin
+  ttrconfig:
+    description: Configurar tiempo y puntos en vivo
+    permission: ttr.admin
+  ttrevent:
+    description: Controlar eventos aleatorios
+    permission: ttr.admin
+permissions:
+  ttr.admin:
+    description: Permiso administrativo total
+    default: op

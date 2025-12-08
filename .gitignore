@@ -1,8 +1,13 @@
-
 .idea/
-
 *.iml
+*.iws
+out/
 
-v1_15_2/target/
 
-v1_16_1/target/
+target/
+*.jar
+
+dependency-reduced-pom.xml
+
+.DS_Store
+Thumbs.db

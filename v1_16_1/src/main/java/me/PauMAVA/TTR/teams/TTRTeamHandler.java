@@ -1,88 +1,81 @@
-/*
- * TheTowersRemastered (TTR)
- * Copyright (c) 2019-2021  Pau Machetti Vallverdú
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package me.PauMAVA.TTR.teams;
 
 import me.PauMAVA.TTR.TTRCore;
-import me.PauMAVA.TTR.match.TTRMatch;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TTRTeamHandler {
 
-    private TTRMatch match = TTRCore.getInstance().getCurrentMatch();
-    private List<TTRTeam> teams = new ArrayList<TTRTeam>();
+    private List<TTRTeam> teams = new ArrayList<>();
+    private Scoreboard sb;
 
     public void setUpDefaultTeams() {
-        for (String team : TTRCore.getInstance().getConfigManager().getTeamNames()) {
-            this.teams.add(new TTRTeam(team));
+        // USAR MAIN SCOREBOARD
+        this.sb = Bukkit.getScoreboardManager().getMainScoreboard();
+
+        for (String teamName : TTRCore.getInstance().getConfigManager().getTeamNames()) {
+            this.teams.add(new TTRTeam(teamName));
+
+            Team bukkitTeam = sb.getTeam(teamName);
+            if (bukkitTeam == null) bukkitTeam = sb.registerNewTeam(teamName);
+
+            ChatColor color = TTRCore.getInstance().getConfigManager().getTeamColor(teamName);
+            bukkitTeam.setColor(color);
+            bukkitTeam.setPrefix(color + "[" + teamName + "] ");
+
+            // --- DESACTIVAR FUEGO AMIGO ---
+            bukkitTeam.setAllowFriendlyFire(false);
+            bukkitTeam.setCanSeeFriendlyInvisibles(true);
+            // ------------------------------
         }
     }
 
     public boolean addPlayerToTeam(Player player, String teamIdentifier) {
         TTRTeam team = getTeam(teamIdentifier);
-        if (team == null) {
-            return false;
-        }
+        if (team == null) return false;
+
+        TTRTeam oldTeam = getPlayerTeam(player);
+        if (oldTeam != null) removePlayer(oldTeam.getIdentifier(), player);
+
         team.addPlayer(player);
+
+        // Meter al jugador en el equipo de Bukkit (para que el server sepa que son aliados)
+        Team bukkitTeam = sb.getTeam(team.getIdentifier());
+        if (bukkitTeam != null) bukkitTeam.addEntry(player.getName());
+
         return true;
     }
 
-    public boolean removePlayerFromTeam(Player player, String teamIdentifier) {
+    public void removePlayer(String teamIdentifier, Player player) {
         TTRTeam team = getTeam(teamIdentifier);
-        if (team == null) {
-            return false;
+        if (team != null) {
+            team.removePlayer(player);
+            Team bukkitTeam = sb.getTeam(teamIdentifier);
+            if (bukkitTeam != null) bukkitTeam.removeEntry(player.getName());
         }
-        team.removePlayer(player);
-        return true;
     }
 
     public TTRTeam getPlayerTeam(Player player) {
         for (TTRTeam team : this.teams) {
-            if (team.getPlayers().contains(player)) {
-                return team;
-            }
+            if (team.getPlayers().contains(player.getName())) return team;
         }
         return null;
     }
 
     public TTRTeam getTeam(String teamIdentifier) {
         for (TTRTeam team : this.teams) {
-            teamIdentifier = ChatColor.stripColor(teamIdentifier);
-            if (teamIdentifier.contentEquals(team.getIdentifier())) {
-                return team;
-            }
+            if (ChatColor.stripColor(teamIdentifier).equalsIgnoreCase(team.getIdentifier())) return team;
         }
         return null;
     }
 
-    public List<TTRTeam> getTeams() {
-        return this.teams;
-    }
-
     public void addPlayer(String teamIdentifier, Player player) {
-        getTeam(teamIdentifier).addPlayer(player);
-    }
-
-    public void removePlayer(String teamIdentifier, Player player) {
-        getTeam(teamIdentifier).removePlayer(player);
+        addPlayerToTeam(player, teamIdentifier);
     }
 }

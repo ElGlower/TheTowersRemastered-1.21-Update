@@ -15,29 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+//Modificado por CeStart,Ripkyng,ElGlower en 2025
 
 package me.PauMAVA.TTR.ui;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public abstract class CustomUI {
+public abstract class CustomUI implements Listener {
 
     private Inventory inventory;
     private String title;
     private int size;
 
     CustomUI(int size, String title) {
+        // En 1.21, se recomienda usar Componentes de chat, pero String sigue funcionando por compatibilidad
         this.inventory = Bukkit.getServer().createInventory(null, size, title);
+        this.title = title;
+        this.size = size;
     }
 
     void openUI(Player player) {
@@ -45,22 +49,29 @@ public abstract class CustomUI {
     }
 
     void closeUI(Player player) {
-        if (player.getOpenInventory().equals(this.inventory)) {
+        // CORRECCIÓN LÓGICA 1.21:
+        // 'getOpenInventory()' devuelve una vista, no el inventario directo.
+        // Debemos comparar con 'getTopInventory()' para saber si es el nuestro.
+        if (player.getOpenInventory().getTopInventory().equals(this.inventory)) {
             player.closeInventory();
         }
     }
 
-    public void setSlot(int id, ItemStack item, @Nullable String title, @Nullable String lore) {
+    // Hemos quitado @Nullable de los argumentos 'title' y 'lore' para arreglar el error de compilación.
+    public void setSlot(int id, ItemStack item, String title, String lore) {
         if (title == null) {
             this.inventory.setItem(id, item);
             return;
         }
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(title);
-        if (lore != null) {
-            meta.setLore(new ArrayList<String>(Arrays.asList(lore)));
+        if (meta != null) {
+            meta.setDisplayName(title);
+            if (lore != null) {
+                // Arrays.asList devuelve una lista fija, ArrayList permite modificaciones si fuera necesario.
+                meta.setLore(new ArrayList<>(Arrays.asList(lore)));
+            }
+            item.setItemMeta(meta);
         }
-        item.setItemMeta(meta);
         this.inventory.setItem(id, item);
     }
 

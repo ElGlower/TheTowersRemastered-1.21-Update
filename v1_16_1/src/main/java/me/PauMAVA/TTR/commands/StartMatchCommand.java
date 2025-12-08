@@ -1,53 +1,63 @@
-/*
- * TheTowersRemastered (TTR)
- * Copyright (c) 2019-2021  Pau Machetti Vallverdú
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package me.PauMAVA.TTR.commands;
 
 import me.PauMAVA.TTR.TTRCore;
-import me.PauMAVA.TTR.lang.PluginString;
+import me.PauMAVA.TTR.match.MatchStatus;
 import me.PauMAVA.TTR.util.TTRPrefix;
-import me.PauMAVA.TTR.util.XPBarTimer;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class StartMatchCommand implements CommandExecutor {
+
     @Override
-    public boolean onCommand(CommandSender theSender, Command command, String label, String[] args) {
-        if (TTRCore.getInstance().enabled() && !TTRCore.getInstance().getCurrentMatch().isOnCourse()) {
-            int timer;
-            if (args == null || args.length == 0) {
-                timer = 10;
-            } else {
-                try {
-                    timer = Integer.parseInt(args[0]);
-                } catch (NumberFormatException e) {
-                    theSender.sendMessage(TTRPrefix.TTR_GAME + "" + ChatColor.GRAY + PluginString.ERROR_EXPECTED_INTEGER);
-                    return false;
-                }
-            }
-            try {
-                new XPBarTimer(timer, TTRCore.getInstance().getCurrentMatch().getClass().getMethod("startMatch")).runTaskTimer(TTRCore.getInstance(), 0L, 20L);
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!sender.hasPermission("ttr.admin")) {
+            sender.sendMessage(ChatColor.RED + "No tienes permiso para usar esto.");
+            return true;
+        }
+
+        if (TTRCore.getInstance().getCurrentMatch().getStatus() == MatchStatus.INGAME) {
+            sender.sendMessage(TTRPrefix.TTR_GAME + "" + ChatColor.RED + "¡La partida ya está en curso!");
+            return true;
+        }
+
+        sender.sendMessage(TTRPrefix.TTR_GAME + "" + ChatColor.GREEN + "Forzando inicio de partida...");
+
+        // --- LÓGICA DE AUTO-ASIGNACIÓN DE EQUIPOS ---
+
+        //  Convertimos el Set a ArrayList para poder usar .get() y .size()
+        List<String> teamNames = new ArrayList<>(TTRCore.getInstance().getConfigManager().getTeamNames());
+
+        if (teamNames.isEmpty()) {
+            sender.sendMessage(ChatColor.RED + "ERROR: No hay equipos configurados en config.yml");
+            return true;
+        }
+
+        Random random = new Random();
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            // Si el jugador NO tiene equipo...
+            if (TTRCore.getInstance().getTeamHandler().getPlayerTeam(p) == null) {
+                // Elegimos un equipo al azar de la lista
+                String randomTeam = teamNames.get(random.nextInt(teamNames.size()));
+
+                // Lo añadimos al equipo
+                TTRCore.getInstance().getTeamHandler().addPlayer(randomTeam, p);
+                p.sendMessage(TTRPrefix.TTR_GAME + "" + ChatColor.YELLOW + "Se te ha asignado al equipo " + randomTeam + " automáticamente.");
             }
         }
-        return false;
+        // -------------------------------------------
+
+        //  incia la partida
+        TTRCore.getInstance().getCurrentMatch().startMatch();
+
+        return true;
     }
 }

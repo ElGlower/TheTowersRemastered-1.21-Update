@@ -1,6 +1,7 @@
 /*
- * TheTowersRemastered (TTR)
- * Copyright (c) 2019-2021  Pau Machetti Vallverdú
+ * TheTowersRemastered (TTR) - 1.21 Updated Version
+ * Copyright (c) 2019-2021  Pau Machetti Vallverdú (Author Original)
+ * Copyright (c) 2025       @StartCes, @Ripkyng1, @ElGlower (Updates)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@ package me.PauMAVA.TTR.world;
 import me.PauMAVA.TTR.TTRCore;
 import org.bukkit.Difficulty;
 import org.bukkit.GameRule;
+import org.bukkit.Location;
 import org.bukkit.World;
 
 public class TTRWorldHandler {
@@ -38,12 +40,30 @@ public class TTRWorldHandler {
     }
 
     public void setUpWorld() {
-        this.matchWorld.setSpawnLocation(plugin.getConfigManager().getLobbyLocation());
+        // --- CORRECCIÓN ANTI-CRASH ---
+        Location lobbyLoc = plugin.getConfigManager().getLobbyLocation();
+
+        if (lobbyLoc != null && lobbyLoc.getWorld() != null) {
+            this.matchWorld.setSpawnLocation(lobbyLoc);
+        } else {
+            plugin.getLogger().warning("----------------------------------------------------");
+            plugin.getLogger().warning("¡AVISO DE CONFIGURACIÓN!");
+            plugin.getLogger().warning("La ubicación 'Lobby' en config.yml no es válida o es NULL.");
+            plugin.getLogger().warning("Se usará el spawn por defecto del mundo para evitar el crash.");
+            plugin.getLogger().warning("----------------------------------------------------");
+
+            // Usamos el spawn actual del mundo como respaldo seguro
+            this.matchWorld.setSpawnLocation(this.matchWorld.getSpawnLocation());
+        }
     }
 
     public void configureWeather() {
         setWeatherCycle(false);
         String weatherType = plugin.getConfigManager().getWeather();
+
+        // Protección simple por si weatherType es null
+        if (weatherType == null) weatherType = "clear";
+
         if (weatherType.equalsIgnoreCase("rain") || weatherType.equalsIgnoreCase("thunder")) {
             this.matchWorld.setStorm(true);
             if (weatherType.equalsIgnoreCase("thunder")) {
@@ -83,6 +103,4 @@ public class TTRWorldHandler {
     private void setDayLightCycle(boolean value) {
         this.matchWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, value);
     }
-
-
 }

@@ -1,129 +1,225 @@
 /*
  * TheTowersRemastered (TTR)
  * Copyright (c) 2019-2021  Pau Machetti Vallverdú
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * [Licencia...]
  */
-
 package me.PauMAVA.TTR.util;
 
 import me.PauMAVA.TTR.TTRCore;
-import me.PauMAVA.TTR.lang.PluginString;
 import me.PauMAVA.TTR.match.MatchStatus;
+import me.PauMAVA.TTR.teams.TTRTeam;
 import me.PauMAVA.TTR.ui.TeamSelector;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import me.PauMAVA.TTR.ui.BeaconShop;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
 
 public class EventListener implements Listener {
 
     private final TTRCore plugin;
-    
+
     public EventListener(TTRCore plugin) {
         this.plugin = plugin;
     }
-    
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (plugin.enabled()) {
-            plugin.getPacketInterceptor().addPlayer(event.getPlayer());
-            event.setJoinMessage(TTRPrefix.TTR_GAME + "" + ChatColor.GREEN + "+ " + ChatColor.GRAY + event.getPlayer().getName() + PluginString.ON_PLAYER_JOIN_OUTPUT);
-            if (plugin.getCurrentMatch().getStatus() == MatchStatus.PREGAME) {
-                Inventory playerInventory = event.getPlayer().getInventory();
-                playerInventory.clear();
-                playerInventory.setItem(0, new ItemStack(Material.BLACK_BANNER));
-                Location location = plugin.getConfigManager().getLobbyLocation();
-                Location copy = new Location(location.getWorld(), location.getX(), location.getY(), location.getZ());
-                copy.add(location.getX() > 0 ? 0.5 : 0.5, 0.0, location.getZ() > 0 ? 0.5 : -0.5);
-                event.getPlayer().teleport(copy);
-                plugin.getAutoStarter().addPlayerToQueue(event.getPlayer());
+        if (!plugin.enabled()) return;
+
+        Player player = event.getPlayer();
+        plugin.getPacketInterceptor().addPlayer(player);
+        event.setJoinMessage(TTRPrefix.TTR_GAME + " " + ChatColor.GREEN + "+ " + ChatColor.GRAY + player.getName());
+
+        MatchStatus status = plugin.getCurrentMatch().getStatus();
+
+        if (status == MatchStatus.PREGAME) {
+            sendToLobby(player);
+        } else if (status == MatchStatus.INGAME) {
+            TTRTeam team = plugin.getTeamHandler().getPlayerTeam(player);
+
+            if (team != null) {
+                player.sendMessage(ChatColor.GREEN + "¡Has vuelto a la partida!");
+                if (plugin.getCurrentMatch().getBossBar() != null) {
+                    plugin.getCurrentMatch().getBossBar().addPlayer(player);
+                }
+            } else {
+                sendToLobby(player);
+                player.sendMessage(ChatColor.YELLOW + "La partida está en curso. Usa la Estrella para unirte.");
             }
         }
+    }
+
+    private void sendToLobby(Player player) {
+        Inventory inv = player.getInventory();
+        inv.clear();
+
+        ItemStack selector = new ItemStack(Material.NETHER_STAR);
+        ItemMeta meta = selector.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.GREEN + "Elegir Equipo " + ChatColor.GRAY + "(Clic Derecho)");
+            selector.setItemMeta(meta);
+        }
+        inv.setItem(4, selector);
+
+        player.setGameMode(GameMode.ADVENTURE);
+        player.setHealth(20);
+        player.setFoodLevel(20);
+
+        Location loc = plugin.getConfigManager().getLobbyLocation();
+        if (loc != null && loc.getWorld() != null) player.teleport(loc);
+
+        plugin.getAutoStarter().addPlayerToQueue(player);
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         if (plugin.enabled()) {
-            event.setQuitMessage(TTRPrefix.TTR_GAME + "" + ChatColor.RED + "- " + ChatColor.GRAY + event.getPlayer().getName() + PluginString.ON_PLAYER_LEAVE_OUTPUT);
+            event.setQuitMessage(TTRPrefix.TTR_GAME + " " + ChatColor.RED + "- " + ChatColor.GRAY + event.getPlayer().getName());
             plugin.getAutoStarter().removePlayerFromQueue(event.getPlayer());
             plugin.getPacketInterceptor().removePlayer(event.getPlayer());
         }
     }
 
+    // --- PROTECCIONES DE LOBBY ---
+    private boolean canInteract(Player p) {
+        return plugin.getCurrentMatch().getStatus() == MatchStatus.INGAME &&
+                plugin.getTeamHandler().getPlayerTeam(p) != null;
+    }
+
     @EventHandler
     public void onPlayerDropEvent(PlayerDropItemEvent event) {
-        if (plugin.enabled() && !plugin.getCurrentMatch().isOnCourse()) {
-            event.setCancelled(true);
+        if (plugin.enabled() && !canInteract(event.getPlayer())) event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (plugin.enabled() && event.getWhoClicked() instanceof Player) {
+            if (!canInteract((Player) event.getWhoClicked())) event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onCreativeEvent(InventoryCreativeEvent event) {
+        if (plugin.enabled() && event.getWhoClicked() instanceof Player) {
+            if (!canInteract((Player) event.getWhoClicked())) event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void playerClickEvent(PlayerInteractEvent event) {
-        if (plugin.enabled() && !(plugin.getCurrentMatch().getStatus() == MatchStatus.INGAME)) {
-            if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                return;
-            }
+        if (!plugin.enabled()) return;
+        if (event.getItem() != null && event.getItem().getType() == Material.NETHER_STAR) {
+            new TeamSelector(event.getPlayer()).openSelector();
             event.setCancelled(true);
-            if (event.getItem() != null && event.getItem().getType() == Material.BLACK_BANNER) {
-                new TeamSelector(event.getPlayer()).openSelector();
-            }
+            return;
         }
+        if (!canInteract(event.getPlayer())) event.setCancelled(true);
     }
 
     @EventHandler
     public void placeBlockEvent(BlockPlaceEvent event) {
-        if (plugin.enabled() && !(plugin.getCurrentMatch().getStatus() == MatchStatus.INGAME)) {
-            event.getPlayer().sendMessage(TTRPrefix.TTR_GAME + "" + ChatColor.RED + PluginString.ON_PLACE_BLOCK_ERROR);
-            event.setCancelled(true);
-        }
+        if (plugin.enabled() && !canInteract(event.getPlayer())) event.setCancelled(true);
     }
 
     @EventHandler
     public void breakBlockEvent(BlockBreakEvent event) {
-        if (plugin.enabled() && !plugin.getCurrentMatch().isOnCourse()) {
-            event.getPlayer().sendMessage(TTRPrefix.TTR_GAME + "" + ChatColor.RED + PluginString.ON_BREAK_BLOCK_ERROR);
-            event.setCancelled(true);
+        if (plugin.enabled() && !canInteract(event.getPlayer())) event.setCancelled(true);
+    }
+
+    // --- NUEVO: BLOQUEO MANUAL DE FUEGO AMIGO ---
+    @EventHandler
+    public void onPvP(EntityDamageByEntityEvent event) {
+        if (!plugin.enabled()) return;
+
+        // Verificar si la víctima es un jugador
+        if (!(event.getEntity() instanceof Player)) return;
+        Player victim = (Player) event.getEntity();
+
+        Player attacker = null;
+
+        // Caso 1: Golpe directo
+        if (event.getDamager() instanceof Player) {
+            attacker = (Player) event.getDamager();
+        }
+        // Caso 2: Flechazo o Bola de Nieve
+        else if (event.getDamager() instanceof Projectile) {
+            Projectile proj = (Projectile) event.getDamager();
+            if (proj.getShooter() instanceof Player) {
+                attacker = (Player) proj.getShooter();
+            }
+        }
+
+        // Si hay atacante y víctima
+        if (attacker != null && attacker != victim) {
+            // Verificar si ambos tienen equipo
+            TTRTeam vTeam = plugin.getTeamHandler().getPlayerTeam(victim);
+            TTRTeam aTeam = plugin.getTeamHandler().getPlayerTeam(attacker);
+
+            if (vTeam != null && aTeam != null) {
+                // Si son del mismo equipo -> BLOQUEAR
+                if (vTeam.getIdentifier().equals(aTeam.getIdentifier())) {
+                    event.setCancelled(true);
+                    attacker.sendMessage(ChatColor.RED + "¡No puedes atacar a tu equipo!");
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player) {
+            Player p = (Player) event.getEntity();
+            if (plugin.enabled() && !canInteract(p)) {
+                event.setCancelled(true); // Nadie recibe daño en el Lobby
+            }
         }
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         if (plugin.enabled() && plugin.getCurrentMatch().isOnCourse()) {
-            plugin.getCurrentMatch().playerDeath(event.getEntity(), event.getEntity().getKiller());
+            if (plugin.getTeamHandler().getPlayerTeam(event.getEntity()) != null) {
+                plugin.getCurrentMatch().playerDeath(event.getEntity(), event.getEntity().getKiller());
+                event.setDeathMessage(null);
+                event.getDrops().clear();
+            }
         }
     }
 
     @EventHandler
-    public void onPlayerDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player && !(plugin.getCurrentMatch().getStatus() == MatchStatus.INGAME)) {
-            event.setCancelled(true);
+    public void onInteractBeacon(PlayerInteractEvent event) {
+        if (!plugin.enabled()) return;
+
+        // Si hace clic derecho en un BEACON
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null) {
+            if (event.getClickedBlock().getType() == Material.BEACON) {
+                // Cancelamos la interfaz vanilla del faro
+                event.setCancelled(true);
+
+                // Abrimos nuestra tienda
+                new BeaconShop().openShop(event.getPlayer());
+            }
         }
     }
-
-
 }

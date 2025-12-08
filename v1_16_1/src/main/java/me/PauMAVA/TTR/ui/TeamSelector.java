@@ -1,104 +1,72 @@
-/*
- * TheTowersRemastered (TTR)
- * Copyright (c) 2019-2021  Pau Machetti Vallverdú
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package me.PauMAVA.TTR.ui;
 
 import me.PauMAVA.TTR.TTRCore;
+import me.PauMAVA.TTR.match.MatchStatus;
 import me.PauMAVA.TTR.teams.TTRTeam;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class TeamSelector extends CustomUI implements Listener {
+public class TeamSelector implements Listener {
 
-    private Player owner;
-    private int selected = -1;
-    private String lastTeam;
+    private Player player;
+    private Inventory inv;
+
+    // Constructor
+    public TeamSelector() {}
 
     public TeamSelector(Player player) {
-        super(27, "Team Selection");
-        this.owner = player;
-        setUp();
-        TTRCore.getInstance().getServer().getPluginManager().registerEvents(this, TTRCore.getInstance());
-        TTRTeam possibleTeam = TTRCore.getInstance().getTeamHandler().getPlayerTeam(this.owner);
-        if (possibleTeam != null) {
-            for (int i = 0; i < super.getInventory().getSize(); i++) {
-                ItemStack stack = super.getInventory().getItem(i);
-                if (stack != null) {
-                    String cleanName = ChatColor.stripColor(stack.getItemMeta().getDisplayName());
-                    if (possibleTeam.getIdentifier().equalsIgnoreCase(cleanName)) {
-                        this.selected = i;
-                        addEnchantment(i);
-                        break;
-                    }
-                }
-            }
-        }
+        this.player = player;
+        this.inv = Bukkit.createInventory(null, 9, "Elige tu Equipo");
     }
 
     public void openSelector() {
-        super.openUI(this.owner);
-    }
+        // Red Team (Slot 3)
+        ItemStack red = new ItemStack(Material.RED_WOOL);
+        ItemMeta redMeta = red.getItemMeta();
+        redMeta.setDisplayName(ChatColor.RED + "Equipo Rojo");
+        red.setItemMeta(redMeta);
+        inv.setItem(3, red);
 
-    public void closeSelector() {
-        super.closeUI(this.owner);
-    }
+        // Blue Team (Slot 5)
+        ItemStack blue = new ItemStack(Material.BLUE_WOOL);
+        ItemMeta blueMeta = blue.getItemMeta();
+        blueMeta.setDisplayName(ChatColor.BLUE + "Equipo Azul");
+        blue.setItemMeta(blueMeta);
+        inv.setItem(5, blue);
 
-    public void setUp() {
-        int i = 0;
-        for (String teamName : TTRCore.getInstance().getConfigManager().getTeamNames()) {
-            setSlot(i, new ItemStack(Material.valueOf(TTRCore.getInstance().getConfigManager().getTeamColor(teamName).name() + "_WOOL"), 1), TTRCore.getInstance().getConfigManager().getTeamColor(teamName) + teamName, null);
-            i++;
-        }
+        player.openInventory(inv);
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() == super.getInventory() && event.getClickedInventory().getItem(event.getSlot()) != null) {
-            this.selected = event.getSlot();
-            setUp();
-            addEnchantment(this.selected);
-            String teamName = super.getInventory().getItem(this.selected).getItemMeta().getDisplayName();
-            TTRCore.getInstance().getTeamHandler().addPlayer(teamName, this.owner);
-            if (lastTeam != null) {
-                TTRCore.getInstance().getTeamHandler().removePlayer(teamName, this.owner);
+        if (!event.getView().getTitle().equals("Elige tu Equipo")) return;
+        event.setCancelled(true);
+
+        if (event.getCurrentItem() == null) return;
+        Player p = (Player) event.getWhoClicked();
+
+        String teamName = null;
+        if (event.getCurrentItem().getType() == Material.RED_WOOL) teamName = "Red";
+        else if (event.getCurrentItem().getType() == Material.BLUE_WOOL) teamName = "Blue";
+
+        if (teamName != null) {
+            TTRCore.getInstance().getTeamHandler().addPlayer(teamName, p);
+            p.sendMessage(ChatColor.GREEN + "Te has unido al equipo " + teamName);
+            p.closeInventory();
+
+            // --- ENTRAR SI LA PARTIDA YA EMPEZÓ ---
+            if (TTRCore.getInstance().getCurrentMatch().getStatus() == MatchStatus.INGAME) {
+                TTRCore.getInstance().getCurrentMatch().joinPlayerToMatch(p);
+                p.sendMessage(ChatColor.YELLOW + "¡Uniéndote a la partida en curso!");
             }
-            this.lastTeam = teamName;
-        }
-        if (TTRCore.getInstance().enabled() && !TTRCore.getInstance().getCurrentMatch().isOnCourse()) {
-            event.setCancelled(true);
         }
     }
-
-    private void addEnchantment(int slot) {
-        ItemStack selectedItem = super.getInventory().getItem(this.selected);
-        selectedItem.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
-        ItemMeta meta = selectedItem.getItemMeta();
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        selectedItem.setItemMeta(meta);
-        super.setSlot(slot, selectedItem, null, null);
-    }
-
 }

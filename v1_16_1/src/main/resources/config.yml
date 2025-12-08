@@ -1,0 +1,63 @@
+locale: en
+enable_on_start: true
+
+autostart:
+  enabled: true
+  count: 4
+
+match:
+  time: 1200
+  weather: CLEAR
+  maxpoints: 10
+  maxhealth: 20
+
+map:
+  lobby:
+    world: the-towers
+    x: 0.611
+    y: 207
+    z: 1014.621
+    pitch: 0.0
+    yaw: 0.0
+  ironspawns: []
+  xpspawns: []
+
+teams:
+  Red:
+    color: RED
+    spawn:
+      world: the-towers
+      x: 84.388
+      y: 192
+      z: 1152.477
+      pitch: 0.0
+      yaw: 0.0
+    cage:
+      world: the-towers
+      x: 87.302
+      y: 200.50000
+      z: 1152.512
+      pitch: 0.0
+      yaw: 0.0
+  Blue:
+    color: BLUE
+    spawn:
+      world: the-towers
+      x: -83.420
+      y: 192
+      z: 1152.548
+      pitch: 0.0
+      yaw: 0.0
+    cage:
+      world: the-towers
+      x: -83.501
+      y: 200.50000
+      z: 1152.500
+      pitch: 0.0
+      yaw: 0.0
+
+      match:
+        maxpoints: 10
+        duration: 1200
+        time: 6000
+        weather: CLEAR

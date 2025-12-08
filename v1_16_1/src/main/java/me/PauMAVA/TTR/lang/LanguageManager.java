@@ -1,11 +1,10 @@
 package me.PauMAVA.TTR.lang;
 
-import org.bukkit.configuration.file.FileConfiguration;
 import me.PauMAVA.TTR.TTRCore;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.*;
-import java.util.HashMap;
 
 public class LanguageManager {
 
@@ -17,10 +16,14 @@ public class LanguageManager {
         this.plugin = plugin;
         setUpLocales();
         extractLanguageFiles();
+
+        // Cargar el idioma seleccionado en la config
         String shortName = plugin.getConfigManager().getLocale();
         if (!setLocale(LocaleRegistry.getLocaleByShortName(shortName))) {
             plugin.getLogger().warning("Couldn't load lang " + shortName + "!");
             plugin.getLogger().warning("Loading default language lang_en...");
+
+            // Intentar cargar inglés por defecto
             if (!setLocale(LocaleRegistry.getLocaleByShortName("en"))) {
                 plugin.getLogger().severe("Failed to load default language! Plugin won't work properly!");
             } else {
@@ -36,25 +39,35 @@ public class LanguageManager {
     }
 
     private void extractLanguageFiles() {
-        HashMap<File, InputStream> streams = new HashMap<>();
-        for (Locale locale: LocaleRegistry.getLocales()) {
-            streams.put(
-                    new File(plugin.getDataFolder().getPath() + "/lang_" + locale.getShortName() + ".yml"),
-                    LanguageManager.class.getResourceAsStream("/lang_" + locale.getShortName() + ".yml")
-                    );
-        }
-        for (File destination: streams.keySet()) {
+        for (Locale locale : LocaleRegistry.getLocales()) {
+            File destination = new File(plugin.getDataFolder().getPath() + "/lang_" + locale.getShortName() + ".yml");
+            String resourcePath = "/lang-packages/lang_" + locale.getShortName() + ".yml";
+            InputStream in = LanguageManager.class.getResourceAsStream(resourcePath);
+
+            if (in == null) {
+                in = LanguageManager.class.getResourceAsStream("/lang_" + locale.getShortName() + ".yml");
+            }
+
+            if (in == null) {
+                plugin.getLogger().warning("No se encontró el archivo de idioma interno: " + resourcePath);
+                continue;
+            }
+
             try {
                 if (!destination.exists()) {
+                    if (destination.getParentFile() != null) {
+                        destination.getParentFile().mkdirs();
+                    }
                     destination.createNewFile();
-                    InputStream in = streams.get(destination);
                     byte[] buffer = new byte[in.available()];
-                    in.read(buffer);
-                    OutputStream out = new FileOutputStream(destination);
-                    out.write(buffer);
-                    in.close();
-                    out.close();
+                    int bytesRead = in.read(buffer);
+                    if (bytesRead != -1) {
+                        try (OutputStream out = new FileOutputStream(destination)) {
+                            out.write(buffer);
+                        }
+                    }
                 }
+                in.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -62,6 +75,7 @@ public class LanguageManager {
     }
 
     private boolean setLocale(Locale locale) {
+        if (locale == null) return false;
         File targetFile = new File(plugin.getDataFolder().toString() + "/lang_" + locale.getShortName() + ".yml");
         if (targetFile.exists()) {
             this.selectedLocale = locale;
@@ -80,7 +94,7 @@ public class LanguageManager {
     }
 
     public String getStringByPath(String path) {
-        if (this.languageFile.isSet(path)) {
+        if (this.languageFile != null && this.languageFile.isSet(path)) {
             String unprocessed = this.languageFile.getString(path);
             if (unprocessed == null) {
                 return "";
@@ -89,5 +103,4 @@ public class LanguageManager {
         }
         return "";
     }
-
 }
