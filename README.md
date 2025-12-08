@@ -21,7 +21,7 @@ Esta es una **modernización completa** del clásico minijuego "The Towers" adap
 * **Late Join (Entrada Tardía):** Los jugadores pueden unirse a partidas ya iniciadas, elegir equipo mediante una GUI y equiparse automáticamente.
 
 ###  Administración y Técnica
-* **Configuración en Vivo:** Nuevos comandos para cambiar la duración de la partida y los puntos objetivo sin reiniciar.
+* **Configuración en Vivo:** Nuevos comandos para cambiar la duración de la partida y los puntossin reiniciar.
 * **Lobby Blindado:** Protección total contra manipulación de inventario y destrucción de bloques en la fase de espera.
 * **Reinicio Automático:** El servidor limpia la partida y reinicia el ciclo automáticamente al finalizar.
 ---
