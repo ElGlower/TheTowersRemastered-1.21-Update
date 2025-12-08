@@ -43,16 +43,33 @@ public class TTRMatch {
         this.lootSpawner = new LootSpawner();
         this.checker = new CageChecker();
 
+        if (TTRCore.getInstance().getEventManager() != null) {
+            TTRCore.getInstance().getEventManager().startCycle();
+        }
+
         this.remainingTime = TTRCore.getInstance().getConfig().getInt("match.duration", 1200);
         this.maxPointsToWin = TTRCore.getInstance().getConfig().getInt("match.maxpoints", 10);
 
         if (this.gameBar != null) this.gameBar.removeAll();
         this.gameBar = Bukkit.createBossBar(ChatColor.LIGHT_PURPLE + "THE TOWERS", BarColor.PURPLE, BarStyle.SOLID);
 
-        if (TTRCore.getInstance().getConfigManager().getTeamCages() != null) {
-            this.checker.setCages(TTRCore.getInstance().getConfigManager().getTeamCages(), 2);
+        // --- CORRECCIÓN: Convertir Lista a Mapa ---
+        HashMap<Location, TTRTeam> cageMap = new HashMap<>();
+        for (String teamName : TTRCore.getInstance().getConfigManager().getTeamNames()) {
+            TTRTeam team = TTRCore.getInstance().getTeamHandler().getTeam(teamName);
+            List<Location> locs = TTRCore.getInstance().getConfigManager().getTeamCages(teamName);
+            if (locs != null) {
+                for (Location loc : locs) {
+                    cageMap.put(loc, team);
+                }
+            }
+        }
+
+        if (!cageMap.isEmpty()) {
+            this.checker.setCages(cageMap, 2);
             this.checker.startChecking();
         }
+        // -----------------------------------------
 
         this.lootSpawner.startSpawning();
         TTRCore.getInstance().getWorldHandler().configureTime();
@@ -94,6 +111,13 @@ public class TTRMatch {
     public void equipPlayer(Player player, String teamIdentifier) {
         ChatColor chatColor = TTRCore.getInstance().getConfigManager().getTeamColor(teamIdentifier);
         Color armorColor = (chatColor == ChatColor.RED) ? Color.RED : Color.BLUE;
+
+        Material glassMaterial = Material.WHITE_STAINED_GLASS;
+        if (chatColor == ChatColor.RED) glassMaterial = Material.RED_STAINED_GLASS;
+        else if (chatColor == ChatColor.BLUE) glassMaterial = Material.BLUE_STAINED_GLASS;
+        else if (chatColor == ChatColor.GREEN) glassMaterial = Material.LIME_STAINED_GLASS;
+        else if (chatColor == ChatColor.YELLOW) glassMaterial = Material.YELLOW_STAINED_GLASS;
+
         if (chatColor == ChatColor.GREEN) armorColor = Color.GREEN;
         if (chatColor == ChatColor.YELLOW) armorColor = Color.YELLOW;
 
@@ -112,8 +136,8 @@ public class TTRMatch {
         }
         player.getInventory().setArmorContents(armor);
         player.getInventory().addItem(new ItemStack(Material.STONE_SWORD));
-        player.getInventory().addItem(new ItemStack(Material.GLASS, 32));
-        player.getInventory().addItem(new ItemStack(Material.COOKED_BEEF, 16));
+        player.getInventory().addItem(new ItemStack(glassMaterial, 32));
+        player.getInventory().addItem(new ItemStack(Material.BREAD, 16));
     }
 
     private void startMatchTimer() {
@@ -189,7 +213,6 @@ public class TTRMatch {
         this.gameBar.setProgress(progress);
     }
 
-    // Esto se usa al reiniciar para NO mostrar títulos ni bucles
     public void cleanup() {
         if (this.lootSpawner != null) this.lootSpawner.stopSpawning();
         if (this.checker != null) this.checker.stopChecking();
@@ -199,10 +222,9 @@ public class TTRMatch {
         if (this.gameBar != null) this.gameBar.removeAll();
     }
 
-    // --- FIN DE PARTIDA ---
     public void endMatch(TTRTeam team) {
         this.status = MatchStatus.ENDED;
-        cleanup(); //terminacion
+        cleanup();
 
         List<Map.Entry<Player, Integer>> topKillers = kills.entrySet().stream()
                 .sorted(Map.Entry.<Player, Integer>comparingByValue().reversed())
@@ -232,11 +254,9 @@ public class TTRMatch {
 
         TTRCore.getInstance().getWorldHandler().restoreDifficulty();
 
-        // REINICIO AUTOMÁTICO
         new BukkitRunnable() {
             @Override
             public void run() {
-                // Llamamos al reset del Core, pero como el status ya es ENDED, no pasará nada raro
                 TTRCore.getInstance().resetMatchLogic();
             }
         }.runTaskLater(TTRCore.getInstance(), 200L);

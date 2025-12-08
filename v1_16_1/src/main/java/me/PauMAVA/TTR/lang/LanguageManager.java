@@ -12,6 +12,7 @@ public class LanguageManager {
     private Locale selectedLocale;
     private FileConfiguration languageFile;
 
+
     public LanguageManager(TTRCore plugin) {
         this.plugin = plugin;
         setUpLocales();
@@ -19,7 +20,12 @@ public class LanguageManager {
 
         // Cargar el idioma seleccionado en la config
         String shortName = plugin.getConfigManager().getLocale();
-        if (!setLocale(LocaleRegistry.getLocaleByShortName(shortName))) {
+
+        // Corrección de seguridad: Si getLocaleByShortName devuelve null, forzamos inglés
+        Locale loc = LocaleRegistry.getLocaleByShortName(shortName);
+        if (loc == null) loc = LocaleRegistry.getLocaleByShortName("en");
+
+        if (!setLocale(loc)) {
             plugin.getLogger().warning("Couldn't load lang " + shortName + "!");
             plugin.getLogger().warning("Loading default language lang_en...");
 
@@ -36,20 +42,25 @@ public class LanguageManager {
 
     private void setUpLocales() {
         LocaleRegistry.registerLocale(new Locale("ENGLISH", "en", "PauMAVA"));
+        // Aquí podrías añadir español también si quieres
+        LocaleRegistry.registerLocale(new Locale("SPANISH", "es", "PauMAVA"));
     }
+
 
     private void extractLanguageFiles() {
         for (Locale locale : LocaleRegistry.getLocales()) {
             File destination = new File(plugin.getDataFolder().getPath() + "/lang_" + locale.getShortName() + ".yml");
+            // NOTA IMPORTANTE: Tu código busca en la carpeta interna /lang-packages/
             String resourcePath = "/lang-packages/lang_" + locale.getShortName() + ".yml";
             InputStream in = LanguageManager.class.getResourceAsStream(resourcePath);
 
             if (in == null) {
+                // Intento secundario en la raíz
                 in = LanguageManager.class.getResourceAsStream("/lang_" + locale.getShortName() + ".yml");
             }
 
             if (in == null) {
-                plugin.getLogger().warning("No se encontró el archivo de idioma interno: " + resourcePath);
+                // Si sigue siendo null, no podemos extraerlo
                 continue;
             }
 

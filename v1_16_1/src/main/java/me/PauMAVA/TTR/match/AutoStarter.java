@@ -21,7 +21,7 @@ public class AutoStarter {
 
     public AutoStarter(TTRCore plugin, FileConfiguration configuration) {
         this.plugin = plugin;
-        this.enabled = false; // Forzado en false para que asi no se incie solo por si mismo
+        this.enabled = false;
         this.playersToStart = 999; // Esto lo puse en 999 porque la verdad no conozco la forma de hacerlo xd
     }
 

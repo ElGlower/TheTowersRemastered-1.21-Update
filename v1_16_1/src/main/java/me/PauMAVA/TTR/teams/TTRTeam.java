@@ -1,61 +1,56 @@
 package me.PauMAVA.TTR.teams;
 
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.UUID;
 
 public class TTRTeam {
 
-    private String identifier;
+    private final String identifier;
+    private final ChatColor color;
+    private final List<UUID> players;
     private int points;
-    private Set<String> players = new HashSet<>();
 
-    public TTRTeam(String identifier) {
+    public TTRTeam(String identifier, ChatColor color) {
         this.identifier = identifier;
+        this.color = color;
+        this.players = new ArrayList<>();
         this.points = 0;
     }
 
+    // ↓↓↓ ESTOS SON LOS MÉTODOS QUE TE FALTAN ↓↓↓
     public String getIdentifier() {
         return identifier;
     }
 
-    public int getPoints() {
-        return points;
+    public ChatColor getColor() {
+        return color;
     }
+    // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+
+    public List<UUID> getPlayers() {
+        return players;
+    }
+
+    public void addPlayer(Player player) {
+        if (!players.contains(player.getUniqueId())) {
+            players.add(player.getUniqueId());
+        }
+    }
+
+    public void removePlayer(Player player) {
+        players.remove(player.getUniqueId());
+    }
+
+    public int getPoints() { return points; }
+
+    public void addPoint() { this.points++; }
 
     public void addPoints(int amount) {
         this.points += amount;
     }
 
-    public void addPlayer(Player p) {
-        players.add(p.getName());
-    }
-
-    public void removePlayer(Player p) {
-        players.remove(p.getName());
-    }
-
-    public boolean hasPlayer(Player p) {
-        return players.contains(p.getName());
-    }
-
-    // Devuelve los NOMBRES (String) - Para guardar en config o comparar
-    public Set<String> getPlayers() {
-        return players;
-    }
-
-    // --- NUEVO MÉTODO: Devuelve JUGADORES (Player)
-    public List<Player> getOnlinePlayers() {
-        List<Player> online = new ArrayList<>();
-        for (String name : players) {
-            Player p = Bukkit.getPlayer(name);
-            if (p != null) {
-                online.add(p);
-            }
-        }
-        return online;
-    }
+    public void setPoints(int points) { this.points = points; }
 }

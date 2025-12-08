@@ -20,6 +20,8 @@ map:
     pitch: 0.0
     yaw: 0.0
   ironspawns: []
+  coal: [ ]
+  emerald: [ ]
   xpspawns: []
 
 teams:
