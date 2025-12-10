@@ -7,7 +7,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-// ↓↓↓↓↓ AQUÍ ESTABA EL ERROR (Faltaba 'implements CommandExecutor') ↓↓↓↓↓
 public class StopCommand implements CommandExecutor {
 
     @Override

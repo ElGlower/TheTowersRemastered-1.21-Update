@@ -73,7 +73,6 @@ public class CageChecker {
         Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + " " + ChatColor.GOLD + player.getName() + " ha anotado un punto!");
         for (Player p : Bukkit.getOnlinePlayers()) p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 2);
 
-        // --- USAR LÍMITE DE PUNTOS CONFIGURABLE ---
         if (playersTeam.getPoints() >= TTRCore.getInstance().getCurrentMatch().getMaxPointsToWin()) {
             TTRCore.getInstance().getCurrentMatch().endMatch(playersTeam);
         }

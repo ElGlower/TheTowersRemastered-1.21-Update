@@ -39,7 +39,6 @@ public class AutoStarter {
     private void checkStart() {
         // Método silenciado intencionalmente para control manual
         if (queue.size() >= playersToStart) {
-            // Lógica desactivada
         }
     }
 

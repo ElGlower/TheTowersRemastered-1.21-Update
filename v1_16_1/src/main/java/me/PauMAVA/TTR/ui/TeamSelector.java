@@ -1,72 +1,56 @@
 package me.PauMAVA.TTR.ui;
 
-import me.PauMAVA.TTR.TTRCore;
-import me.PauMAVA.TTR.match.MatchStatus;
-import me.PauMAVA.TTR.teams.TTRTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class TeamSelector implements Listener {
+import java.util.ArrayList;
+import java.util.List;
 
-    private Player player;
-    private Inventory inv;
+public class TeamSelector {
 
-    // Constructor
-    public TeamSelector() {}
+    public void open(Player player) {
+        Inventory gui = Bukkit.createInventory(null, 9, ChatColor.DARK_AQUA + "Seleccionar Equipo");
 
-    public TeamSelector(Player player) {
-        this.player = player;
-        this.inv = Bukkit.createInventory(null, 9, "Elige tu Equipo");
-    }
-
-    public void openSelector() {
-        // Red Team (Slot 3)
+        // --- EQUIPO ROJO ---
         ItemStack red = new ItemStack(Material.RED_WOOL);
         ItemMeta redMeta = red.getItemMeta();
         redMeta.setDisplayName(ChatColor.RED + "Equipo Rojo");
+        List<String> redLore = new ArrayList<>();
+        redLore.add(ChatColor.GRAY + "Click para unirte al");
+        redLore.add(ChatColor.GRAY + "equipo " + ChatColor.RED + "ROJO");
+        redMeta.setLore(redLore);
         red.setItemMeta(redMeta);
-        inv.setItem(3, red);
 
-        // Blue Team (Slot 5)
+        // --- EQUIPO AZUL ---
         ItemStack blue = new ItemStack(Material.BLUE_WOOL);
         ItemMeta blueMeta = blue.getItemMeta();
         blueMeta.setDisplayName(ChatColor.BLUE + "Equipo Azul");
+        List<String> blueLore = new ArrayList<>();
+        blueLore.add(ChatColor.GRAY + "Click para unirte al");
+        blueLore.add(ChatColor.GRAY + "equipo " + ChatColor.BLUE + "AZUL");
+        blueMeta.setLore(blueLore);
         blue.setItemMeta(blueMeta);
-        inv.setItem(5, blue);
 
-        player.openInventory(inv);
-    }
+        // --- ESPECTADOR (NUEVO) ---
+        ItemStack spec = new ItemStack(Material.ENDER_EYE);
+        ItemMeta specMeta = spec.getItemMeta();
+        specMeta.setDisplayName(ChatColor.GRAY + "Espectador");
+        List<String> specLore = new ArrayList<>();
+        specLore.add(ChatColor.GRAY + "Click para observar");
+        specLore.add(ChatColor.GRAY + "la partida sin jugar.");
+        specMeta.setLore(specLore);
+        spec.setItemMeta(specMeta);
 
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (!event.getView().getTitle().equals("Elige tu Equipo")) return;
-        event.setCancelled(true);
+        // Colocamos los items
+        gui.setItem(3, red);
+        gui.setItem(4, spec);
+        gui.setItem(5, blue);
 
-        if (event.getCurrentItem() == null) return;
-        Player p = (Player) event.getWhoClicked();
-
-        String teamName = null;
-        if (event.getCurrentItem().getType() == Material.RED_WOOL) teamName = "Red";
-        else if (event.getCurrentItem().getType() == Material.BLUE_WOOL) teamName = "Blue";
-
-        if (teamName != null) {
-            TTRCore.getInstance().getTeamHandler().addPlayer(teamName, p);
-            p.sendMessage(ChatColor.GREEN + "Te has unido al equipo " + teamName);
-            p.closeInventory();
-
-            // --- ENTRAR SI LA PARTIDA YA EMPEZÓ ---
-            if (TTRCore.getInstance().getCurrentMatch().getStatus() == MatchStatus.INGAME) {
-                TTRCore.getInstance().getCurrentMatch().joinPlayerToMatch(p);
-                p.sendMessage(ChatColor.YELLOW + "¡Uniéndote a la partida en curso!");
-            }
-        }
+        player.openInventory(gui);
     }
 }

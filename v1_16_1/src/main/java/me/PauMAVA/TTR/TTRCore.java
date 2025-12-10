@@ -37,11 +37,7 @@ public class TTRCore extends JavaPlugin {
 
         this.configManager = new TTRConfigManager(getConfig());
         this.teamHandler = new TTRTeamHandler();
-
-
         this.languageManager = new LanguageManager(this);
-
-
         this.eventManager = new GameEventManager();
 
         this.teamHandler.setUpDefaultTeams();
@@ -60,8 +56,9 @@ public class TTRCore extends JavaPlugin {
         }
 
         this.scoreboard = new ScoreboardHandler(this);
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "The Towers Remastered (1.21) Habilitado!");
         new me.PauMAVA.TTR.ui.TTRCustomTab(this).runTaskTimer(this, 0L, 20L);
+
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "The Towers Remastered (1.21) Habilitado!");
     }
 
     @Override
@@ -69,7 +66,6 @@ public class TTRCore extends JavaPlugin {
         if (this.currentMatch != null) this.currentMatch.cleanup();
         if (this.worldHandler != null) this.worldHandler.restoreDifficulty();
     }
-
 
     private void registerCommands() {
         registerCmd("ttrstart", new StartCommand());
@@ -81,6 +77,10 @@ public class TTRCore extends JavaPlugin {
         registerCmd("ttrforcejoin", new ForceJoinCommand());
         registerCmd("ttrconfig", new ConfigCommand());
         registerCmd("ttrevent", new EventCommand());
+        registerCmd("ttrspectate", new SpectateCommand());
+        registerCmd("ttrspectate", new SpectateCommand());
+        registerCmd("ttrplay", new JoinCommand());
+
 
         for (String cmd : getDescription().getCommands().keySet()) {
             PluginCommand pc = getCommand(cmd);

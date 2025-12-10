@@ -23,12 +23,10 @@ public class EnableDisableCommand implements CommandExecutor {
         }
 
         if (label.equalsIgnoreCase("ttrenable")) {
-            // Llama al método que acabamos de crear en ConfigManager
             plugin.getConfigManager().setEnableOnStart(true);
             sender.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.GREEN + " Juego habilitado (se activará al reiniciar).");
         }
         else if (label.equalsIgnoreCase("ttrdisable")) {
-            // Llama al método que acabamos de crear en ConfigManager
             plugin.getConfigManager().setEnableOnStart(false);
             sender.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.RED + " Juego deshabilitado (se desactivará al reiniciar).");
         }

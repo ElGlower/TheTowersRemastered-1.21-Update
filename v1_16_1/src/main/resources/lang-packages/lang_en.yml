@@ -28,8 +28,8 @@ command:
 
 gameplay:
   on_ally_cage_enter: "You can't do that!"
-  on_score: " has scored a point!" # The trailing space is necessary as this string goes after a player name
-  on_win: "WINS!" # Some context: {TEAM_NAME} WINS!
+  on_score: " has scored a point!"
+  on_win: "WINS!"
 
 
 events:

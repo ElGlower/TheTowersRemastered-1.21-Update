@@ -38,7 +38,6 @@ public abstract class CustomUI implements Listener {
     private int size;
 
     CustomUI(int size, String title) {
-        // En 1.21, se recomienda usar Componentes de chat, pero String sigue funcionando por compatibilidad
         this.inventory = Bukkit.getServer().createInventory(null, size, title);
         this.title = title;
         this.size = size;
@@ -49,15 +48,11 @@ public abstract class CustomUI implements Listener {
     }
 
     void closeUI(Player player) {
-        // CORRECCIÓN LÓGICA 1.21:
-        // 'getOpenInventory()' devuelve una vista, no el inventario directo.
-        // Debemos comparar con 'getTopInventory()' para saber si es el nuestro.
         if (player.getOpenInventory().getTopInventory().equals(this.inventory)) {
             player.closeInventory();
         }
     }
 
-    // Hemos quitado @Nullable de los argumentos 'title' y 'lore' para arreglar el error de compilación.
     public void setSlot(int id, ItemStack item, String title, String lore) {
         if (title == null) {
             this.inventory.setItem(id, item);

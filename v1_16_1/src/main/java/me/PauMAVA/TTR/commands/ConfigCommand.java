@@ -56,9 +56,7 @@ public class ConfigCommand implements CommandExecutor {
             return true;
         }
 
-        // --- ACTUALIZAR SCOREBOARD AL INSTANTE ---
         TTRCore.getInstance().getScoreboard().refreshScoreboard();
-        // ----------------------------------------
 
         return true;
     }

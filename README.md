@@ -5,37 +5,46 @@
 
 Esta es una **modernización completa** del clásico minijuego "The Towers" adaptada para servidores de Minecraft **1.21**, optimizada específicamente para funcionar con la API de **PaperMC**.
 
+## 📥 Descarga
+Puedes obtener la última versión compilada (.jar) directamente aquí:
+> [**Descargar The Towers Remastered v1.21**](https://www.mediafire.com/file/w7d58nv239yqole/TheTowersRemastered.21-1.4-1.21.jar/file)
+
 ---
 
 ## ✨ Novedades Principales (v1.21)
 
-###  Combate y Balance
-* **PvP 1.9+ Nativo:** Se ha habilitado el sistema de "Cooldown" para un combate táctico (adiós al spam-click).
-* **Anti-Fuego Amigo:** Bloqueo total de daño entre compañeros de equipo (incluyendo flechas y pociones).
-* **Regeneración en Base:** Los jugadores recuperan salud automáticamente al defender su zona de aparición.
-* **Kits Balanceados:** Equipamiento inicial ajustado (Espada de piedra, bloques, comida).
 
-###  Nuevas Mecánicas
-* **Tienda de Faro (Beacon Shop):** Al hacer clic derecho en un Faro con esmeraldas, se pueden comprar efectos globales para el equipo.
-* **Sistema de Eventos (Chaos System):** Eventos aleatorios (Gravedad Lunar, Ceguera, Velocidad) ocurren cada 3 minutos para dinamizar la partida.
-* **Late Join (Entrada Tardía):** Los jugadores pueden unirse a partidas ya iniciadas, elegir equipo mediante una GUI y equiparse automáticamente.
+### Tienda y Economía (Beacon Shop)
+* **GUI Interactiva:** Nueva interfaz visual organizada en categorías (Bloques, Utilidad, Mejoras).
+* **Sistema de Moneda Física:** Usa **Esmeraldas** y **Carbón** recolectados en el mapa para comerciar.
+* **Catálogo Expandido:**
+    * **Armamento:** Espadas, Arcos y Escudos.
+    * **Utilidad:** Pociones, TNT, Ender Pearls y las nuevas **Cargas de Viento (1.21)**.
+    * **Team Upgrades:** Mejoras permanentes para todo el equipo (Protección, Haste, Speed).
 
-###  Administración y Técnica
-* **Configuración en Vivo:** Nuevos comandos para cambiar la duración de la partida y los puntossin reiniciar.
-* **Lobby Blindado:** Protección total contra manipulación de inventario y destrucción de bloques en la fase de espera.
-* **Reinicio Automático:** El servidor limpia la partida y reinicia el ciclo automáticamente al finalizar.
+### Gestión de Jugadores y Lobby
+* **Entrada Segura (Join System):** Sistema de "Soft-Reset" automático. Al entrar, el jugador es limpiado (inventario/efectos/vida) y puesto en modo Aventura.
+* **Lobby Blindado:** Protección total contra manipulación de inventario o destrucción de bloques en la zona de espera.
+* **Late Join:** Soporte para reingreso de jugadores en partidas iniciadas sin perder el balance.
+
+### Administración y Técnica
+* **Configuración Dinámica:** Persistencia de datos (`config.yml`) para ubicaciones y ajustes.
+* **Sistema de Eventos (Chaos System):** Eventos aleatorios (Gravedad Lunar, Ceguera) para dinamizar la partida.
+* **Reinicio Automático:** El servidor limpia la partida y reinicia el ciclo al finalizar.
+
 ---
 
-## Comandos
+## 📜 Comandos
 
 | Comando | Permiso | Descripción |
 | :--- | :--- | :--- |
+| `/setlobby` | `ttr.admin` | **Nuevo:** Establece el punto de aparición del Lobby en tu posición. |
 | `/ttrstart` | `ttr.admin` | Inicia la partida manualmente. |
 | `/ttrstop` | `ttr.admin` | Detiene la partida y fuerza el reinicio. |
-| `/ttrconfig <time/points> <valor>` | `ttr.admin` | Cambia duración o puntos en vivo. |
-| `/ttrevent <tipo/auto> [on/off]` | `ttr.admin` | Controla eventos aleatorios. |
-| `/ttrforcejoin <jugador> <equipo>` | `ttr.admin` | Fuerza a un jugador a entrar en un equipo. |
-| `/ttrset` | `ttr.admin` | Configura los spawns y jaulas. |
+| `/ttrconfig` | `ttr.admin` | Cambia duración o puntos en vivo. |
+| `/ttrevent` | `ttr.admin` | Controla eventos aleatorios manualmente. |
+| `/ttrforcejoin` | `ttr.admin` | Fuerza a un jugador a entrar en un equipo. |
+| `/ttrset` | `ttr.admin` | Configura los spawns de equipo y jaulas. |
 
 ---
 
@@ -52,11 +61,3 @@ Este proyecto es software libre. Puedes redistribuirlo y/o modificarlo bajo los 
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see [http://www.gnu.org/licenses/](http://www.gnu.org/licenses/).

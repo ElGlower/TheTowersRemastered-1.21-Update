@@ -27,16 +27,13 @@ public class PacketInterceptor implements Listener {
     }
 
     public void addPlayer(Player player) {
-        // Método vacío por compatibilidad con llamadas antiguas
     }
 
     public void removePlayer(Player player) {
-        // Método vacío por compatibilidad
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
-        // Si el juego no está activo, dejamos el chat normal de Minecraft
         if (!plugin.enabled() || plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
             return;
         }
@@ -45,18 +42,15 @@ public class PacketInterceptor implements Listener {
         String message = event.getMessage();
         TTRTeam team = plugin.getTeamHandler().getPlayerTeam(player);
 
-        // Cancelamos el evento original para enviar nuestro propio mensaje formateado
         event.setCancelled(true);
 
         if (team != null) {
             ChatColor teamColor = plugin.getConfigManager().getTeamColor(team.getIdentifier());
-            // Formato: [ROJO] Player: Hola
             String format = ChatColor.GRAY + "[" + teamColor + team.getIdentifier() + ChatColor.GRAY + "] "
                     + teamColor + player.getName() + ChatColor.WHITE + ": " + message;
 
             Bukkit.broadcastMessage(format);
         } else {
-            // Espectadores o sin equipo
             String format = ChatColor.GRAY + "[Espectador] " + player.getName() + ": " + message;
             Bukkit.broadcastMessage(format);
         }

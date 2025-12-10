@@ -12,9 +12,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public class ReflectionUtils {
-
-    // En versiones modernas (1.21), ya no usamos versiones en el nombre del paquete (v1_XX_R1).
-    // Mantenemos la variable solo para evitar errores si otro archivo la llama.
     private static String version = "";
 
     static {
@@ -25,24 +22,10 @@ public class ReflectionUtils {
                 version = parts[3];
             }
         } catch (Exception e) {
-            // Ignoramos errores de versión ya que no usamos NMS
         }
     }
 
-    /*
-     * -------------------------------------------------------------------------
-     * LIMPIEZA PARA MINECRAFT 1.21
-     * Se han eliminado los métodos: getPlayerConnection, getPlayerChannel,
-     * sendNMSPacketToPlayer y createNMSInstance.
-     *
-     * CAUSA: Usaban librerías (Netty) y nombres (NMS) que ya no existen.
-     * SOLUCIÓN: Los archivos que usaban esto (CustomTab y PacketInterceptor)
-     * ya fueron actualizados para usar la API oficial de Spigot.
-     * -------------------------------------------------------------------------
-     */
 
-    // Mantenemos estos métodos genéricos por si alguna parte del plugin los usa
-    // para cosas simples (no relacionadas con NMS).
 
     public static void setField(Class<?> clazz, Object instance, String fieldName, Object value) {
         try {

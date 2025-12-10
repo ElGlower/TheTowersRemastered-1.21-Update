@@ -26,15 +26,12 @@ public class TTRCustomTab extends BukkitRunnable {
     }
 
     private void updateTabList(Player player) {
-        // --- HEADER ---
         String header = "\n" +
                 ChatColor.DARK_GRAY + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" + "\n" +
                 ChatColor.GOLD + "" + ChatColor.BOLD + " THE TOWERS " + ChatColor.YELLOW + "REMASTERED" + "\n" +
                 "\n" +
                 ChatColor.GRAY + "Estado: " + getMatchStatus() + "\n" +
                 ChatColor.DARK_GRAY + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" + "\n";
-
-        // --- FOOTER ---
         String footer = "\n" +
                 ChatColor.DARK_GRAY + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" + "\n" +
                 ChatColor.AQUA + "Jugadores: " + ChatColor.WHITE + Bukkit.getOnlinePlayers().size() + "/" + Bukkit.getMaxPlayers() +
@@ -52,7 +49,6 @@ public class TTRCustomTab extends BukkitRunnable {
         String formattedName;
 
         if (team != null) {
-            // Usamos getColor() que ya arreglamos en TTRTeam
             ChatColor color = team.getColor();
             formattedName = ChatColor.DARK_GRAY + "[" + color + team.getIdentifier().charAt(0) + ChatColor.DARK_GRAY + "] "
                     + color + player.getName();
@@ -72,8 +68,6 @@ public class TTRCustomTab extends BukkitRunnable {
         if (plugin.getCurrentMatch().getStatus() == MatchStatus.INGAME) {
             String time = plugin.getCurrentMatch().getFormattedTime();
             return ChatColor.GREEN + "En Curso " + ChatColor.GRAY + "(" + ChatColor.WHITE + time + ChatColor.GRAY + ")";
-
-            // ↓↓↓ AQUÍ ESTABA EL ERROR: CAMBIADO PREGAME POR LOBBY ↓↓↓
         } else if (plugin.getCurrentMatch().getStatus() == MatchStatus.LOBBY) {
             return ChatColor.YELLOW + "Esperando Jugadores...";
         } else {
