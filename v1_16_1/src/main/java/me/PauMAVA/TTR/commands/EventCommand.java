@@ -15,8 +15,7 @@ public class EventCommand implements CommandExecutor {
             sender.sendMessage(TTRPrefix.TTR_ADMIN + " No tienes permisos.");
             return true;
         }
-
-        if (args.length == 0) {
+         if (args.length == 0) {
             sender.sendMessage(ChatColor.GREEN + "Forzando evento aleatorio...");
             TTRCore.getInstance().getEventManager().triggerRandomEvent();
             return true;

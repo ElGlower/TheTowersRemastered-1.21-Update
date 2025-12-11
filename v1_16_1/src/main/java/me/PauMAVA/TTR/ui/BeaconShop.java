@@ -16,6 +16,7 @@ import java.util.List;
 
 public class BeaconShop {
 
+    // Títulos de los menús (Deben coincidir con lo que busca el Listener)
     public static final String TITLE_MAIN = ChatColor.DARK_PURPLE + "Tienda del Faro";
     public static final String TITLE_BLOCKS = ChatColor.DARK_BLUE + "TTR: Bloques y Armas";
     public static final String TITLE_UTILITY = ChatColor.DARK_GREEN + "TTR: Utilidad y Magia";
@@ -37,19 +38,23 @@ public class BeaconShop {
         Inventory gui = Bukkit.createInventory(null, 45, TITLE_BLOCKS);
         addBackButton(gui);
 
+        // Bloques Básicos
         gui.setItem(10, createItem(Material.WHITE_WOOL, ChatColor.YELLOW + "Lana (x32)", 4, Material.EMERALD));
         gui.setItem(11, createItem(Material.OAK_PLANKS, ChatColor.YELLOW + "Madera (x16)", 8, Material.EMERALD));
         gui.setItem(12, createItem(Material.END_STONE, ChatColor.YELLOW + "Piedra End (x12)", 12, Material.EMERALD));
         gui.setItem(13, createItem(Material.OBSIDIAN, ChatColor.DARK_PURPLE + "Obsidiana (x4)", 4, Material.COAL));
 
+        // Armas
         gui.setItem(19, createItem(Material.STONE_SWORD, ChatColor.GRAY + "Espada de Piedra", 5, Material.EMERALD));
         gui.setItem(20, createItem(Material.IRON_SWORD, ChatColor.WHITE + "Espada de Hierro", 10, Material.EMERALD));
         gui.setItem(21, createItem(Material.DIAMOND_SWORD, ChatColor.AQUA + "Espada de Diamante", 20, Material.COAL));
         gui.setItem(22, createItem(Material.SHIELD, ChatColor.YELLOW + "Escudo Frágil", 10, Material.EMERALD, "¡Cuidado! Se rompe rápido."));
 
+        // Arcos
         gui.setItem(23, createItem(Material.BOW, ChatColor.GREEN + "Arco", 12, Material.EMERALD));
         gui.setItem(24, createItem(Material.ARROW, ChatColor.YELLOW + "Flechas (x8)", 2, Material.EMERALD));
 
+        // Herramientas
         gui.setItem(28, createItem(Material.SHEARS, ChatColor.WHITE + "Tijeras", 5, Material.EMERALD));
         gui.setItem(29, createItem(Material.DIAMOND_PICKAXE, ChatColor.AQUA + "Pico de Diamante", 10, Material.COAL));
 
@@ -60,14 +65,18 @@ public class BeaconShop {
         Inventory gui = Bukkit.createInventory(null, 45, TITLE_UTILITY);
         addBackButton(gui);
 
+        // Comida
         gui.setItem(10, createItem(Material.BREAD, ChatColor.YELLOW + "Pan (x4)", 2, Material.EMERALD));
         gui.setItem(11, createItem(Material.GOLDEN_APPLE, ChatColor.GOLD + "Manzana Dorada", 4, Material.COAL));
 
+        // Explosivos y Magia
         gui.setItem(13, createItem(Material.TNT, ChatColor.RED + "TNT", 8, Material.COAL));
-        gui.setItem(14, createItem(Material.FIRE_CHARGE, ChatColor.RED + "Bola de Fuego", 10, Material.COAL));
+        gui.setItem(14, createItem(Material.FIRE_CHARGE, ChatColor.RED + "Bola de Fuego", 10, Material.COAL, "¡Lánzala con click derecho!"));
+        // Ítem exclusivo de la 1.21
         gui.setItem(15, createItem(Material.WIND_CHARGE, ChatColor.AQUA + "Carga de Viento (x2)", 12, Material.COAL, "¡Impúlsate por los aires!"));
         gui.setItem(16, createItem(Material.ENDER_PEARL, ChatColor.DARK_AQUA + "Ender Pearl", 15, Material.COAL));
 
+        // Pociones
         gui.setItem(28, createItem(Material.POTION, ChatColor.BLUE + "Poción de Salto", 5, Material.EMERALD, "Salto II (45s)"));
         gui.setItem(29, createItem(Material.POTION, ChatColor.LIGHT_PURPLE + "Poción de Regeneración", 10, Material.COAL, "Regeneración II (10s)"));
         gui.setItem(30, createItem(Material.SPLASH_POTION, ChatColor.RED + "Splash de Daño", 12, Material.COAL, "Daño Instantáneo II"));
@@ -79,11 +88,13 @@ public class BeaconShop {
         Inventory gui = Bukkit.createInventory(null, 45, TITLE_UPGRADES);
         addBackButton(gui);
 
-        gui.setItem(11, createEnchantedItem(Material.IRON_CHESTPLATE, ChatColor.GREEN + "Team Prot I", 10, Material.COAL, "Protección I para todos."));
-        gui.setItem(12, createEnchantedItem(Material.IRON_CHESTPLATE, ChatColor.GREEN + "Team Prot II", 20, Material.COAL, "Protección II para todos.", "Requiere Nivel I"));
-        gui.setItem(13, createEnchantedItem(Material.DIAMOND_CHESTPLATE, ChatColor.AQUA + "Team Prot III", 30, Material.COAL, "Protección III para todos.", "Requiere Nivel II"));
-        gui.setItem(14, createEnchantedItem(Material.NETHERITE_CHESTPLATE, ChatColor.LIGHT_PURPLE + "Team Prot IV", 50, Material.COAL, "Protección IV para todos.", "Requiere Nivel III"));
+        // Mejoras de Armadura (Nombres clave: I, II, III, IV)
+        gui.setItem(10, createEnchantedItem(Material.IRON_CHESTPLATE, ChatColor.GREEN + "Team Prot I", 10, Material.COAL, "Protección I para todos."));
+        gui.setItem(11, createEnchantedItem(Material.IRON_CHESTPLATE, ChatColor.GREEN + "Team Prot II", 20, Material.COAL, "Protección II para todos.", "Requiere Nivel I"));
+        gui.setItem(12, createEnchantedItem(Material.DIAMOND_CHESTPLATE, ChatColor.AQUA + "Team Prot III", 30, Material.COAL, "Protección III para todos.", "Requiere Nivel II"));
+        gui.setItem(13, createEnchantedItem(Material.NETHERITE_CHESTPLATE, ChatColor.LIGHT_PURPLE + "Team Prot IV", 50, Material.COAL, "Protección IV para todos.", "Requiere Nivel III"));
 
+        // Mejoras de Efectos
         gui.setItem(29, createItem(Material.SUGAR, ChatColor.AQUA + "Team Speed", 25, Material.COAL, "Velocidad I permanente."));
         gui.setItem(31, createItem(Material.GOLDEN_PICKAXE, ChatColor.GOLD + "Team Haste", 25, Material.COAL, "Prisa Minera I permanente."));
 
@@ -94,6 +105,7 @@ public class BeaconShop {
         gui.setItem(40, createItem(Material.ARROW, ChatColor.RED + "Volver", 0, null));
     }
 
+    // Método auxiliar para crear ítems con Lore de precio
     private ItemStack createItem(Material mat, String name, int price, Material currency, String... loreLines) {
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
@@ -105,20 +117,22 @@ public class BeaconShop {
         if (price > 0 && currency != null) {
             String currencyName = (currency == Material.EMERALD) ? "Esmeraldas" : "Carbón";
             ChatColor currencyColor = (currency == Material.EMERALD) ? ChatColor.GREEN : ChatColor.DARK_GRAY;
+            // IMPORTANTE: Este formato es el que lee el Listener ("Costo: X Y")
             lore.add(ChatColor.GRAY + "Costo: " + currencyColor + price + " " + currencyName);
         }
 
         meta.setLore(lore);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES); // Ocultar daño de ataque, etc.
         item.setItemMeta(meta);
         return item;
     }
 
+    // Método auxiliar para ítems que brillan (Mejoras)
     private ItemStack createEnchantedItem(Material mat, String name, int price, Material currency, String... loreLines) {
         ItemStack item = createItem(mat, name, price, currency, loreLines);
         ItemMeta meta = item.getItemMeta();
-        meta.addEnchant(Enchantment.PROTECTION, 1, true);
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.addEnchant(Enchantment.PROTECTION, 1, true); // Brillo falso
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS); // Ocultar texto del encantamiento
         item.setItemMeta(meta);
         return item;
     }

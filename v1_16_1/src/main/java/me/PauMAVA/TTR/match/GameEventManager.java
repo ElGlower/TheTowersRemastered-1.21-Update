@@ -18,10 +18,10 @@ import java.util.Random;
 
 public class GameEventManager {
 
-    private boolean autoMode = true; // Automático por defecto
-    private int cycleTaskID = -1;    // El reloj que cuenta 3 minutos
-    private int stopTaskID = -1;     // El reloj que cuenta los 60s del evento
-    private int actionTaskID = -1;   // La acción repetitiva (ej: lluvia de meteoritos)
+    private boolean autoMode = true;
+    private int cycleTaskID = -1;
+    private int stopTaskID = -1;
+    private int actionTaskID = -1;
 
     private final Random random = new Random();
     private final String[] events = {"jump", "speed", "blind", "meteors", "giga", "mini"};

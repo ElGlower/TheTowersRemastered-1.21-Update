@@ -41,7 +41,6 @@ public class ScoreboardHandler {
         }
     }
 
-    // Este método es necesario para que ConfigCommand no de error
     public void refreshScoreboard() {
         updateAll();
     }
@@ -80,7 +79,7 @@ public class ScoreboardHandler {
         }
 
         obj.getScore("§7---------------- ").setScore(1);
-        obj.getScore("§ewww.ttr.com").setScore(0);
+        obj.getScore("§eSINDICATO").setScore(0);
 
         player.setScoreboard(board);
     }

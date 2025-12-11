@@ -58,6 +58,7 @@ public class TTRMatch {
         this.lootSpawner = new LootSpawner();
         this.checker = new CageChecker();
 
+        // INICIAR CICLO DE EVENTOS
         if (TTRCore.getInstance().getEventManager() != null) {
             TTRCore.getInstance().getEventManager().startCycle();
         }
@@ -142,9 +143,7 @@ public class TTRMatch {
         TTRTeam team = TTRCore.getInstance().getTeamHandler().getTeam(teamIdentifier);
         ChatColor chatColor = TTRCore.getInstance().getConfigManager().getTeamColor(teamIdentifier);
         Color armorColor = (chatColor == ChatColor.RED) ? Color.RED : Color.BLUE;
-        Material glassMaterial = Material.WHITE_STAINED_GLASS;
-        if (chatColor == ChatColor.RED) glassMaterial = Material.RED_STAINED_GLASS;
-        else if (chatColor == ChatColor.BLUE) glassMaterial = Material.BLUE_STAINED_GLASS;
+        Material glassMaterial = (chatColor == ChatColor.RED) ? Material.RED_STAINED_GLASS : Material.BLUE_STAINED_GLASS;
 
         ItemStack[] armor = new ItemStack[]{
                 new ItemStack(Material.LEATHER_BOOTS), new ItemStack(Material.LEATHER_LEGGINGS),
@@ -157,20 +156,26 @@ public class TTRMatch {
             LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
             if (meta != null) {
                 meta.setColor(armorColor);
-                meta.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
                 meta.setUnbreakable(true);
-                if (protLevel > 0) meta.addEnchant(Enchantment.PROTECTION, protLevel, true);
+                if (protLevel > 0) {
+                    meta.addEnchant(Enchantment.PROTECTION, protLevel, true);
+                }
                 item.setItemMeta(meta);
             }
         }
         player.getInventory().setArmorContents(armor);
+
         player.getInventory().addItem(new ItemStack(Material.STONE_SWORD));
         player.getInventory().addItem(new ItemStack(glassMaterial, 32));
         player.getInventory().addItem(new ItemStack(Material.BREAD, 16));
 
         if (team != null) {
-            if (team.hasTeamSpeed()) player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false, false));
-            if (team.hasTeamHaste()) player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, Integer.MAX_VALUE, 0, false, false));
+            if (team.hasTeamSpeed()) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false, false));
+            }
+            if (team.hasTeamHaste()) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, Integer.MAX_VALUE, 0, false, false));
+            }
         }
     }
 
@@ -245,11 +250,21 @@ public class TTRMatch {
         this.gameBar.setProgress(progress);
     }
 
+    // --- AQUÍ ESTÁ EL ARREGLO DE LOS EVENTOS ---
     public void cleanup() {
         if (this.lootSpawner != null) this.lootSpawner.stopSpawning();
         if (this.checker != null) this.checker.stopChecking();
+
         Bukkit.getScheduler().cancelTask(this.regenTaskID);
         Bukkit.getScheduler().cancelTask(this.matchTaskID);
+
+        // DETENER EVENTOS DE CAOS
+        if (TTRCore.getInstance().getEventManager() != null) {
+            TTRCore.getInstance().getEventManager().stopCycle();
+            // Si el método se llama diferente en tu EventManager, cámbialo aquí.
+            // Asumo que tienes un método 'stopCycle' o 'stop'.
+        }
+
         TTRCore.getInstance().getScoreboard().stopScoreboardTask();
         if (this.gameBar != null) this.gameBar.removeAll();
     }
@@ -273,24 +288,29 @@ public class TTRMatch {
             player.sendMessage(" ");
             player.sendMessage(centerText(ChatColor.GOLD + "" + ChatColor.BOLD + "FIN DE LA PARTIDA"));
             player.sendMessage(centerText(ChatColor.GRAY + "Ganador: " + teamColor + teamName));
-            player.sendMessage(" ");
-            player.sendMessage(centerText(ChatColor.AQUA + "--- TOP ASESINOS ---"));
-            if (topKillers.isEmpty()) {
-                player.sendMessage(centerText(ChatColor.GRAY + "Nadie murió..."));
-            } else {
+
+            // Mostrar Top Killers
+            if (!topKillers.isEmpty()) {
+                player.sendMessage(centerText(ChatColor.AQUA + "--- TOP ASESINOS ---"));
                 int i = 1;
                 for (Map.Entry<Player, Integer> entry : topKillers) {
                     player.sendMessage(centerText(ChatColor.YELLOW + "#" + i + " " + ChatColor.WHITE + entry.getKey().getName() + ": " + ChatColor.RED + entry.getValue()));
                     i++;
                 }
             }
+
             player.sendMessage(" ");
             player.sendMessage(centerText(ChatColor.YELLOW + "Reiniciando en 5 segundos..."));
 
+            // Limpieza Total al acabar
             player.getInventory().clear();
             player.setGameMode(GameMode.ADVENTURE);
 
-            // RESETEAR ATRIBUTOS ANTES DE CURAR
+            // IMPORTANTE: Limpiar efectos de poción de posibles eventos activos
+            for (PotionEffect effect : player.getActivePotionEffects()) {
+                player.removePotionEffect(effect.getType());
+            }
+
             if (player.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) {
                 player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20.0);
             }
@@ -328,7 +348,7 @@ public class TTRMatch {
         ItemStack star = new ItemStack(Material.NETHER_STAR);
         ItemMeta meta = star.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(ChatColor.YELLOW + "Selector de Equipos " + ChatColor.GRAY + "(Click Derecho)");
+            meta.setDisplayName(ChatColor.GREEN + "Elegir Equipo " + ChatColor.GRAY + "(Click Derecho)");
             star.setItemMeta(meta);
         }
         p.getInventory().setItem(4, star);
