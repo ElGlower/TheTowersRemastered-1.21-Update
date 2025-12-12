@@ -20,23 +20,24 @@ public class TTRCustomTab extends BukkitRunnable {
     public void run() {
         if (!plugin.enabled()) return;
 
+        // Actualizamos para todos los jugadores conectados
         for (Player player : Bukkit.getOnlinePlayers()) {
             updateTabList(player);
         }
     }
 
     private void updateTabList(Player player) {
+        // --- HEADER: Información del Servidor y Estado ---
         String header = "\n" +
-                ChatColor.DARK_GRAY + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" + "\n" +
-                ChatColor.GOLD + "" + ChatColor.BOLD + " THE TOWERS " + ChatColor.YELLOW + "REMASTERED" + "\n" +
+                ChatColor.GOLD + "" + ChatColor.BOLD + " THE TOWERS " + "\n" +
+                ChatColor.GRAY + "Remastered 1.21" + "\n" +
                 "\n" +
-                ChatColor.GRAY + "Estado: " + getMatchStatus() + "\n" +
-                ChatColor.DARK_GRAY + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" + "\n";
+                getMatchStatus() + "\n";
+
+        // --- FOOTER: Ping y Jugadores ---
         String footer = "\n" +
-                ChatColor.DARK_GRAY + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" + "\n" +
-                ChatColor.AQUA + "Jugadores: " + ChatColor.WHITE + Bukkit.getOnlinePlayers().size() + "/" + Bukkit.getMaxPlayers() +
-                ChatColor.GRAY + "  |  " +
-                ChatColor.GREEN + "Ping: " + player.getPing() + "ms" + "\n" +
+                ChatColor.GRAY + "Jugadores: " + ChatColor.AQUA + Bukkit.getOnlinePlayers().size() +
+                ChatColor.GRAY + "  |  Ping: " + getPingColor(player.getPing()) + player.getPing() + "ms" + "\n" +
                 "\n" +
                 ChatColor.YELLOW + "DESTINY OWNERS HOST" + "\n";
 
@@ -48,30 +49,58 @@ public class TTRCustomTab extends BukkitRunnable {
         TTRTeam team = plugin.getTeamHandler().getPlayerTeam(player);
         String formattedName;
 
+        // Obtenemos kills si la partida está en curso
+        String killsInfo = "";
+        if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().getStatus() == MatchStatus.INGAME) {
+            int kills = plugin.getCurrentMatch().getKills(player);
+            killsInfo = ChatColor.GRAY + " [" + ChatColor.WHITE + kills + ChatColor.GRAY + "]";
+        }
+
         if (team != null) {
+            // --- AQUÍ ESTÁ EL TRUCO DEL ORDEN ---
+            // Al poner el color primero, Minecraft agrupa los colores iguales.
+            // §9 (Azul) viene antes que §c (Rojo) en la lista de códigos de Minecraft.
+            // Así que los Azules saldrán arriba y los Rojos abajo (o viceversa), pero JUNTOS.
+
+            String teamPrefix = team.getIdentifier().substring(0, 1).toUpperCase(); // "R" o "B"
             ChatColor color = team.getColor();
-            formattedName = ChatColor.DARK_GRAY + "[" + color + team.getIdentifier().charAt(0) + ChatColor.DARK_GRAY + "] "
-                    + color + player.getName();
+
+            // Formato: " R | Nombre [0]"
+            formattedName = color + " " + teamPrefix + " | " + player.getName() + killsInfo;
+
         } else {
+            // Espectadores o gente sin equipo
             if (player.isOp()) {
-                formattedName = ChatColor.RED + "ADMIN " + ChatColor.WHITE + player.getName();
+                formattedName = ChatColor.RED + " ADMIN " + ChatColor.WHITE + player.getName();
             } else {
-                formattedName = ChatColor.GRAY + player.getName();
+                formattedName = ChatColor.GRAY + " " + player.getName();
             }
         }
+
+        // Aplicamos el nombre en el TAB
         player.setPlayerListName(formattedName);
     }
 
     private String getMatchStatus() {
-        if (plugin.getCurrentMatch() == null) return ChatColor.RED + "Desactivado"; // Protección extra
+        if (plugin.getCurrentMatch() == null) return ChatColor.RED + "Offline";
 
-        if (plugin.getCurrentMatch().getStatus() == MatchStatus.INGAME) {
+        MatchStatus status = plugin.getCurrentMatch().getStatus();
+
+        if (status == MatchStatus.INGAME) {
             String time = plugin.getCurrentMatch().getFormattedTime();
-            return ChatColor.GREEN + "En Curso " + ChatColor.GRAY + "(" + ChatColor.WHITE + time + ChatColor.GRAY + ")";
-        } else if (plugin.getCurrentMatch().getStatus() == MatchStatus.LOBBY) {
-            return ChatColor.YELLOW + "Esperando Jugadores...";
+            return ChatColor.GREEN + "En Partida " + ChatColor.DARK_GRAY + "» " + ChatColor.WHITE + time;
+        } else if (status == MatchStatus.LOBBY) {
+            return ChatColor.YELLOW + "Esperando...";
+        } else if (status == MatchStatus.STARTING) {
+            return ChatColor.GOLD + "Iniciando...";
         } else {
-            return ChatColor.RED + "Finalizado";
+            return ChatColor.RED + "Terminado";
         }
+    }
+
+    private ChatColor getPingColor(int ping) {
+        if (ping < 60) return ChatColor.GREEN;
+        if (ping < 150) return ChatColor.YELLOW;
+        return ChatColor.RED;
     }
 }

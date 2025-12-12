@@ -1,7 +1,6 @@
 package me.PauMAVA.TTR.commands;
 
 import me.PauMAVA.TTR.TTRCore;
-import me.PauMAVA.TTR.util.TTRPrefix;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -11,52 +10,55 @@ public class ConfigCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // 1. Verificar Permisos
         if (!sender.hasPermission("ttr.admin")) {
-            sender.sendMessage(ChatColor.RED + "No tienes permiso.");
+            sender.sendMessage(ChatColor.RED + "No tienes permiso para usar este comando.");
             return true;
         }
 
+        // 2. Verificar Argumentos
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.GOLD + "--- Configuración TTR ---");
-            sender.sendMessage(ChatColor.YELLOW + "/ttrconfig time <segundos>");
-            sender.sendMessage(ChatColor.YELLOW + "/ttrconfig points <cantidad>");
+            sender.sendMessage(ChatColor.RED + "Uso correcto: /ttrconfig <time/points> <valor>");
             return true;
         }
 
-        String type = args[0].toLowerCase();
+        String sub = args[0].toLowerCase();
         int value;
 
+        // 3. Intentar leer el número
         try {
             value = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
-            sender.sendMessage(ChatColor.RED + "El valor debe ser un número.");
+            sender.sendMessage(ChatColor.RED + "Error: '" + args[1] + "' no es un número válido.");
             return true;
         }
 
-        if (type.equals("time") || type.equals("tiempo")) {
+        // 4. Lógica de Configuración
+        if (sub.equals("time") || sub.equals("tiempo")) {
+            // Guardar en config.yml
             TTRCore.getInstance().getConfig().set("match.duration", value);
             TTRCore.getInstance().saveConfig();
 
+            // Si la partida está activa, actualizar el tiempo en vivo
             if (TTRCore.getInstance().getCurrentMatch() != null) {
                 TTRCore.getInstance().getCurrentMatch().setRemainingTime(value);
             }
-            sender.sendMessage(TTRPrefix.TTR_GAME + " " + ChatColor.GREEN + "Tiempo establecido a " + value + " segundos.");
+            sender.sendMessage(ChatColor.GREEN + "✔ Tiempo de partida establecido a: " + ChatColor.YELLOW + value + " segundos.");
 
-        } else if (type.equals("points") || type.equals("puntos")) {
+        } else if (sub.equals("points") || sub.equals("puntos") || sub.equals("maxpoints")) {
+            // Guardar en config.yml
             TTRCore.getInstance().getConfig().set("match.maxpoints", value);
             TTRCore.getInstance().saveConfig();
 
+            // Si la partida está activa, actualizar la meta en vivo
             if (TTRCore.getInstance().getCurrentMatch() != null) {
                 TTRCore.getInstance().getCurrentMatch().setMaxPointsToWin(value);
             }
-            sender.sendMessage(TTRPrefix.TTR_GAME + " " + ChatColor.GREEN + "Puntos para ganar: " + value);
+            sender.sendMessage(ChatColor.GREEN + "✔ Puntos para ganar establecidos a: " + ChatColor.YELLOW + value);
 
         } else {
-            sender.sendMessage(ChatColor.RED + "Opción desconocida.");
-            return true;
+            sender.sendMessage(ChatColor.RED + "Opción desconocida. Usa 'time' o 'points'.");
         }
-
-        TTRCore.getInstance().getScoreboard().refreshScoreboard();
 
         return true;
     }

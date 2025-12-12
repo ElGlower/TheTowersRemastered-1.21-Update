@@ -61,12 +61,9 @@ public class TTRCore extends JavaPlugin {
 
         // [NUEVO] Tienda del Faro
         getServer().getPluginManager().registerEvents(new BeaconShopListener(), this);
-        // [NUEVO] Sistema de Lobby y Limpieza al entrar
         getServer().getPluginManager().registerEvents(new GameJoinListener(this), this); // Pasamos 'this' (TTRCore) como Main
-        // [NUEVO] Anti-Fuego Amigo y Proyectiles
         getServer().getPluginManager().registerEvents(new TeamCombatListener(), this);
 
-        // ----------------------------------------
         getServer().getPluginManager().registerEvents(new me.PauMAVA.TTR.listeners.TeamSelectListener(this), this);
         if (getConfig().getBoolean("enable_on_start")) {
             this.currentMatch = new TTRMatch(MatchStatus.LOBBY);
@@ -75,7 +72,6 @@ public class TTRCore extends JavaPlugin {
         }
 
         this.scoreboard = new ScoreboardHandler(this);
-        // Tarea del Tablist
         new me.PauMAVA.TTR.ui.TTRCustomTab(this).runTaskTimer(this, 0L, 20L);
 
         Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "The Towers Remastered (1.21) Habilitado Correctamente!");

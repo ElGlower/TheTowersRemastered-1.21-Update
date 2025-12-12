@@ -8,9 +8,9 @@ autostart:
 match:
   time: 1200
   weather: CLEAR
-  maxpoints: 10
+  maxpoints: 5
   maxhealth: 20
-  duration: 1200
+  duration: 1111
 
 map:
   lobby:
@@ -38,16 +38,16 @@ teams:
       pitch: 0.0
     cage:
       world: the-towers
-      x: 87.302
-      y: 200.5
-      z: 1152.512
-      yaw: 0.0
-      pitch: 0.0
+      x: 84.5
+      y: 200.0
+      z: 1152.5
+      yaw: -90.563675
+      pitch: 90.0
   Blue:
     color: BLUE
     spawn:
       world: the-towers
-      x: -83.420
+      x: -83.42
       y: 192.0
       z: 1152.548
       yaw: 0.0
@@ -56,6 +56,23 @@ teams:
       world: the-towers
       x: -83.501
       y: 200.5
-      z: 1152.500
+      z: 1152.5
       yaw: 0.0
       pitch: 0.0
+spawns:
+  emerald:
+    - ==: org.bukkit.Location
+      world: the-towers
+      x: 0.5
+      y: 203.0
+      z: 1138.5
+      pitch: 82.58072
+      yaw: 92.604095
+  coal:
+    - ==: org.bukkit.Location
+      world: the-towers
+      x: 0.5
+      y: 203.0
+      z: 1166.5
+      pitch: 90.0
+      yaw: 100.45412

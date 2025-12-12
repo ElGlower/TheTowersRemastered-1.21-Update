@@ -157,6 +157,7 @@ public class TTRMatch {
             if (meta != null) {
                 meta.setColor(armorColor);
                 meta.setUnbreakable(true);
+                meta.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
                 if (protLevel > 0) {
                     meta.addEnchant(Enchantment.PROTECTION, protLevel, true);
                 }

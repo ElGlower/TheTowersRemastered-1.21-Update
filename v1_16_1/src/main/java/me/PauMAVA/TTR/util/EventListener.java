@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -27,29 +28,94 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class EventListener implements Listener {
 
     private final TTRCore plugin;
+    // Radio de protección (bloques). Nadie puede romper/poner nada aquí.
+    private final int PROTECTION_RADIUS = 6;
 
     public EventListener(TTRCore plugin) {
         this.plugin = plugin;
     }
 
-    // --- 1. PROTECCIÓN Y APERTURA DE TIENDA ---
+    // --- PROTECCIÓN DE CONSTRUCCIÓN ---
 
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (!plugin.enabled()) return;
+        Player p = event.getPlayer();
+
+        // 1. Proteger Faro
+        if (event.getBlock().getType() == Material.BEACON) {
+            event.setCancelled(true);
+            p.sendMessage(ChatColor.RED + "¡El Faro es indestructible!");
+            return;
+        }
+
+        // 2. Si no ha empezado, nadie rompe nada (excepto admin creativo)
+        if (plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
+            if (p.getGameMode() != GameMode.CREATIVE) {
+                event.setCancelled(true);
+            }
+            return;
+        }
+
+        // 3. PROTECCIÓN DE SPAWNS (Universal)
+        if (isSpawnZone(event.getBlock().getLocation())) {
+            if (p.getGameMode() != GameMode.CREATIVE) {
+                event.setCancelled(true);
+                p.sendMessage(ChatColor.RED + "¡No puedes romper bloques en la zona de Spawn!");
+            }
+        }
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if (!plugin.enabled()) return;
+
+        if (plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
+            if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+                event.setCancelled(true);
+            }
+            return;
+        }
+
+        // 3. PROTECCIÓN DE SPAWNS (Universal)
+        if (isSpawnZone(event.getBlock().getLocation())) {
+            if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+                event.setCancelled(true);
+                event.getPlayer().sendMessage(ChatColor.RED + "¡No puedes construir en la zona de Spawn!");
+            }
+        }
+    }
+
+    // Método que revisa si el bloque está cerca de ALGÚN spawn (Rojo o Azul)
+    private boolean isSpawnZone(Location blockLoc) {
+        // Revisar todos los equipos configurados
+        for (TTRTeam team : plugin.getTeamHandler().getTeams()) {
+            Location spawn = plugin.getConfigManager().getTeamSpawn(team.getIdentifier());
+
+            // Si el spawn existe y está en el mismo mundo
+            if (spawn != null && spawn.getWorld().equals(blockLoc.getWorld())) {
+                // Si la distancia es menor al radio protegido
+                if (spawn.distance(blockLoc) <= PROTECTION_RADIUS) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // --- INTERACCIONES ---
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         if (!plugin.enabled()) return;
 
-        // ABRIR LA TIENDA (Click Derecho en el Faro)
-        // Esto NO interfiere con BeaconShopListener, porque esto solo "Abre" el menú.
-        // BeaconShopListener se encarga de lo que pasa "Dentro" del menú.
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null) {
             if (event.getClickedBlock().getType() == Material.BEACON) {
-                event.setCancelled(true); // Para que no abran la interfaz del faro vanilla
+                event.setCancelled(true);
                 new BeaconShop().openMain(event.getPlayer());
                 return;
             }
         }
 
-        // Fuego / Bolas de Fuego
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (event.getItem() != null && event.getItem().getType() == Material.FIRE_CHARGE) {
                 event.setCancelled(true);
@@ -63,30 +129,12 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (!plugin.enabled()) return;
-
-        // Proteger el Faro siempre
-        if (event.getBlock().getType() == Material.BEACON) {
-            event.setCancelled(true);
-            event.getPlayer().sendMessage(ChatColor.RED + "¡El Faro es indestructible!");
-            return;
-        }
-
-        // Si la partida no ha empezado, no se rompe nada
-        if (plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
-            event.setCancelled(true);
-        }
-    }
-
-    // --- 2. LÓGICA DE JUEGO (Muerte y Respawn) ---
-
+    // --- MUERTE Y RESPAWN ---
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         if (!plugin.enabled()) return;
 
-        // IMPORTANTE: NO ponemos event.getDrops().clear() para que los ítems CAIGAN al suelo.
+        // DROPS HABILITADOS (Se caen al suelo)
         event.setDroppedExp(0);
 
         if (plugin.getCurrentMatch().getStatus() == MatchStatus.INGAME) {
@@ -106,7 +154,6 @@ public class EventListener implements Listener {
                 Location teamSpawn = plugin.getConfigManager().getTeamSpawn(team.getIdentifier());
                 if (teamSpawn != null) event.setRespawnLocation(teamSpawn);
 
-                // Devolvemos el kit y las mejoras guardadas
                 new BukkitRunnable() {
                     @Override
                     public void run() {
@@ -115,14 +162,12 @@ public class EventListener implements Listener {
                 }.runTaskLater(plugin, 1L);
             }
         } else {
-            // Respawn en Lobby
             Location lobby = plugin.getConfigManager().getLobbyLocation();
             if (lobby != null) event.setRespawnLocation(lobby);
         }
     }
 
-    // --- 3. PROTECCIONES DE LOBBY ---
-
+    // --- PROTECCIONES VARIAS ---
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
         if (plugin.enabled() && plugin.getCurrentMatch().getStatus() == MatchStatus.LOBBY) {
@@ -133,11 +178,9 @@ public class EventListener implements Listener {
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
         if (!plugin.enabled()) return;
-
         if (event.getEntity() instanceof Player) {
             if (plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
                 event.setCancelled(true);
-                // Si caen al vacío en el lobby, los subimos
                 if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
                     Location lobby = plugin.getConfigManager().getLobbyLocation();
                     if (lobby != null) event.getEntity().teleport(lobby);
@@ -158,7 +201,6 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPrepareCraft(PrepareItemCraftEvent event) {
         if (!plugin.enabled()) return;
-        // Bloquear crafteo de escudos (para obligar a comprarlos)
         if (event.getRecipe() != null && event.getRecipe().getResult().getType() == Material.SHIELD) {
             event.getInventory().setResult(new ItemStack(Material.AIR));
         }
