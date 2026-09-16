@@ -1,0 +1,36 @@
+name: Build The Towers Remastered
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 25 (Temurin)
+      uses: actions/setup-java@v4
+      with:
+        java-version: '25'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Make mvnw executable
+      run: chmod +x mvnw
+
+    - name: Compile and Package with Maven Wrapper
+      run: ./mvnw clean package --no-transfer-progress
+
+    - name: Upload Compiled JAR Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: TheTowersRemastered-3.1-26.3
+        path: target/TheTowersRemastered-*.jar
+        if-no-files-found: error

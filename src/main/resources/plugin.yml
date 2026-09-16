@@ -1,0 +1,63 @@
+name: TheTowersRemastered
+version: 3.1-26.3
+main: me.PauMAVA.TTR.TTRCore
+api-version: '26.2'
+authors: [PauMAVA, StartCes, Ripkyng1, ElGlower]
+description: Destiny Towers para Paper 26.3 / 26.2 con regeneracion atomica de mapa, Tiny Font, panel GUI y modo pantalla (Book Screen)
+
+commands:
+  ttr:
+    description: Comando principal de Destiny Towers
+    permission: ttr.admin
+    aliases: [dt, thetowers, towers, destiny]
+  dt:
+    description: Comando principal de Destiny Towers
+    permission: ttr.admin
+    aliases: [destinytowers]
+  setlobby:
+    description: Establece el punto de aparición del Lobby
+    permission: ttr.admin
+  ttrstart:
+    description: Inicia la partida
+    permission: ttr.admin
+  ttrstop:
+    description: Detiene la partida
+    permission: ttr.admin
+  ttrset:
+    description: Configura el mapa, spawns y jaulas
+    permission: ttr.admin
+  ttrenable:
+    description: Activa el plugin
+    permission: ttr.admin
+  ttrdisable:
+    description: Desactiva el plugin
+    permission: ttr.admin
+  ttrrevive:
+    description: Revive a un jugador en su base
+    permission: ttr.admin
+  ttrforcejoin:
+    description: Fuerza la entrada de un jugador a un equipo
+    permission: ttr.admin
+  ttrconfig:
+    description: Configura opciones en vivo (tiempo, puntos)
+    permission: ttr.admin
+  ttrevent:
+    description: Controla y lanza eventos de caos
+    permission: ttr.admin
+  ttrspectate:
+    description: Poner a un jugador en modo espectador
+    permission: ttr.admin
+  ttrplay:
+    description: Salir del modo espectador y entrar a la partida
+    permission: ttr.admin
+  ttrresetmap:
+    description: Fuerza la regeneración del mapa a su estado original
+    permission: ttr.admin
+
+permissions:
+  ttr.admin:
+    description: Permiso de administración total de The Towers
+    default: op
+  ttr.player:
+    description: Permiso para jugadores de The Towers
+    default: true
