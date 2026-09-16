@@ -1,0 +1,40 @@
+############################
+# TTR PLUGIN LANGUAGE FILE #
+############################
+
+## @@ SPANISH @@ ##
+
+# Author: ElGlower
+# Revision: 3.0
+
+###############################################
+lang: es
+###############################################
+
+# Prefijos de chat con codigos de color de Minecraft
+chat:
+  game_prefix: "&7&l[&r&6&lDT&r&7&l]&r "
+  game_prefix_dark: "&7&l[&r&e&lDT&r&7&l]&r "
+  global_prefix: "&7&l[&r&5&lGLOBAL&r&7&l]&r "
+  team_prefix: "&7&l[&r&b&lEQUIPO&r&7&l]&r "
+
+command:
+  on_plugin_enable: "Plugin activado al iniciar el servidor. Usa /reload o reinicia para aplicar cambios."
+  on_plugin_disable: "Plugin desactivado al iniciar el servidor."
+  error_expected_integer: "¡Debes introducir un número entero válido!"
+
+gameplay:
+  on_ally_cage_enter: "¡No puedes entrar a la jaula de tu propio equipo!"
+  on_score: " ha anotado un punto!"
+  on_win: "¡HA GANADO LA PARTIDA!"
+
+events:
+  on_player_join: " ha entrado a la partida"
+  on_player_leave: " ha salido de la partida"
+  on_place_block_error: "¡No puedes colocar bloques en esta zona!"
+  on_break_block_error: "¡No puedes romper bloques en esta zona!"
+
+other:
+  disabled_on_startup: "TTR está desactivado al iniciar el servidor. Usa /ttrenable para activarlo."
+  total_time_label: "Tiempo total: "
+  translation_made_by: "Traducción al español realizada por "

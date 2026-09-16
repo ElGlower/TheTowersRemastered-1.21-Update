@@ -1,0 +1,15 @@
+.idea/
+*.iml
+*.iws
+out/
+
+
+target/
+*.jar
+
+dependency-reduced-pom.xml
+
+.DS_Store
+Thumbs.db
+build.bat
+build.cmd

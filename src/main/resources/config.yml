@@ -1,0 +1,76 @@
+# =========================================================
+#             DESTINY TOWERS 26.3 / 26.2
+# =========================================================
+
+locale: es
+enable_on_start: true
+
+# Configuración del Sistema de Auto-Inicio
+autostart:
+  enabled: true
+  count: 4          # Cantidad mínima de jugadores requeridos para iniciar
+  countdown: 10     # Segundos de cuenta regresiva
+
+# Configuración de la Partida
+match:
+  duration: 1200    # Duración en segundos (20 minutos)
+  maxpoints: 10     # Puntos necesarios para ganar
+  weather: CLEAR    # Clima fijo durante la partida
+  time: 6000        # Hora fija del mundo (mediodía)
+
+# Configuración de Regeneración Automática del Mapa sin Reinicio
+rollback:
+  auto_restore_on_end: true
+  clean_entities: true
+
+# Puntos de Mapa
+map:
+  lobby:
+    world: the-towers
+    x: 0.5
+    y: 200.0
+    z: 1000.0
+    yaw: 0.0
+    pitch: 0.0
+
+# Equipos
+teams:
+  Red:
+    color: RED
+    spawn:
+      world: the-towers
+      x: 84.5
+      y: 192.0
+      z: 1152.5
+      yaw: 0.0
+      pitch: 0.0
+    cage:
+      world: the-towers
+      x: 84.5
+      y: 200.0
+      z: 1152.5
+      yaw: 0.0
+      pitch: 0.0
+  Blue:
+    color: BLUE
+    spawn:
+      world: the-towers
+      x: -83.5
+      y: 192.0
+      z: 1152.5
+      yaw: 0.0
+      pitch: 0.0
+    cage:
+      world: the-towers
+      x: -83.5
+      y: 200.0
+      z: 1152.5
+      yaw: 0.0
+      pitch: 0.0
+
+# Generadores de Recursos (Configurables mediante /ttr set <tipo>)
+spawns:
+  iron: []
+  coal: []
+  emerald: []
+  xp: []
