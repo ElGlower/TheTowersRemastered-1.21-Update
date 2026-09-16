@@ -14,7 +14,7 @@ public class MainCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("ttr.admin")) {
+        if (!sender.hasPermission("destinytowers.admin") && !sender.hasPermission("ttr.admin")) {
             sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No tienes permisos para administrar Destiny Towers."));
             return true;
         }

@@ -1,63 +1,85 @@
-name: TheTowersRemastered
-version: 3.1-26.3
+name: DestinyTowers
+version: 1.0.0
 main: me.PauMAVA.TTR.TTRCore
 api-version: '26.2'
 authors: [PauMAVA, StartCes, Ripkyng1, ElGlower]
 description: Destiny Towers para Paper 26.3 / 26.2 con regeneracion atomica de mapa, Tiny Font, panel GUI y modo pantalla (Book Screen)
 
 commands:
-  ttr:
+  destinytowers:
     description: Comando principal de Destiny Towers
-    permission: ttr.admin
-    aliases: [dt, thetowers, towers, destiny]
+    permission: destinytowers.admin
+    aliases: [dt, ttr, thetowers, towers, destiny]
   dt:
-    description: Comando principal de Destiny Towers
-    permission: ttr.admin
+    description: Comando abreviado de Destiny Towers
+    permission: destinytowers.admin
+    aliases: [destinytowers]
+  ttr:
+    description: Comando heredado de The Towers
+    permission: destinytowers.admin
     aliases: [destinytowers]
   setlobby:
     description: Establece el punto de aparición del Lobby
-    permission: ttr.admin
+    permission: destinytowers.admin
   ttrstart:
     description: Inicia la partida
-    permission: ttr.admin
+    permission: destinytowers.admin
+    aliases: [dtstart]
   ttrstop:
     description: Detiene la partida
-    permission: ttr.admin
+    permission: destinytowers.admin
+    aliases: [dtstop]
   ttrset:
     description: Configura el mapa, spawns y jaulas
-    permission: ttr.admin
+    permission: destinytowers.admin
+    aliases: [dtset]
   ttrenable:
     description: Activa el plugin
-    permission: ttr.admin
+    permission: destinytowers.admin
+    aliases: [dtenable]
   ttrdisable:
     description: Desactiva el plugin
-    permission: ttr.admin
+    permission: destinytowers.admin
+    aliases: [dtdisable]
   ttrrevive:
     description: Revive a un jugador en su base
-    permission: ttr.admin
+    permission: destinytowers.admin
+    aliases: [dtrevive]
   ttrforcejoin:
     description: Fuerza la entrada de un jugador a un equipo
-    permission: ttr.admin
+    permission: destinytowers.admin
+    aliases: [dtforcejoin]
   ttrconfig:
     description: Configura opciones en vivo (tiempo, puntos)
-    permission: ttr.admin
+    permission: destinytowers.admin
+    aliases: [dtconfig]
   ttrevent:
     description: Controla y lanza eventos de caos
-    permission: ttr.admin
+    permission: destinytowers.admin
+    aliases: [dtevent]
   ttrspectate:
     description: Poner a un jugador en modo espectador
-    permission: ttr.admin
+    permission: destinytowers.admin
+    aliases: [dtspectate]
   ttrplay:
     description: Salir del modo espectador y entrar a la partida
-    permission: ttr.admin
+    permission: destinytowers.admin
+    aliases: [dtplay]
   ttrresetmap:
     description: Fuerza la regeneración del mapa a su estado original
-    permission: ttr.admin
+    permission: destinytowers.admin
+    aliases: [dtresetmap]
 
 permissions:
+  destinytowers.admin:
+    description: Permiso de administración total de Destiny Towers
+    default: op
+  destinytowers.player:
+    description: Permiso para jugadores de Destiny Towers
+    default: true
   ttr.admin:
-    description: Permiso de administración total de The Towers
+    description: Permiso de administración heredado
     default: op
   ttr.player:
-    description: Permiso para jugadores de The Towers
+    description: Permiso para jugadores heredado
     default: true

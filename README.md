@@ -1,4 +1,4 @@
-# Destiny Towers Remastered (v3.1 - Paper 26.3 / 26.2)
+# Destiny Towers (v1.0.0 - Paper 26.3 / 26.2)
 
 > **Versión Original:** Pau Machetti Vallverdú (PauMAVA)  
 > **Actualización, Modernización y Mantenimiento:** @StartCes, @Ripkyng1, @ElGlower
@@ -7,7 +7,7 @@ Modernización completa del clásico minijuego competitivo **Destiny Towers** ad
 
 ---
 
-## Características Principales (v3.1)
+## Características Principales (v1.0.0)
 
 ### 1. Panel de Configuración Dual: GUI en Cofre y Pantalla de Libro (Screen Mode)
 * **Panel GUI en Cofre (/dt config o /dt gui):** Menú interactivo de 54 casillas con cristales estéticos, ajuste de duración (+1m, -1m, +5m), puntos requeridos, conmutador de auto-inicio, regeneración inmediata y fijación de puntos de spawn con un solo clic.
@@ -47,23 +47,23 @@ Modernización completa del clásico minijuego competitivo **Destiny Towers** ad
 
 ---
 
-## Comandos Administrativos (/dt o /ttr)
+## Comandos Administrativos (/dt o /destinytowers)
 
 | Comando | Permiso | Descripción |
 | :--- | :--- | :--- |
-| `/dt` o `/ttr` | `ttr.admin` | Menú principal interactivo con autocompletado inteligente. |
-| `/dt config` | `ttr.admin` | Abre el Panel de Configuración interactivo (Chest GUI). |
-| `/dt screen` | `ttr.admin` | Abre la Pantalla de Configuración interactiva en Libro nativo. |
-| `/dt start` | `ttr.admin` | Inicia la partida manualmente. |
-| `/dt stop` | `ttr.admin` | Detiene la partida actual. |
-| `/dt resetmap` | `ttr.admin` | Ejecuta la regeneración atómica del mapa al instante. |
-| `/setlobby` | `ttr.admin` | Fija el Lobby central en tu posición actual. |
-| `/dt set <opción>` | `ttr.admin` | Configura spawns de equipos, jaulas y generadores de recursos. |
-| `/dt config <time/points/autostart>` | `ttr.admin` | Modifica en caliente valores de la partida por comando o consola. |
-| `/dt event <nombre/stop>` | `ttr.admin` | Lanza o detiene eventos de caos. |
-| `/dt forcejoin <player> <equipo>` | `ttr.admin` | Fuerza la asignación de equipo a un jugador. |
-| `/dt revive <player>` | `ttr.admin` | Revive a un jugador teletransportándolo a su base. |
-| `/dt reload` | `ttr.admin` | Recarga las configuraciones (`config.yml`). |
+| `/dt`, `/destinytowers` o `/ttr` | `destinytowers.admin` | Menú principal interactivo con autocompletado inteligente. |
+| `/dt config` | `destinytowers.admin` | Abre el Panel de Configuración interactivo (Chest GUI). |
+| `/dt screen` | `destinytowers.admin` | Abre la Pantalla de Configuración interactiva en Libro nativo. |
+| `/dt start` | `destinytowers.admin` | Inicia la partida manualmente. |
+| `/dt stop` | `destinytowers.admin` | Detiene la partida actual. |
+| `/dt resetmap` | `destinytowers.admin` | Ejecuta la regeneración atómica del mapa al instante. |
+| `/setlobby` | `destinytowers.admin` | Fija el Lobby central en tu posición actual. |
+| `/dt set <opción>` | `destinytowers.admin` | Configura spawns de equipos, jaulas y generadores de recursos. |
+| `/dt config <time/points/autostart>` | `destinytowers.admin` | Modifica en caliente valores de la partida por comando o consola. |
+| `/dt event <nombre/stop>` | `destinytowers.admin` | Lanza o detiene eventos de caos. |
+| `/dt forcejoin <player> <equipo>` | `destinytowers.admin` | Fuerza la asignación de equipo a un jugador. |
+| `/dt revive <player>` | `destinytowers.admin` | Revive a un jugador teletransportándolo a su base. |
+| `/dt reload` | `destinytowers.admin` | Recarga las configuraciones (`config.yml`). |
 
 ---
 
@@ -75,10 +75,10 @@ Requisitos: **Java 25** y **Apache Maven 3.9+** (o el wrapper `./mvnw.cmd`).
 mvn clean package
 ```
 
-El binario optimizado se compilará en `target/TheTowersRemastered-3.1-26.3.jar`.
+El binario optimizado se compilará en `target/DestinyTowers-1.0.0.jar`.
 
 ---
 
 ## Licencia
 
-Destiny Towers Remastered es software libre bajo los términos de la Licencia Pública General GNU v3.
+Destiny Towers es software libre bajo los términos de la Licencia Pública General GNU v3.

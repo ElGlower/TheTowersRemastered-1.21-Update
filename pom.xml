@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>me.PauMAVA</groupId>
-    <artifactId>TheTowersRemastered</artifactId>
-    <version>3.1-26.3</version>
+    <groupId>com.destiny</groupId>
+    <artifactId>DestinyTowers</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>TheTowersRemastered</name>
+    <name>DestinyTowers</name>
     <description>Destiny Towers adaptado para Paper 26.3 / 26.2 con regeneracion atomica de mapa, tipografia Tiny Font y panel de configuracion</description>
 
     <properties>

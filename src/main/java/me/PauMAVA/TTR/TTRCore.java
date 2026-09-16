@@ -99,8 +99,9 @@ public class TTRCore extends JavaPlugin {
     private void registerCommands() {
         // Comando Maestro
         MainCommand mainCmd = new MainCommand();
-        registerCmd("ttr", mainCmd);
+        registerCmd("destinytowers", mainCmd);
         registerCmd("dt", mainCmd);
+        registerCmd("ttr", mainCmd);
 
         // Comandos de partida y control
         registerCmd("ttrstart", new StartCommand());
@@ -127,7 +128,7 @@ public class TTRCore extends JavaPlugin {
                         return true;
                     }
                     Player player = (Player) sender;
-                    if (!player.hasPermission("ttr.admin")) {
+                    if (!player.hasPermission("destinytowers.admin") && !player.hasPermission("ttr.admin")) {
                         player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No tienes permiso."));
                         return true;
                     }
