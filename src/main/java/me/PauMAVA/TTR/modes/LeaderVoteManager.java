@@ -72,6 +72,46 @@ public class LeaderVoteManager {
         TTRCore plugin = TTRCore.getInstance();
         cancelVoting();
 
+        List<Player> online = new ArrayList<>(Bukkit.getOnlinePlayers());
+        if (online.size() < 2) {
+            Bukkit.broadcastMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Se requieren al menos 2 jugadores para iniciar la fase."));
+            return;
+        }
+
+        TTRTeam red = plugin.getTeamHandler().getTeam("Red");
+        TTRTeam blue = plugin.getTeamHandler().getTeam("Blue");
+
+        // Caso especial 2 jugadores: 1v1 automático, coronar líderes de inmediato
+        if (online.size() == 2) {
+            if (red != null && blue != null) {
+                Player p1 = online.get(0);
+                Player p2 = online.get(1);
+                plugin.getTeamHandler().setPlayerTeam(p1, red);
+                plugin.getTeamHandler().setPlayerTeam(p2, blue);
+                crownLeader(red, p1.getUniqueId());
+                crownLeader(blue, p2.getUniqueId());
+                Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + TextUtil.toTiny("¡Duelo 1v1! Los 2 jugadores son capitanes de sus respectivos equipos."));
+
+                // Iniciar directamente conteo pre-partida
+                int prestart = plugin.getConfig().getInt("match.prestart_countdown", 10);
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    plugin.getAutoStarter().startMatchCountdown(prestart);
+                }, 40L);
+                return;
+            }
+        }
+
+        // Si los equipos están vacíos (jugadores en lobby), repartir equitativamente para votar
+        if (red != null && blue != null && red.getPlayers().isEmpty() && blue.getPlayers().isEmpty()) {
+            for (int i = 0; i < online.size(); i++) {
+                if (i % 2 == 0) {
+                    plugin.getTeamHandler().setPlayerTeam(online.get(i), red);
+                } else {
+                    plugin.getTeamHandler().setPlayerTeam(online.get(i), blue);
+                }
+            }
+        }
+
         teamStates.clear();
         for (TTRTeam team : plugin.getTeamHandler().getTeams()) {
             TeamVoteState state = new TeamVoteState(team);
@@ -92,7 +132,7 @@ public class LeaderVoteManager {
             }
         }
 
-        if (allDone && !force) {
+        if (allDone) {
             concludeVoting();
             return;
         }
@@ -309,12 +349,12 @@ public class LeaderVoteManager {
         if (plugin.getCurrentSelectionMode() == TeamSelectionMode.AUCTION_DRAFT) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 plugin.getAuctionDraftManager().startDraft();
-            }, 60L);
-        } else if (plugin.getCurrentSelectionMode() == TeamSelectionMode.LEADER_VOTING) {
+            }, 40L);
+        } else {
             int prestart = plugin.getConfig().getInt("match.prestart_countdown", 10);
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 plugin.getAutoStarter().startMatchCountdown(prestart);
-            }, 60L);
+            }, 40L);
         }
     }
 

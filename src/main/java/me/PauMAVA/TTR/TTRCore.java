@@ -46,6 +46,7 @@ public class TTRCore extends JavaPlugin {
     private GameEventManager eventManager;
     private AutoStarter autoStarter;
     private RollbackManager rollbackManager;
+    private me.PauMAVA.TTR.rollback.WorldBackupManager worldBackupManager;
 
     private LeaderVoteManager leaderVoteManager;
     private AuctionDraftManager auctionDraftManager;
@@ -66,6 +67,7 @@ public class TTRCore extends JavaPlugin {
         this.eventManager = new GameEventManager();
         this.autoStarter = new AutoStarter(this, getConfig());
         this.rollbackManager = new RollbackManager(this);
+        this.worldBackupManager = new me.PauMAVA.TTR.rollback.WorldBackupManager(this);
         this.leaderVoteManager = new LeaderVoteManager();
         this.auctionDraftManager = new AuctionDraftManager();
         this.modeAnnouncementManager = new me.PauMAVA.TTR.modes.ModeAnnouncementManager();
@@ -83,7 +85,11 @@ public class TTRCore extends JavaPlugin {
 
         this.teamHandler.setUpDefaultTeams();
         if (this.configManager.getLobbyLocation() != null) {
-            this.worldHandler = new TTRWorldHandler(this, this.configManager.getLobbyLocation().getWorld());
+            org.bukkit.World w = this.configManager.getLobbyLocation().getWorld();
+            if (w != null && !this.worldBackupManager.hasBackup(w.getName())) {
+                this.worldBackupManager.createBackup(w);
+            }
+            this.worldHandler = new TTRWorldHandler(this, w);
             this.worldHandler.setUpWorld();
         }
 
@@ -197,6 +203,7 @@ public class TTRCore extends JavaPlugin {
     public GameEventManager getEventManager() { return eventManager; }
     public AutoStarter getAutoStarter() { return autoStarter; }
     public RollbackManager getRollbackManager() { return rollbackManager; }
+    public me.PauMAVA.TTR.rollback.WorldBackupManager getWorldBackupManager() { return worldBackupManager; }
     public LeaderVoteManager getLeaderVoteManager() { return leaderVoteManager; }
     public AuctionDraftManager getAuctionDraftManager() { return auctionDraftManager; }
     public me.PauMAVA.TTR.modes.ModeAnnouncementManager getModeAnnouncementManager() { return modeAnnouncementManager; }

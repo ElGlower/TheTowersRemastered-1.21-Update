@@ -133,6 +133,16 @@ public class RollbackManager implements Listener {
         }
 
         cleanArenaEntities();
+
+        // Si existe copia física de seguridad del mundo, intentar restaurar los chunks/regiones a 0
+        Location lobby = plugin.getConfigManager().getLobbyLocation();
+        World arenaWorld = (lobby != null) ? lobby.getWorld() : (Bukkit.getWorlds().isEmpty() ? null : Bukkit.getWorlds().get(0));
+        if (arenaWorld != null && plugin.getWorldBackupManager() != null) {
+            if (plugin.getWorldBackupManager().hasBackup(arenaWorld.getName())) {
+                plugin.getWorldBackupManager().restoreWorld(arenaWorld);
+            }
+        }
+
         return count;
     }
 

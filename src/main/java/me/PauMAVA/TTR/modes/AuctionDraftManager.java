@@ -54,11 +54,21 @@ public class AuctionDraftManager {
         TTRTeam blue = plugin.getTeamHandler().getTeam("Blue");
 
         if ((red != null && red.getLeader() == null) || (blue != null && blue.getLeader() == null)) {
-            Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.GOLD + "" + ChatColor.BOLD +
-                    TextUtil.toTiny("Antes de la subasta, cada equipo debe elegir a su líder por votación."));
-            plugin.setCurrentSelectionMode(TeamSelectionMode.AUCTION_DRAFT);
-            plugin.getLeaderVoteManager().startVoting(true);
-            return;
+            // Intentar asignar automáticamente el primer miembro como líder si ya existen miembros
+            if (red != null && red.getLeader() == null && !red.getPlayers().isEmpty()) {
+                red.setLeader(red.getPlayers().get(0));
+            }
+            if (blue != null && blue.getLeader() == null && !blue.getPlayers().isEmpty()) {
+                blue.setLeader(blue.getPlayers().get(0));
+            }
+
+            if ((red != null && red.getLeader() == null) || (blue != null && blue.getLeader() == null)) {
+                Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.GOLD + "" + ChatColor.BOLD +
+                        TextUtil.toTiny("Antes de la subasta, cada equipo debe elegir a su líder por votación."));
+                plugin.setCurrentSelectionMode(TeamSelectionMode.AUCTION_DRAFT);
+                plugin.getLeaderVoteManager().startVoting(false);
+                return;
+            }
         }
 
         // Populate pool with players who are not leaders
@@ -72,14 +82,14 @@ public class AuctionDraftManager {
         }
 
         if (pool.isEmpty()) {
-            // Include all online players if testing
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                pool.add(p.getUniqueId());
-            }
-        }
+            // Todos los jugadores conectados ya son capitanes (caso 1v1 con 2 jugadores)
+            Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+            Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "★ " +
+                    TextUtil.toTiny("¡Equipos conformados con sus líderes! Todo listo para el combate.") + " ★");
+            Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 
-        if (pool.isEmpty()) {
-            Bukkit.broadcastMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No hay suficientes jugadores en cola para subastar."));
+            int prestart = plugin.getConfig().getInt("match.prestart_countdown", 10);
+            plugin.getAutoStarter().startMatchCountdown(prestart);
             return;
         }
 

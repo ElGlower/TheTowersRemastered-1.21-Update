@@ -57,6 +57,8 @@ public class ModeAnnouncementManager {
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.sendTitle(title, subtitle, 10, 70, 20);
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1f, 1f);
+            p.setLevel(readingTime);
+            p.setExp(1.0f);
         }
 
         this.task = new BukkitRunnable() {
@@ -68,6 +70,13 @@ public class ModeAnnouncementManager {
                 }
 
                 secondsRemaining--;
+
+                // Temporizador visual en la Barra de Experiencia
+                float progress = (readingTime > 0) ? Math.max(0.0f, Math.min(1.0f, (float) secondsRemaining / readingTime)) : 0.0f;
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.setLevel(secondsRemaining);
+                    p.setExp(progress);
+                }
 
                 // Action bar countdown
                 String ab = TextUtil.color("&#FFFFFF⏱ " + TextUtil.toTiny("Tiempo para leer reglas: ") +
@@ -111,6 +120,11 @@ public class ModeAnnouncementManager {
             task.cancel();
             task = null;
         }
+        // Restablecer la barra de experiencia a cero
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.setLevel(0);
+            p.setExp(0.0f);
+        }
     }
 
     private void broadcastExplanation(TeamSelectionMode mode, int seconds) {
@@ -122,18 +136,14 @@ public class ModeAnnouncementManager {
         switch (mode) {
             case STANDARD -> {
                 Bukkit.broadcastMessage(ChatColor.WHITE + "» " + TextUtil.toTiny("Los jugadores eligen su equipo libremente o el sistema los equilibra."));
-                Bukkit.broadcastMessage(ChatColor.WHITE + "» " + TextUtil.toTiny("Se compite sumando puntos destruyendo o defendiendo torres enemigas."));
-                Bukkit.broadcastMessage(ChatColor.WHITE + "» " + TextUtil.toTiny("Gana el primer equipo en alcanzar los puntos máximos o más bajas al expirar el tiempo."));
-            }
-            case LEADER_VOTING -> {
-                Bukkit.broadcastMessage(ChatColor.WHITE + "» " + TextUtil.toTiny("Cada equipo vota internamente por rondas sucesivas a su capitán."));
-                Bukkit.broadcastMessage(ChatColor.WHITE + "» " + TextUtil.toTiny("Los candidatos con menos votos son descartados hasta coronar a 1 líder por equipo."));
-                Bukkit.broadcastMessage(ChatColor.WHITE + "» " + TextUtil.toTiny("¡El líder dirigirá la estrategia y coordinará el equipo hacia la victoria!"));
+                Bukkit.broadcastMessage(ChatColor.WHITE + "» " + TextUtil.toTiny("Se compite sumando puntos anotando en las jaulas de las torres enemigas."));
+                Bukkit.broadcastMessage(ChatColor.WHITE + "» " + TextUtil.toTiny("Gana el primer equipo en alcanzar los puntos máximos al expirar el tiempo."));
             }
             case AUCTION_DRAFT -> {
-                Bukkit.broadcastMessage(ChatColor.WHITE + "» " + TextUtil.toTiny("Fase 1: Se vota democráticamente al líder de cada equipo."));
-                Bukkit.broadcastMessage(ChatColor.WHITE + "» " + TextUtil.toTiny("Fase 2: Cada capitán dispone de créditos para pujar en tiempo real por cada jugador."));
-                Bukkit.broadcastMessage(ChatColor.WHITE + "» " + TextUtil.toTiny("¡Los capitanes compiten en subasta para armar la mejor alineación!"));
+                Bukkit.broadcastMessage(ChatColor.YELLOW + "» " + TextUtil.toTiny("Fase 1: Elección de líderes por votación democrática en cada equipo."));
+                Bukkit.broadcastMessage(ChatColor.YELLOW + "» " + TextUtil.toTiny("Fase 2: Los líderes elegidos pujan créditos en tiempo real por cada miembro."));
+                Bukkit.broadcastMessage(ChatColor.YELLOW + "» " + TextUtil.toTiny("Fase 3: Conteo final antes de liberar a los equipos a la arena."));
+                Bukkit.broadcastMessage(ChatColor.GRAY + "» " + TextUtil.toTiny("Consulta el tiempo restante en tu barra de experiencia."));
             }
         }
 

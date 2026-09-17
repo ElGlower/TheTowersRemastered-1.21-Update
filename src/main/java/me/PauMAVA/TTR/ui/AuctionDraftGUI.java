@@ -3,6 +3,7 @@ package me.PauMAVA.TTR.ui;
 import me.PauMAVA.TTR.TTRCore;
 import me.PauMAVA.TTR.modes.AuctionDraftManager;
 import me.PauMAVA.TTR.teams.TTRTeam;
+import me.PauMAVA.TTR.util.SkullUtil;
 import me.PauMAVA.TTR.util.TextUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -80,10 +81,9 @@ public class AuctionDraftGUI {
             OfflinePlayer off = Bukkit.getOfflinePlayer(candUuid);
             String name = (off.getName() != null) ? off.getName() : "Jugador";
 
-            ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+            ItemStack skull = SkullUtil.getPlayerHead(off);
             SkullMeta sm = (SkullMeta) skull.getItemMeta();
             if (sm != null) {
-                sm.setOwningPlayer(off);
                 sm.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "★ " + name);
 
                 List<String> lore = new ArrayList<>();

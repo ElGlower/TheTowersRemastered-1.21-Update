@@ -71,6 +71,15 @@ public class TTRTeamHandler {
         }
     }
 
+    public void setPlayerTeam(Player player, TTRTeam team) {
+        if (player == null) return;
+        removePlayer(player);
+        if (team != null) {
+            team.addPlayer(player);
+            me.PauMAVA.TTR.voice.VoiceChatManager.getInstance().assignPlayerToTeamVoice(player, team.getIdentifier());
+        }
+    }
+
     public void removePlayer(Player player) {
         TTRTeam current = getPlayerTeam(player);
         if (current != null) {

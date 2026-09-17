@@ -3,6 +3,7 @@ package me.PauMAVA.TTR.ui;
 import me.PauMAVA.TTR.TTRCore;
 import me.PauMAVA.TTR.modes.TeamSelectionMode;
 import me.PauMAVA.TTR.teams.TTRTeam;
+import me.PauMAVA.TTR.util.SkullUtil;
 import me.PauMAVA.TTR.util.TextUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +30,34 @@ public class AdminLeadersGUI {
     public static final NamespacedKey KEY_ACTION = new NamespacedKey(TTRCore.getInstance(), "ttr_adm_action");
     public static final NamespacedKey KEY_PLAYER_UUID = new NamespacedKey(TTRCore.getInstance(), "ttr_adm_target");
 
+    private static BukkitTask liveTask = null;
+
     public static void open(Player player) {
-        TTRCore plugin = TTRCore.getInstance();
         Inventory gui = Bukkit.createInventory(null, 54, TITLE);
+        render(gui);
+        player.openInventory(gui);
+        startLiveUpdater();
+    }
+
+    public static void startLiveUpdater() {
+        if (liveTask != null && !liveTask.isCancelled()) return;
+        liveTask = Bukkit.getScheduler().runTaskTimer(TTRCore.getInstance(), () -> {
+            boolean anyViewer = false;
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (p.getOpenInventory() != null && p.getOpenInventory().getTitle().equals(TITLE)) {
+                    anyViewer = true;
+                    render(p.getOpenInventory().getTopInventory());
+                }
+            }
+            if (!anyViewer && liveTask != null) {
+                liveTask.cancel();
+                liveTask = null;
+            }
+        }, 20L, 20L);
+    }
+
+    public static void render(Inventory gui) {
+        TTRCore plugin = TTRCore.getInstance();
 
         ItemStack border = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta bm = border.getItemMeta();
@@ -42,7 +69,6 @@ public class AdminLeadersGUI {
         // Top border items
         gui.setItem(1, border);
         gui.setItem(3, border);
-        gui.setItem(5, border);
         gui.setItem(7, border);
 
         // Center separator (rows 1 to 4)
@@ -67,45 +93,69 @@ public class AdminLeadersGUI {
         setLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Abrir menú de tiempos"));
         gui.setItem(3, createActionItem(Material.CLOCK, ChatColor.AQUA + "" + ChatColor.BOLD + "⚙ " + TextUtil.toTiny("Ajustes de Tiempos"), setLore, "open_settings"));
 
-        // 3. Control de Fase (Slot 4)
+        // 3. Control de Fase & Cancelación Rápida (Slot 4)
         boolean voteActive = plugin.getLeaderVoteManager().isActive();
         boolean draftActive = plugin.getAuctionDraftManager().isActive();
         boolean announcing = plugin.getModeAnnouncementManager().isAnnouncing();
+        boolean counting = plugin.isCounting();
 
+        if (announcing || voteActive || draftActive || counting) {
+            List<String> stopLore = new ArrayList<>();
+            String currentPhaseName = "Fase Activa";
+            if (announcing) {
+                currentPhaseName = "Lectura de Reglas (" + plugin.getModeAnnouncementManager().getSecondsRemaining() + "s)";
+            } else if (voteActive) {
+                currentPhaseName = "Votación de Líder (" + plugin.getLeaderVoteManager().getSecondsRemaining() + "s)";
+            } else if (draftActive) {
+                currentPhaseName = "Subasta de Miembros (" + plugin.getAuctionDraftManager().getSecondsRemaining() + "s)";
+            } else if (counting) {
+                currentPhaseName = "Conteo de Inicio (" + plugin.getAutoStarter().getCountdown() + "s)";
+            }
+
+            stopLore.add(ChatColor.GRAY + TextUtil.toTiny("Estado: ") + ChatColor.YELLOW + currentPhaseName);
+            stopLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+            stopLore.add(ChatColor.RED + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Cancelar fase y restablecer"));
+            gui.setItem(4, createActionItem(Material.BARRIER, ChatColor.RED + "" + ChatColor.BOLD + "✖ " + TextUtil.toTiny("Detener / Cancelar Fase"), stopLore, "stop_phase"));
+        } else if (mode == TeamSelectionMode.AUCTION_DRAFT) {
+            List<String> draftLore = new ArrayList<>();
+            draftLore.add(ChatColor.GRAY + TextUtil.toTiny("Inicia la fase completa de Subasta:"));
+            draftLore.add(ChatColor.WHITE + "1. " + TextUtil.toTiny("Anuncio y barra de experiencia."));
+            draftLore.add(ChatColor.WHITE + "2. " + TextUtil.toTiny("Votación democrática de líderes."));
+            draftLore.add(ChatColor.WHITE + "3. " + TextUtil.toTiny("Subasta interactiva de miembros."));
+            draftLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+            draftLore.add(ChatColor.GREEN + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Iniciar Modo Puja / Subasta"));
+            gui.setItem(4, createActionItem(Material.CHEST_MINECART, ChatColor.GREEN + "" + ChatColor.BOLD + "⚖ " + TextUtil.toTiny("Iniciar Modo Puja"), draftLore, "start_draft"));
+        } else {
+            List<String> stdLore = new ArrayList<>();
+            stdLore.add(ChatColor.GRAY + TextUtil.toTiny("Inicia el modo clásico de selección"));
+            stdLore.add(ChatColor.GRAY + TextUtil.toTiny("libre por menú o auto-equilibrio."));
+            stdLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+            stdLore.add(ChatColor.GREEN + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Iniciar Modo Estándar"));
+            gui.setItem(4, createActionItem(Material.IRON_SWORD, ChatColor.AQUA + "" + ChatColor.BOLD + "🎮 " + TextUtil.toTiny("Iniciar Modo Estándar"), stdLore, "start_standard"));
+        }
+
+        // Slot 5: Omitir espera de anuncio O Indicador de Jugadores Requeridos
         if (announcing) {
             List<String> skipLore = new ArrayList<>();
             skipLore.add(ChatColor.GRAY + TextUtil.toTiny("Los jugadores están leyendo las reglas."));
             skipLore.add(ChatColor.GRAY + TextUtil.toTiny("Tiempo restante: ") + ChatColor.YELLOW + plugin.getModeAnnouncementManager().getSecondsRemaining() + "s");
             skipLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
             skipLore.add(ChatColor.AQUA + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Comenzar ahora (Omitir espera)"));
-            gui.setItem(4, createActionItem(Material.BEACON, ChatColor.AQUA + "" + ChatColor.BOLD + "⚡ " + TextUtil.toTiny("Comenzar Ahora"), skipLore, "skip_announcement"));
-        } else if (voteActive || draftActive) {
-            List<String> stopLore = new ArrayList<>();
-            stopLore.add(ChatColor.GRAY + TextUtil.toTiny("Hay una fase activa en curso."));
-            stopLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-            stopLore.add(ChatColor.RED + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Detener fase activa"));
-            gui.setItem(4, createActionItem(Material.BARRIER, ChatColor.RED + "" + ChatColor.BOLD + "✖ " + TextUtil.toTiny("Detener Fase Activa"), stopLore, "stop_phase"));
-        } else if (mode == TeamSelectionMode.LEADER_VOTING) {
-            List<String> startLore = new ArrayList<>();
-            startLore.add(ChatColor.GRAY + TextUtil.toTiny("Inicia la votación por rondas"));
-            startLore.add(ChatColor.GRAY + TextUtil.toTiny("en ambos equipos inmediatamente."));
-            startLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-            startLore.add(ChatColor.GREEN + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Iniciar Votación de Líder"));
-            gui.setItem(4, createActionItem(Material.GOLDEN_HELMET, ChatColor.GREEN + "" + ChatColor.BOLD + "★ " + TextUtil.toTiny("Iniciar Votación"), startLore, "start_voting"));
-        } else if (mode == TeamSelectionMode.AUCTION_DRAFT) {
-            List<String> draftLore = new ArrayList<>();
-            draftLore.add(ChatColor.GRAY + TextUtil.toTiny("Inicia la subasta interactiva"));
-            draftLore.add(ChatColor.GRAY + TextUtil.toTiny("para fichar jugadores con créditos."));
-            draftLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-            draftLore.add(ChatColor.GREEN + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Iniciar Subasta (Draft)"));
-            gui.setItem(4, createActionItem(Material.CHEST_MINECART, ChatColor.GREEN + "" + ChatColor.BOLD + "⚖ " + TextUtil.toTiny("Iniciar Subasta"), draftLore, "start_draft"));
+            gui.setItem(5, createActionItem(Material.BEACON, ChatColor.AQUA + "" + ChatColor.BOLD + "⚡ " + TextUtil.toTiny("Comenzar Ahora"), skipLore, "skip_announcement"));
         } else {
-            List<String> stdLore = new ArrayList<>();
-            stdLore.add(ChatColor.GRAY + TextUtil.toTiny("En modo estándar los jugadores eligen"));
-            stdLore.add(ChatColor.GRAY + TextUtil.toTiny("su equipo libremente o por auto-inicio."));
-            stdLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-            stdLore.add(ChatColor.GREEN + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Anunciar e iniciar modo"));
-            gui.setItem(4, createActionItem(Material.IRON_SWORD, ChatColor.AQUA + "" + ChatColor.BOLD + "🎮 " + TextUtil.toTiny("Iniciar Modo Estándar"), stdLore, "start_standard"));
+            int online = Bukkit.getOnlinePlayers().size();
+            int required = plugin.getConfig().getInt("autostart.count", 4);
+            boolean ready = online >= required;
+
+            List<String> countLore = new ArrayList<>();
+            countLore.add(ChatColor.GRAY + TextUtil.toTiny("Conectados: ") + (ready ? ChatColor.GREEN : ChatColor.RED) + online + ChatColor.DARK_GRAY + " / " + ChatColor.WHITE + required);
+            countLore.add(ChatColor.GRAY + TextUtil.toTiny("Mínimo recomendado para Subasta: 4"));
+            countLore.add(ChatColor.GRAY + TextUtil.toTiny("Mínimo absoluto para 1v1: 2"));
+            countLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+            countLore.add(ready ? ChatColor.GREEN + "✔ " + TextUtil.toTiny("Cantidad suficiente para iniciar.") : ChatColor.RED + "✖ " + TextUtil.toTiny("Faltan jugadores para auto-inicio."));
+
+            Material countMat = ready ? Material.LIME_DYE : Material.RED_DYE;
+            gui.setItem(5, createActionItem(countMat, (ready ? ChatColor.GREEN : ChatColor.YELLOW) + "" + ChatColor.BOLD + "👥 " + TextUtil.toTiny("Jugadores: ") + online + "/" + required, countLore, "none"));
         }
 
         // 4. Volver a Config (Slot 6)
@@ -175,10 +225,9 @@ public class AdminLeadersGUI {
             int slot = unassignedSlots[i];
             if (i < unassigned.size()) {
                 Player target = unassigned.get(i);
-                ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+                ItemStack skull = SkullUtil.getPlayerHead(target);
                 SkullMeta sm = (SkullMeta) skull.getItemMeta();
                 if (sm != null) {
-                    sm.setOwningPlayer(target);
                     sm.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + target.getName());
                     List<String> lore = new ArrayList<>();
                     lore.add(ChatColor.GRAY + TextUtil.toTiny("Estado: Sin equipo asignado"));
@@ -198,8 +247,6 @@ public class AdminLeadersGUI {
                 gui.setItem(slot, border);
             }
         }
-
-        player.openInventory(gui);
     }
 
     private static void populateTeamMembers(Inventory gui, TTRTeam team, int[] slots) {
@@ -210,10 +257,9 @@ public class AdminLeadersGUI {
             String name = (off.getName() != null) ? off.getName() : "Jugador";
             boolean isLeader = team.isLeader(memberUuid);
 
-            ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+            ItemStack skull = SkullUtil.getPlayerHead(off);
             SkullMeta sm = (SkullMeta) skull.getItemMeta();
             if (sm != null) {
-                sm.setOwningPlayer(off);
                 String badge = isLeader ? ChatColor.GOLD + "★ " : "";
                 sm.setDisplayName(badge + team.getColor() + "" + ChatColor.BOLD + name);
 

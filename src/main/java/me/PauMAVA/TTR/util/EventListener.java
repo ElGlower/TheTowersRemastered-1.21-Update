@@ -66,6 +66,14 @@ public class EventListener implements Listener {
             return;
         }
 
+        if (isCageZone(event.getBlock().getLocation())) {
+            if (p.getGameMode() != GameMode.CREATIVE) {
+                event.setCancelled(true);
+                p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡Zona de puntuación protegida! No puedes romper bloques aquí."));
+                return;
+            }
+        }
+
         if (isSpawnZone(event.getBlock().getLocation())) {
             if (p.getGameMode() != GameMode.CREATIVE) {
                 event.setCancelled(true);
@@ -88,7 +96,7 @@ public class EventListener implements Listener {
         if (isCageZone(event.getBlock().getLocation())) {
             if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
                 event.setCancelled(true);
-                event.getPlayer().sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes colocar bloques dentro de las jaulas!"));
+                event.getPlayer().sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡Zona de puntuación protegida! No puedes construir aquí."));
                 return;
             }
         }
@@ -101,13 +109,72 @@ public class EventListener implements Listener {
         }
     }
 
-    private boolean isCageZone(Location blockLoc) {
+    @EventHandler
+    public void onBucketEmpty(org.bukkit.event.player.PlayerBucketEmptyEvent event) {
+        if (!plugin.enabled()) return;
+        if (event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
+        Location target = event.getBlockClicked().getRelative(event.getBlockFace()).getLocation();
+        if (isCageZone(target) || isSpawnZone(target)) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes derramar líquidos en esta zona protegida!"));
+        }
+    }
+
+    @EventHandler
+    public void onBlockFromTo(org.bukkit.event.block.BlockFromToEvent event) {
+        if (!plugin.enabled()) return;
+        if (isCageZone(event.getToBlock().getLocation()) || isSpawnZone(event.getToBlock().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPistonExtend(org.bukkit.event.block.BlockPistonExtendEvent event) {
+        if (!plugin.enabled()) return;
+        for (org.bukkit.block.Block b : event.getBlocks()) {
+            if (isCageZone(b.getLocation()) || isSpawnZone(b.getLocation()) ||
+                isCageZone(b.getRelative(event.getDirection()).getLocation()) || isSpawnZone(b.getRelative(event.getDirection()).getLocation())) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPistonRetract(org.bukkit.event.block.BlockPistonRetractEvent event) {
+        if (!plugin.enabled()) return;
+        for (org.bukkit.block.Block b : event.getBlocks()) {
+            if (isCageZone(b.getLocation()) || isSpawnZone(b.getLocation())) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onEntityExplode(org.bukkit.event.entity.EntityExplodeEvent event) {
+        if (!plugin.enabled()) return;
+        event.blockList().removeIf(b -> isCageZone(b.getLocation()) || isSpawnZone(b.getLocation()));
+    }
+
+    @EventHandler
+    public void onBlockExplode(org.bukkit.event.block.BlockExplodeEvent event) {
+        if (!plugin.enabled()) return;
+        event.blockList().removeIf(b -> isCageZone(b.getLocation()) || isSpawnZone(b.getLocation()));
+    }
+
+    public boolean isCageZone(Location blockLoc) {
+        if (blockLoc == null || blockLoc.getWorld() == null) return false;
         for (TTRTeam team : plugin.getTeamHandler().getTeams()) {
             List<Location> cages = plugin.getConfigManager().getTeamCages(team.getIdentifier());
             if (cages != null) {
                 for (Location cage : cages) {
                     if (cage != null && cage.getWorld() != null && cage.getWorld().equals(blockLoc.getWorld())) {
-                        if (cage.distance(blockLoc) <= 3.5) {
+                        double dx = Math.abs(cage.getX() - blockLoc.getX());
+                        double dz = Math.abs(cage.getZ() - blockLoc.getZ());
+                        double dy = blockLoc.getY() - cage.getY();
+                        // Volumen tridimensional de protección de la jaula / tiro de caída
+                        if (dx <= 5.5 && dz <= 5.5 && dy >= -4.0 && dy <= 14.0) {
                             return true;
                         }
                     }
@@ -117,11 +184,15 @@ public class EventListener implements Listener {
         return false;
     }
 
-    private boolean isSpawnZone(Location blockLoc) {
+    public boolean isSpawnZone(Location blockLoc) {
+        if (blockLoc == null || blockLoc.getWorld() == null) return false;
         for (TTRTeam team : plugin.getTeamHandler().getTeams()) {
             Location spawn = plugin.getConfigManager().getTeamSpawn(team.getIdentifier());
             if (spawn != null && spawn.getWorld() != null && spawn.getWorld().equals(blockLoc.getWorld())) {
-                if (spawn.distance(blockLoc) <= PROTECTION_RADIUS) {
+                double dx = Math.abs(spawn.getX() - blockLoc.getX());
+                double dz = Math.abs(spawn.getZ() - blockLoc.getZ());
+                double dy = blockLoc.getY() - spawn.getY();
+                if (dx <= 9.0 && dz <= 9.0 && dy >= -4.0 && dy <= 14.0) {
                     return true;
                 }
             }
@@ -222,6 +293,20 @@ public class EventListener implements Listener {
                 if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
                     Location lobby = plugin.getConfigManager().getLobbyLocation();
                     if (lobby != null) player.teleport(lobby);
+                }
+                return;
+            }
+
+            // Spawn protection en partida contra daños ambientales, fuego, lava y explosiones
+            TTRTeam victimTeam = plugin.getTeamHandler().getPlayerTeam(player);
+            if (victimTeam != null) {
+                Location spawn = plugin.getConfigManager().getTeamSpawn(victimTeam.getIdentifier());
+                if (spawn != null && spawn.getWorld() != null && spawn.getWorld().equals(player.getWorld())) {
+                    if (spawn.distance(player.getLocation()) <= 9.0) {
+                        if (event.getCause() != EntityDamageEvent.DamageCause.VOID) {
+                            event.setCancelled(true);
+                        }
+                    }
                 }
             }
         }

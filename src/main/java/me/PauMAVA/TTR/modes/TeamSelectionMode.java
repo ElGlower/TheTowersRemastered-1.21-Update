@@ -5,8 +5,7 @@ import org.bukkit.ChatColor;
 
 public enum TeamSelectionMode {
     STANDARD(ChatColor.YELLOW + TextUtil.toTiny("Estándar (Libre/Auto)"), "Selección clásica de equipo por menú o asignación automática."),
-    LEADER_VOTING(ChatColor.AQUA + TextUtil.toTiny("Votación de Líder"), "Votación interna por rondas hasta coronar a los 2 capitanes."),
-    AUCTION_DRAFT(ChatColor.GOLD + TextUtil.toTiny("Subasta / Puja"), "Los capitanes pujan con créditos por los jugadores disponibles.");
+    AUCTION_DRAFT(ChatColor.GOLD + TextUtil.toTiny("Subasta / Puja"), "Votación de líderes y posterior puja con créditos por miembros.");
 
     private final String displayName;
     private final String description;

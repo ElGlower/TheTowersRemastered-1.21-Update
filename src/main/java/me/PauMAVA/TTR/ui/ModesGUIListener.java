@@ -104,16 +104,18 @@ public class ModesGUIListener implements Listener {
                     plugin.getModeAnnouncementManager().cancel();
                     plugin.getLeaderVoteManager().cancelVoting();
                     plugin.getAuctionDraftManager().cancelDraft();
-                    player.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Fase activa detenida con éxito."));
-                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
-                    AdminLeadersGUI.open(player);
-                    break;
-                }
-                case "start_voting": {
-                    plugin.getModeAnnouncementManager().announceMode(me.PauMAVA.TTR.modes.TeamSelectionMode.LEADER_VOTING, () -> {
-                        plugin.getLeaderVoteManager().startVoting(true);
-                    });
-                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.2f);
+                    if (plugin.getAutoStarter() != null) {
+                        plugin.getAutoStarter().cancelCountdown();
+                    }
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        p.setLevel(0);
+                        p.setExp(0.0f);
+                        if (p.getOpenInventory() != null && (p.getOpenInventory().getTitle().contains(TextUtil.toTiny("Votación de Líder")) || p.getOpenInventory().getTitle().equals(AuctionDraftGUI.TITLE))) {
+                            p.closeInventory();
+                        }
+                    }
+                    Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + TextUtil.color("&#FF2E2E" + TextUtil.toTiny("¡La fase activa ha sido cancelada por un administrador!")));
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
                     AdminLeadersGUI.open(player);
                     break;
                 }

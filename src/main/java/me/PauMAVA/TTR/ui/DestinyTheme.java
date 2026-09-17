@@ -31,10 +31,21 @@ public class DestinyTheme {
         TextUtil.color("&#FFFFFF◆ &#FFFFFF§lᴅᴇsᴛɪɴʏ &#FF2E2E§lᴛᴏᴡᴇʀs &#FFFFFF◆")
     };
 
+    // Animación de DestinyOwners estrictamente en paleta de blancos y grises (#FFFFFF, #CCCCCC, #888888, etc.)
     public static final String[] FOOTER_FRAMES = {
-        TextUtil.color("&#888888● &#FFFFFF§lᴅᴇsᴛɪɴʏ&#FF2E2E§lᴏᴡɴᴇʀs &#888888●"),
-        TextUtil.color("&#CCCCCC● &#FFFFFF§lᴅᴇsᴛɪɴʏ&#FF5555§lᴏᴡɴᴇʀs &#CCCCCC●"),
-        TextUtil.color("&#FFFFFF● &#EAEAEA§lᴅᴇsᴛɪɴʏ&#FF2E2E§lᴏᴡɴᴇʀs &#FFFFFF●"),
-        TextUtil.color("&#FF2E2E● &#FFFFFF§lᴅᴇsᴛɪɴʏ&#E63946§lᴏᴡɴᴇʀs &#FF2E2E●")
+        TextUtil.color("&#666666● &#888888§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs &#666666●"),
+        TextUtil.color("&#888888● &#AAAAAA§lᴅ&#888888§lᴇsᴛɪɴʏᴏᴡɴᴇʀs &#888888●"),
+        TextUtil.color("&#AAAAAA● &#CCCCCC§lᴅᴇ&#AAAAAA§lsᴛɪɴʏᴏᴡɴᴇʀs &#AAAAAA●"),
+        TextUtil.color("&#CCCCCC● &#E0E0E0§lᴅᴇs&#CCCCCC§lᴛɪɴʏᴏᴡɴᴇʀs &#CCCCCC●"),
+        TextUtil.color("&#EAEAEA● &#FFFFFF§lᴅᴇsᴛ&#E0E0E0§lɪɴʏᴏᴡɴᴇʀs &#EAEAEA●"),
+        TextUtil.color("&#FFFFFF● &#E0E0E0§lᴅᴇsᴛɪ&#FFFFFF§lɴ&#E0E0E0§lʏᴏᴡɴᴇʀs &#FFFFFF●"),
+        TextUtil.color("&#FFFFFF● &#CCCCCC§lᴅᴇsᴛɪɴ&#FFFFFF§lʏ&#CCCCCC§lᴏᴡɴᴇʀs &#FFFFFF●"),
+        TextUtil.color("&#EAEAEA● &#AAAAAA§lᴅᴇsᴛɪɴʏ&#FFFFFF§lᴏ&#AAAAAA§lᴡɴᴇʀs &#EAEAEA●"),
+        TextUtil.color("&#CCCCCC● &#888888§lᴅᴇsᴛɪɴʏᴏ&#FFFFFF§lᴡ&#888888§lɴᴇʀs &#CCCCCC●"),
+        TextUtil.color("&#AAAAAA● &#888888§lᴅᴇsᴛɪɴʏᴏᴡ&#FFFFFF§lɴ&#888888§lᴇʀs &#AAAAAA●"),
+        TextUtil.color("&#888888● &#888888§lᴅᴇsᴛɪɴʏᴏᴡɴ&#FFFFFF§lᴇ&#888888§lʀs &#888888●"),
+        TextUtil.color("&#666666● &#888888§lᴅᴇsᴛɪɴʏᴏᴡɴᴇ&#FFFFFF§lʀ&#888888§ls &#666666●"),
+        TextUtil.color("&#888888● &#FFFFFF§l◆ &#E0E0E0§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs &#FFFFFF§l◆ &#888888●"),
+        TextUtil.color("&#FFFFFF● &#FFFFFF§l★ ᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs ★ &#FFFFFF●")
     };
 }
