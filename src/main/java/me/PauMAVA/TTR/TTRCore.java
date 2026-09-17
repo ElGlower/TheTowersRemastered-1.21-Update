@@ -31,8 +31,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.UUID;
 
 public class TTRCore extends JavaPlugin {
 
@@ -231,4 +234,17 @@ public class TTRCore extends JavaPlugin {
     public boolean isCounting() { return counting; }
     public void setCounting(boolean counting) { this.counting = counting; }
     public boolean enabled() { return isEnabled(); }
+
+    public static boolean isAdmin(Player player) {
+        if (player == null) return false;
+        return player.isOp() || player.hasPermission("destinytowers.admin") || player.hasPermission("ttr.admin");
+    }
+
+    public static boolean isAdmin(UUID uuid) {
+        if (uuid == null) return false;
+        Player p = Bukkit.getPlayer(uuid);
+        if (p != null) return isAdmin(p);
+        OfflinePlayer off = Bukkit.getOfflinePlayer(uuid);
+        return off.isOp();
+    }
 }

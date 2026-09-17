@@ -38,7 +38,10 @@ public class AutoStarter {
         }
 
         int required = plugin.getConfigManager().getAutoStartPlayers();
-        int currentOnline = Bukkit.getOnlinePlayers().size();
+        int currentOnline = 0;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!TTRCore.isAdmin(p)) currentOnline++;
+        }
 
         if (currentOnline >= required) {
             if (!plugin.isCounting()) {
@@ -67,7 +70,11 @@ public class AutoStarter {
                 }
 
                 int required = plugin.getConfigManager().getAutoStartPlayers();
-                if (Bukkit.getOnlinePlayers().size() < required) {
+                int activeCount = 0;
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (!TTRCore.isAdmin(p)) activeCount++;
+                }
+                if (activeCount < required) {
                     cancel();
                     plugin.setCounting(false);
                     Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.RED + 

@@ -69,7 +69,9 @@ public class LeaderVoteGUI {
                 lore.add(ChatColor.GRAY + TextUtil.toTiny("Candidato a líder de tu equipo"));
                 lore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
 
-                if (candUuid.equals(votedFor)) {
+                if (TTRCore.isAdmin(player)) {
+                    lore.add(ChatColor.GRAY + TextUtil.toTiny("Supervisión Staff (No votas)"));
+                } else if (candUuid.equals(votedFor)) {
                     lore.add(ChatColor.GREEN + "✔ " + TextUtil.toTiny("¡Tu voto emitido!"));
                 } else {
                     lore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic para votar a este líder"));

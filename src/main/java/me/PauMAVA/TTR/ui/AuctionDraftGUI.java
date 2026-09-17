@@ -26,6 +26,7 @@ public class AuctionDraftGUI {
     public static final String TITLE = ChatColor.DARK_GRAY + "⚖ " + ChatColor.GOLD +
             TextUtil.toTiny("Subasta de Miembros (Draft)");
     public static final NamespacedKey KEY_ACTION = new NamespacedKey(TTRCore.getInstance(), "ttr_auction_action");
+    public static final NamespacedKey KEY_BID_AMOUNT = new NamespacedKey(TTRCore.getInstance(), "ttr_auction_amount");
 
     public static void open(Player player, AuctionDraftManager draft) {
         Inventory gui = Bukkit.createInventory(null, 27, TITLE);
@@ -110,13 +111,18 @@ public class AuctionDraftGUI {
 
         // Bidding controls (Slots 19, 20, 21, 25) vs Spectator info (Slot 22)
         TTRTeam viewerTeam = plugin.getTeamHandler().getPlayerTeam(viewer);
-        boolean isCaptain = (viewerTeam != null && viewerTeam.isLeader(viewer.getUniqueId())) || viewer.isOp();
+        boolean isCaptain = viewerTeam != null && viewerTeam.isLeader(viewer.getUniqueId());
 
         if (isCaptain) {
-            gui.setItem(19, createActionItem(Material.EMERALD, ChatColor.GREEN + "+10 " + TextUtil.toTiny("Créditos"), "bid_10"));
-            gui.setItem(20, createActionItem(Material.EMERALD_BLOCK, ChatColor.GREEN + "" + ChatColor.BOLD + "+25 " + TextUtil.toTiny("Créditos"), "bid_25"));
-            gui.setItem(21, createActionItem(Material.GOLD_BLOCK, ChatColor.GOLD + "" + ChatColor.BOLD + "+50 " + TextUtil.toTiny("Créditos"), "bid_50"));
-            gui.setItem(25, createActionItem(Material.BARRIER, ChatColor.RED + "" + ChatColor.BOLD + TextUtil.toTiny("Pasar Turno"), "pass"));
+            int step = plugin.getConfig().getInt("auction.bid_increment", 10);
+            int b1 = step;
+            int b2 = (step == 10) ? 25 : (step * 2);
+            int b3 = (step == 10) ? 50 : (step * 5);
+
+            gui.setItem(19, createActionItem(Material.EMERALD, ChatColor.GREEN + "+" + b1 + " " + TextUtil.toTiny("Créditos"), "bid_" + b1, b1));
+            gui.setItem(20, createActionItem(Material.EMERALD_BLOCK, ChatColor.GREEN + "" + ChatColor.BOLD + "+" + b2 + " " + TextUtil.toTiny("Créditos"), "bid_" + b2, b2));
+            gui.setItem(21, createActionItem(Material.GOLD_BLOCK, ChatColor.GOLD + "" + ChatColor.BOLD + "+" + b3 + " " + TextUtil.toTiny("Créditos"), "bid_" + b3, b3));
+            gui.setItem(25, createActionItem(Material.BARRIER, ChatColor.RED + "" + ChatColor.BOLD + TextUtil.toTiny("Pasar Turno"), "pass", 0));
         } else {
             ItemStack spectatorItem = new ItemStack(Material.PAPER);
             ItemMeta spMeta = spectatorItem.getItemMeta();
@@ -155,12 +161,15 @@ public class AuctionDraftGUI {
         return item;
     }
 
-    private static ItemStack createActionItem(Material mat, String name, String action) {
+    private static ItemStack createActionItem(Material mat, String name, String action, int amount) {
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(name);
             meta.getPersistentDataContainer().set(KEY_ACTION, PersistentDataType.STRING, action);
+            if (amount > 0) {
+                meta.getPersistentDataContainer().set(KEY_BID_AMOUNT, PersistentDataType.INTEGER, amount);
+            }
             item.setItemMeta(meta);
         }
         return item;

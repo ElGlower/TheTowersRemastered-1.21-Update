@@ -22,6 +22,7 @@ voting:
 auction:
   initial_credits: 100    # Créditos iniciales para cada capitán
   turn_seconds: 15        # Segundos por turno para pujar por cada jugador
+  bid_increment: 10       # Incremento base de pujas (1x, 2.5x, 5x)
 
 # Tiempo de Anuncio / Lectura de Reglas de Modo
 modes:

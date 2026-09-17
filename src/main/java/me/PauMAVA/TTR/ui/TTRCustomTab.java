@@ -37,11 +37,14 @@ public class TTRCustomTab extends BukkitRunnable {
                 ChatColor.DARK_GRAY + "§m                             \n" +
                 getMatchStatus() + "\n";
 
-        int online = Bukkit.getOnlinePlayers().size();
+        int playingCount = 0;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!TTRCore.isAdmin(p)) playingCount++;
+        }
         int ping = player.getPing();
 
         String footer = "\n" +
-                ChatColor.GRAY + TextUtil.toTiny("Jugadores: ") + ChatColor.AQUA + TextUtil.toTiny(String.valueOf(online)) +
+                ChatColor.GRAY + TextUtil.toTiny("Jugadores: ") + ChatColor.AQUA + TextUtil.toTiny(String.valueOf(playingCount)) +
                 ChatColor.DARK_GRAY + "  ▪  " + ChatColor.GRAY + TextUtil.toTiny("Ping: ") + getPingDisplay(ping) + "\n" +
                 ChatColor.DARK_GRAY + "§m                             \n" +
                 animatedFooter + "\n";
@@ -60,7 +63,7 @@ public class TTRCustomTab extends BukkitRunnable {
             killsInfo = ChatColor.DARK_GRAY + " [" + ChatColor.YELLOW + TextUtil.toTiny(String.valueOf(kills)) + ChatColor.DARK_GRAY + "]";
         }
 
-        boolean isStaff = player.isOp() || player.hasPermission("destinytowers.admin") || player.hasPermission("ttr.admin");
+        boolean isStaff = TTRCore.isAdmin(player);
 
         if (team != null) {
             boolean isLeader = team.isLeader(player.getUniqueId());

@@ -123,9 +123,12 @@ public class ScoreboardHandler {
         } else {
             newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Estado: ") + getMatchState(status));
 
-            int online = Bukkit.getOnlinePlayers().size();
+            int playingCount = 0;
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (!TTRCore.isAdmin(p)) playingCount++;
+            }
             int required = plugin.getConfig().getInt("autostart.count", 4);
-            newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Jugadores: ") + ChatColor.AQUA + TextUtil.toTiny(String.valueOf(online)) + ChatColor.DARK_GRAY + "/" + ChatColor.GRAY + TextUtil.toTiny(String.valueOf(required)));
+            newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Jugadores: ") + ChatColor.AQUA + TextUtil.toTiny(String.valueOf(playingCount)) + ChatColor.DARK_GRAY + "/" + ChatColor.GRAY + TextUtil.toTiny(String.valueOf(required)));
 
             if (plugin.getAutoStarter() != null && plugin.isCounting()) {
                 int cd = plugin.getAutoStarter().getCountdown();
@@ -135,10 +138,15 @@ public class ScoreboardHandler {
             newLines.add("§1§r");
 
             TTRTeam playerTeam = plugin.getTeamHandler() != null ? plugin.getTeamHandler().getPlayerTeam(player) : null;
-            String teamName = (playerTeam != null) ? 
-                    playerTeam.getColor() + TextUtil.toTiny(capitalize(playerTeam.getIdentifier())) : 
-                    ChatColor.GRAY + TextUtil.toTiny("Sin Asignar");
-            newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Tu Equipo: ") + teamName);
+            String teamName;
+            if (playerTeam != null) {
+                teamName = playerTeam.getColor() + TextUtil.toTiny(capitalize(playerTeam.getIdentifier()));
+            } else if (TTRCore.isAdmin(player)) {
+                teamName = DestinyTheme.DESTINY_ROLE_BADGE;
+            } else {
+                teamName = ChatColor.GRAY + TextUtil.toTiny("Sin Asignar");
+            }
+            newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + (playerTeam != null ? TextUtil.toTiny("Tu Equipo: ") : TextUtil.toTiny("Tu Rol: ")) + teamName);
         }
 
         // Footer DestinyOwners

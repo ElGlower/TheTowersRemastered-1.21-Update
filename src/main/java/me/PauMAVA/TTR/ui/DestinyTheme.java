@@ -11,7 +11,7 @@ public class DestinyTheme {
     // Rol [Destiny] en blanco y grises (#FFFFFF, #CCCCCC, #888888)
     public static final String DESTINY_ROLE_BADGE = TextUtil.color("&#888888[&#FFFFFF" + TextUtil.toTiny("Destiny") + "&#888888]");
 
-    // Animación fluida con brillo móvil para Scoreboard y Tablist
+    // Animación fluida con brillo móvil para Scoreboard y Tablist (longitud fija estricta)
     public static final String[] SHINE_FRAMES = {
         TextUtil.color("&#888888◆ &#FFFFFF§lᴅᴇsᴛɪɴʏ &#FF2E2E§lᴛᴏᴡᴇʀs &#888888◆"),
         TextUtil.color("&#CCCCCC◆ &#FFFFFF§lᴅ&#D4D4D4§lsᴛɪɴʏ &#FF2E2E§lᴛᴏᴡᴇʀs &#888888◆"),
@@ -26,26 +26,32 @@ public class DestinyTheme {
         TextUtil.color("&#888888◆ &#FFFFFF§lᴅᴇsᴛɪɴʏ &#FF2E2E§lᴛᴏ&#FF7575§lᴡ&#FF2E2E§lᴇʀs &#888888◆"),
         TextUtil.color("&#888888◆ &#FFFFFF§lᴅᴇsᴛɪɴʏ &#FF2E2E§lᴛᴏᴡ&#FF7575§lᴇ&#FF2E2E§lʀs &#888888◆"),
         TextUtil.color("&#888888◆ &#FFFFFF§lᴅᴇsᴛɪɴʏ &#FF2E2E§lᴛᴏᴡᴇ&#FF7575§lʀ&#FF2E2E§ls &#888888◆"),
-        TextUtil.color("&#888888◆ &#FFFFFF§lᴅᴇsᴛɪɴʏ &#FF2E2E§lᴛᴏᴡᴇʀ&#FF7575§ls &#FF2E2E◆"),
-        TextUtil.color("&#FF2E2E◆ &#FFFFFF§l◆ &#FFFFFF§lᴅᴇsᴛɪɴʏ &#FF2E2E§lᴛᴏᴡᴇʀs &#FFFFFF§l◆ &#FF2E2E◆"),
+        TextUtil.color("&#888888◆ &#FFFFFF§lᴅᴇsᴛɪɴʏ &#FF2E2E§lᴛᴏᴡᴇʀ&#FF7575§ls &#888888◆"),
+        TextUtil.color("&#FF2E2E◆ &#FFFFFF§lᴅᴇsᴛɪɴʏ &#FF2E2E§lᴛᴏᴡᴇʀs &#FF2E2E◆"),
         TextUtil.color("&#FFFFFF◆ &#FFFFFF§lᴅᴇsᴛɪɴʏ &#FF2E2E§lᴛᴏᴡᴇʀs &#FFFFFF◆")
     };
 
-    // Animación de DestinyOwners estrictamente en paleta de blancos y grises (#FFFFFF, #CCCCCC, #888888, etc.)
+    // Animación fija de DestinyOwners estrictamente en paleta de blancos y grises (#FFFFFF, #CCCCCC, #888888, #666666)
+    // Longitud fija de 13 caracteres (sin símbolos cambiantes) para evitar parpadeo o cambios de tamaño en Scoreboard y Tab
     public static final String[] FOOTER_FRAMES = {
-        TextUtil.color("&#666666● &#888888§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs &#666666●"),
-        TextUtil.color("&#888888● &#AAAAAA§lᴅ&#888888§lᴇsᴛɪɴʏᴏᴡɴᴇʀs &#888888●"),
-        TextUtil.color("&#AAAAAA● &#CCCCCC§lᴅᴇ&#AAAAAA§lsᴛɪɴʏᴏᴡɴᴇʀs &#AAAAAA●"),
-        TextUtil.color("&#CCCCCC● &#E0E0E0§lᴅᴇs&#CCCCCC§lᴛɪɴʏᴏᴡɴᴇʀs &#CCCCCC●"),
-        TextUtil.color("&#EAEAEA● &#FFFFFF§lᴅᴇsᴛ&#E0E0E0§lɪɴʏᴏᴡɴᴇʀs &#EAEAEA●"),
-        TextUtil.color("&#FFFFFF● &#E0E0E0§lᴅᴇsᴛɪ&#FFFFFF§lɴ&#E0E0E0§lʏᴏᴡɴᴇʀs &#FFFFFF●"),
-        TextUtil.color("&#FFFFFF● &#CCCCCC§lᴅᴇsᴛɪɴ&#FFFFFF§lʏ&#CCCCCC§lᴏᴡɴᴇʀs &#FFFFFF●"),
-        TextUtil.color("&#EAEAEA● &#AAAAAA§lᴅᴇsᴛɪɴʏ&#FFFFFF§lᴏ&#AAAAAA§lᴡɴᴇʀs &#EAEAEA●"),
-        TextUtil.color("&#CCCCCC● &#888888§lᴅᴇsᴛɪɴʏᴏ&#FFFFFF§lᴡ&#888888§lɴᴇʀs &#CCCCCC●"),
-        TextUtil.color("&#AAAAAA● &#888888§lᴅᴇsᴛɪɴʏᴏᴡ&#FFFFFF§lɴ&#888888§lᴇʀs &#AAAAAA●"),
-        TextUtil.color("&#888888● &#888888§lᴅᴇsᴛɪɴʏᴏᴡɴ&#FFFFFF§lᴇ&#888888§lʀs &#888888●"),
-        TextUtil.color("&#666666● &#888888§lᴅᴇsᴛɪɴʏᴏᴡɴᴇ&#FFFFFF§lʀ&#888888§ls &#666666●"),
-        TextUtil.color("&#888888● &#FFFFFF§l◆ &#E0E0E0§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs &#FFFFFF§l◆ &#888888●"),
-        TextUtil.color("&#FFFFFF● &#FFFFFF§l★ ᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs ★ &#FFFFFF●")
+        TextUtil.color("&#666666§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs"),
+        TextUtil.color("&#FFFFFF§lᴅ&#888888§lᴇsᴛɪɴʏᴏᴡɴᴇʀs"),
+        TextUtil.color("&#CCCCCC§lᴅ&#FFFFFF§lᴇ&#888888§lsᴛɪɴʏᴏᴡɴᴇʀs"),
+        TextUtil.color("&#AAAAAA§lᴅ&#CCCCCC§lᴇ&#FFFFFF§ls&#888888§lᴛɪɴʏᴏᴡɴᴇʀs"),
+        TextUtil.color("&#888888§lᴅ&#AAAAAA§lᴇ&#CCCCCC§ls&#FFFFFF§lᴛ&#888888§lɪɴʏᴏᴡɴᴇʀs"),
+        TextUtil.color("&#888888§lᴅᴇ&#AAAAAA§ls&#CCCCCC§lᴛ&#FFFFFF§lɪ&#888888§lɴʏᴏᴡɴᴇʀs"),
+        TextUtil.color("&#888888§lᴅᴇs&#AAAAAA§lᴛ&#CCCCCC§lɪ&#FFFFFF§lɴ&#888888§lʏᴏᴡɴᴇʀs"),
+        TextUtil.color("&#888888§lᴅᴇsᴛ&#AAAAAA§lɪ&#CCCCCC§lɴ&#FFFFFF§lʏ&#888888§lᴏᴡɴᴇʀs"),
+        TextUtil.color("&#888888§lᴅᴇsᴛɪ&#AAAAAA§lɴ&#CCCCCC§lʏ&#FFFFFF§lᴏ&#888888§lᴡɴᴇʀs"),
+        TextUtil.color("&#888888§lᴅᴇsᴛɪɴ&#AAAAAA§lʏ&#CCCCCC§lᴏ&#FFFFFF§lᴡ&#888888§lɴᴇʀs"),
+        TextUtil.color("&#888888§lᴅᴇsᴛɪɴʏ&#AAAAAA§lᴏ&#CCCCCC§lᴡ&#FFFFFF§lɴ&#888888§lᴇʀs"),
+        TextUtil.color("&#888888§lᴅᴇsᴛɪɴʏᴏ&#AAAAAA§lᴡ&#CCCCCC§lɴ&#FFFFFF§lᴇ&#888888§lʀs"),
+        TextUtil.color("&#888888§lᴅᴇsᴛɪɴʏᴏᴡ&#AAAAAA§lɴ&#CCCCCC§lᴇ&#FFFFFF§lʀ&#888888§ls"),
+        TextUtil.color("&#888888§lᴅᴇsᴛɪɴʏᴏᴡɴ&#AAAAAA§lᴇ&#CCCCCC§lʀ&#FFFFFF§ls"),
+        TextUtil.color("&#CCCCCC§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs"),
+        TextUtil.color("&#FFFFFF§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs"),
+        TextUtil.color("&#E0E0E0§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs"),
+        TextUtil.color("&#AAAAAA§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs"),
+        TextUtil.color("&#888888§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs")
     };
 }

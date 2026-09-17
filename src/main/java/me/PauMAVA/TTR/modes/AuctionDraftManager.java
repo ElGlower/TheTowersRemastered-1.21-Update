@@ -54,12 +54,16 @@ public class AuctionDraftManager {
         TTRTeam blue = plugin.getTeamHandler().getTeam("Blue");
 
         if ((red != null && red.getLeader() == null) || (blue != null && blue.getLeader() == null)) {
-            // Intentar asignar automáticamente el primer miembro como líder si ya existen miembros
+            // Intentar asignar automáticamente el primer miembro como líder si ya existen miembros (no administradores)
             if (red != null && red.getLeader() == null && !red.getPlayers().isEmpty()) {
-                red.setLeader(red.getPlayers().get(0));
+                for (UUID u : red.getPlayers()) {
+                    if (!TTRCore.isAdmin(u)) { red.setLeader(u); break; }
+                }
             }
             if (blue != null && blue.getLeader() == null && !blue.getPlayers().isEmpty()) {
-                blue.setLeader(blue.getPlayers().get(0));
+                for (UUID u : blue.getPlayers()) {
+                    if (!TTRCore.isAdmin(u)) { blue.setLeader(u); break; }
+                }
             }
 
             if ((red != null && red.getLeader() == null) || (blue != null && blue.getLeader() == null)) {
@@ -71,9 +75,10 @@ public class AuctionDraftManager {
             }
         }
 
-        // Populate pool with players who are not leaders
+        // Populate pool with players who are not leaders and NOT admins
         pool.clear();
         for (Player p : Bukkit.getOnlinePlayers()) {
+            if (TTRCore.isAdmin(p)) continue; // Administradores no se subastan
             TTRTeam team = plugin.getTeamHandler().getPlayerTeam(p);
             if (team != null && team.isLeader(p.getUniqueId())) {
                 continue; // Leaders don't get auctioned
@@ -140,6 +145,7 @@ public class AuctionDraftManager {
 
         if (red != null && red.getLeader() == null) {
             for (Player p : Bukkit.getOnlinePlayers()) {
+                if (TTRCore.isAdmin(p)) continue;
                 red.setLeader(p.getUniqueId());
                 red.addPlayer(p);
                 break;
@@ -147,6 +153,7 @@ public class AuctionDraftManager {
         }
         if (blue != null && blue.getLeader() == null) {
             for (Player p : Bukkit.getOnlinePlayers()) {
+                if (TTRCore.isAdmin(p)) continue;
                 if (red != null && !p.getUniqueId().equals(red.getLeader())) {
                     blue.setLeader(p.getUniqueId());
                     blue.addPlayer(p);
@@ -232,14 +239,11 @@ public class AuctionDraftManager {
         TTRTeam team = plugin.getTeamHandler().getPlayerTeam(captain);
 
         if (team == null || !team.isLeader(captain.getUniqueId())) {
-            // Allow OP as fallback
-            if (!captain.isOp()) {
-                captain.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Solo los capitanes de equipo pueden pujar."));
-                return false;
-            }
+            captain.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Solo los capitanes de equipo pueden pujar."));
+            return false;
         }
 
-        String teamId = (team != null) ? team.getIdentifier().toLowerCase() : "red";
+        String teamId = team.getIdentifier().toLowerCase();
         int available = getTeamCredits(teamId);
         int newBid = currentBid + amountToAdd;
 
@@ -260,7 +264,7 @@ public class AuctionDraftManager {
             secondsRemaining = 7;
         }
 
-        ChatColor color = (team != null) ? team.getColor() : ChatColor.GOLD;
+        ChatColor color = team.getColor();
         Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + color + captain.getName() + " (" + TextUtil.toTiny(teamId) + ") " +
                 ChatColor.YELLOW + TextUtil.toTiny("puja ") + ChatColor.GREEN + currentBid + " créditos" +
                 ChatColor.GRAY + " (⏱ " + secondsRemaining + "s)");
@@ -277,7 +281,10 @@ public class AuctionDraftManager {
         if (!active) return;
         TTRCore plugin = TTRCore.getInstance();
         TTRTeam team = plugin.getTeamHandler().getPlayerTeam(captain);
-        if (team == null) return;
+        if (team == null || !team.isLeader(captain.getUniqueId())) {
+            captain.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Solo los capitanes de equipo pueden pasar turno."));
+            return;
+        }
 
         String teamId = team.getIdentifier().toLowerCase();
         passed.put(teamId, true);

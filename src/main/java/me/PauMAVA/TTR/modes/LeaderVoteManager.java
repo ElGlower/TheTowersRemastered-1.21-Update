@@ -27,7 +27,11 @@ public class LeaderVoteManager {
 
         public TeamVoteState(TTRTeam team) {
             this.team = team;
-            this.candidates.addAll(team.getPlayers());
+            for (UUID uuid : team.getPlayers()) {
+                if (!TTRCore.isAdmin(uuid)) {
+                    this.candidates.add(uuid);
+                }
+            }
         }
 
         public TTRTeam getTeam() { return team; }
@@ -72,9 +76,15 @@ public class LeaderVoteManager {
         TTRCore plugin = TTRCore.getInstance();
         cancelVoting();
 
-        List<Player> online = new ArrayList<>(Bukkit.getOnlinePlayers());
-        if (online.size() < 2) {
-            Bukkit.broadcastMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Se requieren al menos 2 jugadores para iniciar la fase."));
+        List<Player> playing = new ArrayList<>();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!TTRCore.isAdmin(p)) {
+                playing.add(p);
+            }
+        }
+
+        if (playing.size() < 2) {
+            Bukkit.broadcastMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Se requieren al menos 2 jugadores (no administradores) para iniciar la fase."));
             return;
         }
 
@@ -82,10 +92,10 @@ public class LeaderVoteManager {
         TTRTeam blue = plugin.getTeamHandler().getTeam("Blue");
 
         // Caso especial 2 jugadores: 1v1 automático, coronar líderes de inmediato
-        if (online.size() == 2) {
+        if (playing.size() == 2) {
             if (red != null && blue != null) {
-                Player p1 = online.get(0);
-                Player p2 = online.get(1);
+                Player p1 = playing.get(0);
+                Player p2 = playing.get(1);
                 plugin.getTeamHandler().setPlayerTeam(p1, red);
                 plugin.getTeamHandler().setPlayerTeam(p2, blue);
                 crownLeader(red, p1.getUniqueId());
@@ -101,13 +111,13 @@ public class LeaderVoteManager {
             }
         }
 
-        // Si los equipos están vacíos (jugadores en lobby), repartir equitativamente para votar
+        // Si los equipos están vacíos (jugadores en lobby), repartir equitativamente SOLO jugadores participantes
         if (red != null && blue != null && red.getPlayers().isEmpty() && blue.getPlayers().isEmpty()) {
-            for (int i = 0; i < online.size(); i++) {
+            for (int i = 0; i < playing.size(); i++) {
                 if (i % 2 == 0) {
-                    plugin.getTeamHandler().setPlayerTeam(online.get(i), red);
+                    plugin.getTeamHandler().setPlayerTeam(playing.get(i), red);
                 } else {
-                    plugin.getTeamHandler().setPlayerTeam(online.get(i), blue);
+                    plugin.getTeamHandler().setPlayerTeam(playing.get(i), blue);
                 }
             }
         }
@@ -146,15 +156,11 @@ public class LeaderVoteManager {
                 TextUtil.toTiny("Vota a tu compañero de equipo para líder (Ronda 1)."));
 
         for (Player p : Bukkit.getOnlinePlayers()) {
+            if (TTRCore.isAdmin(p)) continue; // Administradores no participan en votación
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1.2f);
             TTRTeam team = plugin.getTeamHandler().getPlayerTeam(p);
             if (team != null) {
                 TeamVoteState state = getState(team.getIdentifier());
-                if (state != null) {
-                    LeaderVoteGUI.open(p, state);
-                }
-            } else {
-                TeamVoteState state = getState("red");
                 if (state != null) {
                     LeaderVoteGUI.open(p, state);
                 }
@@ -197,6 +203,10 @@ public class LeaderVoteManager {
 
     public boolean castVote(Player voter, UUID candidate) {
         if (!active) return false;
+        if (TTRCore.isAdmin(voter)) {
+            voter.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Los administradores no participan en las votaciones."));
+            return false;
+        }
         TTRCore plugin = TTRCore.getInstance();
         TTRTeam team = plugin.getTeamHandler().getPlayerTeam(voter);
         if (team == null) return false;
@@ -213,10 +223,10 @@ public class LeaderVoteManager {
         String name = (target != null) ? target.getName() : "jugador";
         voter.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Has votado por ") + ChatColor.YELLOW + name);
 
-        // Check if all team members have voted
+        // Check if all team members have voted (excluding admins)
         int totalOnline = 0;
         for (UUID member : state.getTeam().getPlayers()) {
-            if (Bukkit.getPlayer(member) != null) totalOnline++;
+            if (!TTRCore.isAdmin(member) && Bukkit.getPlayer(member) != null) totalOnline++;
         }
         if (state.getVotes().size() >= totalOnline && totalOnline > 0) {
             checkEarlyRoundAdvance(state);
@@ -231,7 +241,7 @@ public class LeaderVoteManager {
             if (s.isFinished()) continue;
             int totalOnline = 0;
             for (UUID member : s.getTeam().getPlayers()) {
-                if (Bukkit.getPlayer(member) != null) totalOnline++;
+                if (!TTRCore.isAdmin(member) && Bukkit.getPlayer(member) != null) totalOnline++;
             }
             if (s.getVotes().size() < totalOnline) {
                 allFinishedOrEarly = false;
@@ -292,6 +302,7 @@ public class LeaderVoteManager {
                 String name2 = (c2 != null) ? c2.getName() : "Finalista 2";
 
                 state.getTeam().getPlayers().forEach(uuid -> {
+                    if (TTRCore.isAdmin(uuid)) return;
                     Player p = Bukkit.getPlayer(uuid);
                     if (p != null) {
                         p.sendMessage(TTRPrefix.TTR_GAME + ChatColor.AQUA +

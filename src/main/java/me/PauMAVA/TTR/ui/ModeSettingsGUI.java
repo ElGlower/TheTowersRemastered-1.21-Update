@@ -36,43 +36,61 @@ public class ModeSettingsGUI {
             gui.setItem(i, border);
         }
 
-        // 1. Slot 10: Tiempo por Ronda de Votación
-        int voteSecs = plugin.getConfig().getInt("voting.round_seconds", 20);
-        List<String> voteLore = new ArrayList<>();
-        voteLore.add(ChatColor.GRAY + TextUtil.toTiny("Duración de cada ronda eliminatoria de líderes."));
-        voteLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-        voteLore.add(ChatColor.WHITE + TextUtil.toTiny("Actual: ") + ChatColor.YELLOW + voteSecs + "s");
-        voteLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Ciclar (10s, 15s, 20s, 30s, 45s, 60s)"));
-        gui.setItem(10, createActionItem(Material.CLOCK, ChatColor.GOLD + "" + ChatColor.BOLD + "⏱ " + TextUtil.toTiny("Ronda de Votación"), voteLore, "cycle_vote_secs"));
-
-        // 2. Slot 12: Tiempo por Turno de Subasta
-        int turnSecs = plugin.getConfig().getInt("auction.turn_seconds", 15);
-        List<String> turnLore = new ArrayList<>();
-        turnLore.add(ChatColor.GRAY + TextUtil.toTiny("Tiempo para que los capitanes pujen por un jugador."));
-        turnLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-        turnLore.add(ChatColor.WHITE + TextUtil.toTiny("Actual: ") + ChatColor.YELLOW + turnSecs + "s");
-        turnLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Ciclar (10s, 15s, 20s, 25s, 30s)"));
-        gui.setItem(12, createActionItem(Material.COMPASS, ChatColor.AQUA + "" + ChatColor.BOLD + "⏱ " + TextUtil.toTiny("Turno de Subasta"), turnLore, "cycle_turn_secs"));
-
-        // 3. Slot 14: Créditos Iniciales de Subasta
-        int credits = plugin.getConfig().getInt("auction.initial_credits", 100);
-        List<String> credLore = new ArrayList<>();
-        credLore.add(ChatColor.GRAY + TextUtil.toTiny("Bolsa de créditos inicial para cada capitán."));
-        credLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-        credLore.add(ChatColor.WHITE + TextUtil.toTiny("Actual: ") + ChatColor.GREEN + credits + " créditos");
-        credLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Ciclar (50, 100, 150, 200, 250, 300)"));
-        gui.setItem(14, createActionItem(Material.EMERALD, ChatColor.GREEN + "" + ChatColor.BOLD + "⚖ " + TextUtil.toTiny("Créditos de Subasta"), credLore, "cycle_credits"));
-
-        // 4. Slot 16: Tiempo de Lectura de Reglas de Modo
+        // 1. Slot 10: Tiempo de Lectura de Reglas de Modo
         int readSecs = plugin.getConfig().getInt("modes.explanation_seconds", 60);
         List<String> readLore = new ArrayList<>();
         readLore.add(ChatColor.GRAY + TextUtil.toTiny("Tiempo de espera para leer las reglas antes de iniciar."));
         readLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
         readLore.add(ChatColor.WHITE + TextUtil.toTiny("Actual: ") + (readSecs == 0 ? ChatColor.RED + TextUtil.toTiny("Inmediato (0s)") : ChatColor.YELLOW + String.valueOf(readSecs) + "s"));
         readLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Ciclar (0s, 15s, 30s, 45s, 60s, 90s)"));
-        gui.setItem(16, createActionItem(Material.BOOK, ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "📖 " + TextUtil.toTiny("Tiempo de Lectura"), readLore, "cycle_read_secs"));
+        gui.setItem(10, createActionItem(Material.BOOK, ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "📖 " + TextUtil.toTiny("Tiempo de Lectura"), readLore, "cycle_read_secs"));
 
-        // 5. Slot 22: Volver
+        // 2. Slot 11: Tiempo por Ronda de Votación
+        int voteSecs = plugin.getConfig().getInt("voting.round_seconds", 20);
+        List<String> voteLore = new ArrayList<>();
+        voteLore.add(ChatColor.GRAY + TextUtil.toTiny("Duración de cada ronda eliminatoria de líderes."));
+        voteLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        voteLore.add(ChatColor.WHITE + TextUtil.toTiny("Actual: ") + ChatColor.YELLOW + voteSecs + "s");
+        voteLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Ciclar (10s, 15s, 20s, 30s, 45s, 60s)"));
+        gui.setItem(11, createActionItem(Material.CLOCK, ChatColor.GOLD + "" + ChatColor.BOLD + "⏱ " + TextUtil.toTiny("Ronda de Votación"), voteLore, "cycle_vote_secs"));
+
+        // 3. Slot 12: Tiempo por Turno de Subasta
+        int turnSecs = plugin.getConfig().getInt("auction.turn_seconds", 15);
+        List<String> turnLore = new ArrayList<>();
+        turnLore.add(ChatColor.GRAY + TextUtil.toTiny("Tiempo para que los capitanes pujen por un jugador."));
+        turnLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        turnLore.add(ChatColor.WHITE + TextUtil.toTiny("Actual: ") + ChatColor.YELLOW + turnSecs + "s");
+        turnLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Ciclar (10s, 15s, 20s, 25s, 30s, 45s)"));
+        gui.setItem(12, createActionItem(Material.COMPASS, ChatColor.AQUA + "" + ChatColor.BOLD + "⏱ " + TextUtil.toTiny("Turno de Subasta"), turnLore, "cycle_turn_secs"));
+
+        // 4. Slot 14: Conteo Pre-Partida
+        int prestart = plugin.getConfig().getInt("match.prestart_countdown", 10);
+        List<String> prestartLore = new ArrayList<>();
+        prestartLore.add(ChatColor.GRAY + TextUtil.toTiny("Segundos de cuenta atrás antes de soltar a los jugadores."));
+        prestartLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        prestartLore.add(ChatColor.WHITE + TextUtil.toTiny("Actual: ") + ChatColor.YELLOW + prestart + "s");
+        prestartLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Ciclar (5s, 10s, 15s, 20s, 30s)"));
+        gui.setItem(14, createActionItem(Material.RECOVERY_COMPASS, ChatColor.YELLOW + "" + ChatColor.BOLD + "⏳ " + TextUtil.toTiny("Conteo Pre-Partida"), prestartLore, "cycle_prestart_secs"));
+
+        // 5. Slot 15: Créditos Iniciales de Subasta
+        int credits = plugin.getConfig().getInt("auction.initial_credits", 100);
+        List<String> credLore = new ArrayList<>();
+        credLore.add(ChatColor.GRAY + TextUtil.toTiny("Bolsa de créditos inicial para cada capitán."));
+        credLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        credLore.add(ChatColor.WHITE + TextUtil.toTiny("Actual: ") + ChatColor.GREEN + credits + " créditos");
+        credLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Ciclar (50, 100, 150, 200, 250, 300, 500)"));
+        gui.setItem(15, createActionItem(Material.EMERALD, ChatColor.GREEN + "" + ChatColor.BOLD + "⚖ " + TextUtil.toTiny("Créditos de Subasta"), credLore, "cycle_credits"));
+
+        // 6. Slot 16: Incremento Base de Puja
+        int bidInc = plugin.getConfig().getInt("auction.bid_increment", 10);
+        List<String> incLore = new ArrayList<>();
+        incLore.add(ChatColor.GRAY + TextUtil.toTiny("Valor base para los botones de puja en la subasta."));
+        incLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        incLore.add(ChatColor.WHITE + TextUtil.toTiny("Actual: ") + ChatColor.AQUA + "+" + bidInc + " créditos");
+        incLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Ciclar (5, 10, 15, 20, 25, 50)"));
+        gui.setItem(16, createActionItem(Material.GOLD_INGOT, ChatColor.GOLD + "" + ChatColor.BOLD + "💵 " + TextUtil.toTiny("Incremento de Puja"), incLore, "cycle_bid_increment"));
+
+        // 7. Slot 22: Volver
         List<String> backLore = new ArrayList<>();
         backLore.add(ChatColor.GRAY + TextUtil.toTiny("Volver al gestor de equipos y líderes."));
         gui.setItem(22, createActionItem(Material.ARROW, ChatColor.YELLOW + "" + ChatColor.BOLD + "« " + TextUtil.toTiny("Volver"), backLore, "back_leaders"));

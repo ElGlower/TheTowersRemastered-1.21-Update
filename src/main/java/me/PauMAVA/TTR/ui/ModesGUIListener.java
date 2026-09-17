@@ -33,6 +33,11 @@ public class ModesGUIListener implements Listener {
             ItemStack item = event.getCurrentItem();
             if (item == null || !item.hasItemMeta()) return;
 
+            if (TTRCore.isAdmin(player)) {
+                player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Los administradores no participan en las votaciones."));
+                return;
+            }
+
             String candStr = item.getItemMeta().getPersistentDataContainer().get(LeaderVoteGUI.KEY_CANDIDATE, PersistentDataType.STRING);
             if (candStr != null) {
                 try {
@@ -60,11 +65,26 @@ public class ModesGUIListener implements Listener {
             String action = item.getItemMeta().getPersistentDataContainer().get(AuctionDraftGUI.KEY_ACTION, PersistentDataType.STRING);
             if (action == null) return;
 
-            switch (action) {
-                case "bid_10" -> plugin.getAuctionDraftManager().bid(player, 10);
-                case "bid_25" -> plugin.getAuctionDraftManager().bid(player, 25);
-                case "bid_50" -> plugin.getAuctionDraftManager().bid(player, 50);
-                case "pass" -> plugin.getAuctionDraftManager().pass(player);
+            // Validar estrictamente que solo los líderes de equipo puedan pujar o pasar
+            TTRTeam team = plugin.getTeamHandler().getPlayerTeam(player);
+            if (team == null || !team.isLeader(player.getUniqueId())) {
+                player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Solo los líderes de equipo pueden pujar."));
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
+                return;
+            }
+
+            if (action.startsWith("bid_")) {
+                Integer amount = item.getItemMeta().getPersistentDataContainer().get(AuctionDraftGUI.KEY_BID_AMOUNT, PersistentDataType.INTEGER);
+                if (amount == null) {
+                    try {
+                        amount = Integer.parseInt(action.substring(4));
+                    } catch (Exception e) {
+                        amount = 10;
+                    }
+                }
+                plugin.getAuctionDraftManager().bid(player, amount);
+            } else if (action.equals("pass")) {
+                plugin.getAuctionDraftManager().pass(player);
             }
             return;
         }
@@ -248,7 +268,7 @@ public class ModesGUIListener implements Listener {
                     break;
                 }
                 case "cycle_turn_secs": {
-                    int[] opts = {10, 15, 20, 25, 30};
+                    int[] opts = {10, 15, 20, 25, 30, 45};
                     int cur = plugin.getConfig().getInt("auction.turn_seconds", 15);
                     int next = getNextOption(opts, cur);
                     plugin.getConfig().set("auction.turn_seconds", next);
@@ -257,11 +277,31 @@ public class ModesGUIListener implements Listener {
                     ModeSettingsGUI.open(player);
                     break;
                 }
+                case "cycle_prestart_secs": {
+                    int[] opts = {5, 10, 15, 20, 30};
+                    int cur = plugin.getConfig().getInt("match.prestart_countdown", 10);
+                    int next = getNextOption(opts, cur);
+                    plugin.getConfig().set("match.prestart_countdown", next);
+                    plugin.saveConfig();
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
+                    ModeSettingsGUI.open(player);
+                    break;
+                }
                 case "cycle_credits": {
-                    int[] opts = {50, 100, 150, 200, 250, 300};
+                    int[] opts = {50, 100, 150, 200, 250, 300, 500};
                     int cur = plugin.getConfig().getInt("auction.initial_credits", 100);
                     int next = getNextOption(opts, cur);
                     plugin.getConfig().set("auction.initial_credits", next);
+                    plugin.saveConfig();
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
+                    ModeSettingsGUI.open(player);
+                    break;
+                }
+                case "cycle_bid_increment": {
+                    int[] opts = {5, 10, 15, 20, 25, 50};
+                    int cur = plugin.getConfig().getInt("auction.bid_increment", 10);
+                    int next = getNextOption(opts, cur);
+                    plugin.getConfig().set("auction.bid_increment", next);
                     plugin.saveConfig();
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
                     ModeSettingsGUI.open(player);

@@ -92,19 +92,27 @@ public class AdminLeadersGUI {
             skipLore.add(ChatColor.AQUA + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Comenzar ahora (Omitir espera)"));
             gui.setItem(5, createActionItem(Material.BEACON, ChatColor.AQUA + "" + ChatColor.BOLD + "⚡ " + TextUtil.toTiny("Comenzar Ahora"), skipLore, "skip_announcement"));
         } else {
-            int online = Bukkit.getOnlinePlayers().size();
+            int playingCount = 0;
+            int adminCount = 0;
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (TTRCore.isAdmin(p)) adminCount++;
+                else playingCount++;
+            }
             int required = plugin.getConfig().getInt("autostart.count", 4);
-            boolean ready = online >= required;
+            boolean ready = playingCount >= required;
 
             List<String> countLore = new ArrayList<>();
-            countLore.add(ChatColor.GRAY + TextUtil.toTiny("Conectados: ") + (ready ? ChatColor.GREEN : ChatColor.RED) + online + ChatColor.DARK_GRAY + " / " + ChatColor.WHITE + required);
+            countLore.add(ChatColor.GRAY + TextUtil.toTiny("Participantes: ") + (ready ? ChatColor.GREEN : ChatColor.RED) + playingCount + ChatColor.DARK_GRAY + " / " + ChatColor.WHITE + required);
+            if (adminCount > 0) {
+                countLore.add(ChatColor.GRAY + TextUtil.toTiny("Administradores: ") + ChatColor.YELLOW + adminCount + ChatColor.GRAY + " (Destiny)");
+            }
             countLore.add(ChatColor.GRAY + TextUtil.toTiny("Mínimo recomendado para Subasta: 4"));
             countLore.add(ChatColor.GRAY + TextUtil.toTiny("Mínimo absoluto para 1v1: 2"));
             countLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
             countLore.add(ready ? ChatColor.GREEN + "✔ " + TextUtil.toTiny("Cantidad suficiente para iniciar.") : ChatColor.RED + "✖ " + TextUtil.toTiny("Faltan jugadores para auto-inicio."));
 
             Material countMat = ready ? Material.LIME_DYE : Material.RED_DYE;
-            gui.setItem(5, createActionItem(countMat, (ready ? ChatColor.GREEN : ChatColor.YELLOW) + "" + ChatColor.BOLD + "👥 " + TextUtil.toTiny("Jugadores: ") + online + "/" + required, countLore, "none"));
+            gui.setItem(5, createActionItem(countMat, (ready ? ChatColor.GREEN : ChatColor.YELLOW) + "" + ChatColor.BOLD + "👥 " + TextUtil.toTiny("Jugadores: ") + playingCount + "/" + required, countLore, "none"));
         }
     }
 
@@ -195,19 +203,27 @@ public class AdminLeadersGUI {
             skipLore.add(ChatColor.AQUA + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Comenzar ahora (Omitir espera)"));
             gui.setItem(5, createActionItem(Material.BEACON, ChatColor.AQUA + "" + ChatColor.BOLD + "⚡ " + TextUtil.toTiny("Comenzar Ahora"), skipLore, "skip_announcement"));
         } else {
-            int online = Bukkit.getOnlinePlayers().size();
+            int playingCount = 0;
+            int adminCount = 0;
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (TTRCore.isAdmin(p)) adminCount++;
+                else playingCount++;
+            }
             int required = plugin.getConfig().getInt("autostart.count", 4);
-            boolean ready = online >= required;
+            boolean ready = playingCount >= required;
 
             List<String> countLore = new ArrayList<>();
-            countLore.add(ChatColor.GRAY + TextUtil.toTiny("Conectados: ") + (ready ? ChatColor.GREEN : ChatColor.RED) + online + ChatColor.DARK_GRAY + " / " + ChatColor.WHITE + required);
+            countLore.add(ChatColor.GRAY + TextUtil.toTiny("Participantes: ") + (ready ? ChatColor.GREEN : ChatColor.RED) + playingCount + ChatColor.DARK_GRAY + " / " + ChatColor.WHITE + required);
+            if (adminCount > 0) {
+                countLore.add(ChatColor.GRAY + TextUtil.toTiny("Administradores: ") + ChatColor.YELLOW + adminCount + ChatColor.GRAY + " (Destiny)");
+            }
             countLore.add(ChatColor.GRAY + TextUtil.toTiny("Mínimo recomendado para Subasta: 4"));
             countLore.add(ChatColor.GRAY + TextUtil.toTiny("Mínimo absoluto para 1v1: 2"));
             countLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
             countLore.add(ready ? ChatColor.GREEN + "✔ " + TextUtil.toTiny("Cantidad suficiente para iniciar.") : ChatColor.RED + "✖ " + TextUtil.toTiny("Faltan jugadores para auto-inicio."));
 
             Material countMat = ready ? Material.LIME_DYE : Material.RED_DYE;
-            gui.setItem(5, createActionItem(countMat, (ready ? ChatColor.GREEN : ChatColor.YELLOW) + "" + ChatColor.BOLD + "👥 " + TextUtil.toTiny("Jugadores: ") + online + "/" + required, countLore, "none"));
+            gui.setItem(5, createActionItem(countMat, (ready ? ChatColor.GREEN : ChatColor.YELLOW) + "" + ChatColor.BOLD + "👥 " + TextUtil.toTiny("Jugadores: ") + playingCount + "/" + required, countLore, "none"));
         }
 
         // 4. Volver a Config (Slot 6)
@@ -251,10 +267,10 @@ public class AdminLeadersGUI {
             populateTeamMembers(gui, blue, blueSlots);
         }
 
-        // Unassigned Players Shelf (Row 5: slots 45 - 53)
+        // Unassigned Players Shelf (Row 5: slots 45 - 53) - solo jugadores activos (no admins)
         List<Player> unassigned = new ArrayList<>();
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (plugin.getTeamHandler().getPlayerTeam(p) == null) {
+            if (!TTRCore.isAdmin(p) && plugin.getTeamHandler().getPlayerTeam(p) == null) {
                 unassigned.add(p);
             }
         }
