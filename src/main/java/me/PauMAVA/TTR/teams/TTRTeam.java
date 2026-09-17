@@ -56,6 +56,13 @@ public class TTRTeam {
         players.remove(player.getUniqueId());
     }
 
+    private UUID leader = null;
+
+    public UUID getLeader() { return leader; }
+    public void setLeader(UUID leader) { this.leader = leader; }
+    public boolean isLeader(UUID playerUuid) { return leader != null && leader.equals(playerUuid); }
+    public void clearLeader() { this.leader = null; }
+
     public int getPoints() { return points; }
     public void addPoint() { this.points++; }
     public void addPoints(int amount) { this.points += amount; }

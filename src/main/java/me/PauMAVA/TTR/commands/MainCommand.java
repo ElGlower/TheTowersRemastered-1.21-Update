@@ -1,12 +1,14 @@
 package me.PauMAVA.TTR.commands;
 
 import me.PauMAVA.TTR.TTRCore;
+import me.PauMAVA.TTR.ui.AdminLeadersGUI;
 import me.PauMAVA.TTR.util.TextUtil;
 import me.PauMAVA.TTR.util.TTRPrefix;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 
@@ -31,6 +33,10 @@ public class MainCommand implements CommandExecutor {
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt event <nombre/stop>" + ChatColor.GRAY + " - " + TextUtil.toTiny("Lanzar eventos de caos"));
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt forcejoin <player> <equipo>" + ChatColor.GRAY + " - " + TextUtil.toTiny("Forzar equipo"));
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt revive <player>" + ChatColor.GRAY + " - " + TextUtil.toTiny("Revivir jugador"));
+            sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt leaders" + ChatColor.GRAY + " - " + TextUtil.toTiny("Gestor de líderes, equipos y subastas (GUI)"));
+            sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt voteleader" + ChatColor.GRAY + " - " + TextUtil.toTiny("Iniciar votación de líderes por rondas"));
+            sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt auction" + ChatColor.GRAY + " - " + TextUtil.toTiny("Iniciar subasta / puja de jugadores"));
+            sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt shop <on/off>" + ChatColor.GRAY + " - " + TextUtil.toTiny("Activar/Desactivar tienda del faro"));
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt reload" + ChatColor.GRAY + " - " + TextUtil.toTiny("Recargar configuración"));
             sender.sendMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
             return true;
@@ -58,6 +64,36 @@ public class MainCommand implements CommandExecutor {
             case "pantalla":
             case "book":
                 return new ConfigCommand().onCommand(sender, command, label, new String[]{"screen"});
+            case "leaders":
+            case "teams":
+                if (sender instanceof Player p) {
+                    AdminLeadersGUI.open(p);
+                } else {
+                    sender.sendMessage(TTRPrefix.TTR_ERROR + "Solo jugadores.");
+                }
+                return true;
+            case "voteleader":
+            case "voting":
+                TTRCore.getInstance().getLeaderVoteManager().startVoting(true);
+                sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Votación de líderes iniciada."));
+                return true;
+            case "auction":
+            case "draft":
+                TTRCore.getInstance().getAuctionDraftManager().startDraft();
+                sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Subasta de miembros iniciada."));
+                return true;
+            case "shop": {
+                if (subArgs.length > 0) {
+                    boolean enable = subArgs[0].equalsIgnoreCase("on") || subArgs[0].equalsIgnoreCase("true");
+                    TTRCore.getInstance().setBeaconShopEnabled(enable);
+                    sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Tienda del faro ") + (enable ? "ACTIVADA" : "DESACTIVADA"));
+                } else {
+                    boolean cur = TTRCore.getInstance().isBeaconShopEnabled();
+                    TTRCore.getInstance().setBeaconShopEnabled(!cur);
+                    sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Tienda del faro ") + (!cur ? "ACTIVADA" : "DESACTIVADA"));
+                }
+                return true;
+            }
             case "event":
             case "events":
                 return new EventCommand().onCommand(sender, command, label, subArgs);

@@ -108,6 +108,39 @@ public class ConfigGUI {
         lobbyLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: ") + ChatColor.GREEN + TextUtil.toTiny("Establecer Lobby en tu posición"));
         gui.setItem(22, createActionItem(Material.COMPASS, ChatColor.YELLOW + "" + ChatColor.BOLD + "📍 " + TextUtil.toTiny("Establecer Lobby"), lobbyLore, "lobby"));
 
+        // Eventos de Caos (Slot 19)
+        boolean eventsOn = plugin.getEventManager().isAutoMode();
+        List<String> evtLore = new ArrayList<>();
+        evtLore.add(ChatColor.GRAY + TextUtil.toTiny("Estado: ") + (eventsOn ? ChatColor.GREEN + TextUtil.toTiny("Activado") : ChatColor.RED + TextUtil.toTiny("Desactivado")));
+        evtLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        evtLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: ") + (eventsOn ? ChatColor.RED + TextUtil.toTiny("Desactivar eventos") : ChatColor.GREEN + TextUtil.toTiny("Activar eventos")));
+        gui.setItem(19, createActionItem(Material.FIRE_CHARGE, ChatColor.GOLD + "" + ChatColor.BOLD + "☄ " + TextUtil.toTiny("Eventos de Caos"), evtLore, "events_toggle"));
+
+        // Tienda del Faro (Slot 21)
+        boolean beaconOn = plugin.isBeaconShopEnabled();
+        List<String> bcnLore = new ArrayList<>();
+        bcnLore.add(ChatColor.GRAY + TextUtil.toTiny("Estado: ") + (beaconOn ? ChatColor.GREEN + TextUtil.toTiny("Activada") : ChatColor.RED + TextUtil.toTiny("Desactivada")));
+        bcnLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        bcnLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: ") + (beaconOn ? ChatColor.RED + TextUtil.toTiny("Desactivar tienda") : ChatColor.GREEN + TextUtil.toTiny("Activar tienda")));
+        gui.setItem(21, createActionItem(Material.BEACON, ChatColor.AQUA + "" + ChatColor.BOLD + "🛒 " + TextUtil.toTiny("Tienda del Faro"), bcnLore, "beacon_toggle"));
+
+        // Modalidad de Selección (Slot 23)
+        me.PauMAVA.TTR.modes.TeamSelectionMode mode = plugin.getCurrentSelectionMode();
+        List<String> modeLore = new ArrayList<>();
+        modeLore.add(ChatColor.GRAY + TextUtil.toTiny("Modalidad: ") + mode.getDisplayName());
+        modeLore.add(ChatColor.DARK_GRAY + TextUtil.toTiny(mode.getDescription()));
+        modeLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        modeLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Rotar modalidad"));
+        gui.setItem(23, createActionItem(Material.GOLDEN_HELMET, ChatColor.YELLOW + "" + ChatColor.BOLD + "🎲 " + TextUtil.toTiny("Modo de Equipos"), modeLore, "mode_cycle"));
+
+        // Gestor de Líderes y Equipos (Slot 25)
+        List<String> ldrLore = new ArrayList<>();
+        ldrLore.add(ChatColor.GRAY + TextUtil.toTiny("Administra líderes, transfiere miembros"));
+        ldrLore.add(ChatColor.GRAY + TextUtil.toTiny("o lanza votaciones y subastas en caliente."));
+        ldrLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        ldrLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Abrir Gestor de Líderes"));
+        gui.setItem(25, createActionItem(Material.PLAYER_HEAD, ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "★ " + TextUtil.toTiny("Líderes y Equipos"), ldrLore, "admin_leaders"));
+
         // 8. Modo Pantalla (Libro interactivo)
         List<String> screenLore = new ArrayList<>();
         screenLore.add(ChatColor.GRAY + TextUtil.toTiny("Abre el panel en una pantalla completa"));

@@ -10,6 +10,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -100,6 +101,11 @@ public class EventListener implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null) {
             if (event.getClickedBlock().getType() == Material.BEACON) {
                 event.setCancelled(true);
+                if (!plugin.isBeaconShopEnabled()) {
+                    event.getPlayer().sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("La tienda del faro está desactivada por la administración."));
+                    event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
+                    return;
+                }
                 new BeaconShop().openMain(event.getPlayer());
                 return;
             }
@@ -200,6 +206,20 @@ public class EventListener implements Listener {
         if (!plugin.enabled()) return;
         if (event.getRecipe() != null && event.getRecipe().getResult().getType() == Material.SHIELD) {
             event.getInventory().setResult(new ItemStack(Material.AIR));
+        }
+    }
+
+    @EventHandler
+    public void onChat(org.bukkit.event.player.AsyncPlayerChatEvent event) {
+        if (!plugin.enabled()) return;
+        Player p = event.getPlayer();
+        TTRTeam team = plugin.getTeamHandler().getPlayerTeam(p);
+        if (team != null && team.isLeader(p.getUniqueId())) {
+            String leaderBadge = ChatColor.GOLD + "★ [" + team.getColor() + TextUtil.toTiny("Líder ") + team.getColor() + TextUtil.toTiny(team.getIdentifier()) + ChatColor.GOLD + "] " + ChatColor.RESET;
+            event.setFormat(leaderBadge + team.getColor() + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
+        } else if (team != null) {
+            String teamPrefix = ChatColor.DARK_GRAY + "[" + team.getColor() + TextUtil.toTiny(team.getIdentifier()) + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
+            event.setFormat(teamPrefix + team.getColor() + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
         }
     }
 }

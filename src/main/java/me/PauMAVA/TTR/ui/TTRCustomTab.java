@@ -87,9 +87,11 @@ public class TTRCustomTab extends BukkitRunnable {
         }
 
         if (team != null) {
+            boolean isLeader = team.isLeader(player.getUniqueId());
+            String leaderBadge = isLeader ? ChatColor.GOLD + "★" + TextUtil.toTiny("Líder ") : "";
             String teamPrefix = TextUtil.toTiny(team.getIdentifier().substring(0, 1).toUpperCase());
             ChatColor color = team.getColor();
-            formattedName = color + " ▪ " + color + "" + ChatColor.BOLD + teamPrefix + ChatColor.DARK_GRAY + " | " + color + player.getName() + killsInfo;
+            formattedName = color + " ▪ " + leaderBadge + color + "" + ChatColor.BOLD + teamPrefix + ChatColor.DARK_GRAY + " | " + color + player.getName() + killsInfo;
         } else {
             if (player.isOp() || player.hasPermission("ttr.admin")) {
                 formattedName = ChatColor.RED + " ▪ " + ChatColor.RED + "" + ChatColor.BOLD + TextUtil.toTiny("Admin") + ChatColor.DARK_GRAY + " | " + ChatColor.WHITE + player.getName();

@@ -122,6 +122,34 @@ public class ConfigGUIListener implements Listener {
                     }
                     break;
                 }
+                case "events_toggle": {
+                    boolean cur = plugin.getEventManager().isAutoMode();
+                    plugin.getEventManager().toggleAutoMode(!cur);
+                    plugin.getConfig().set("events.enabled", !cur);
+                    plugin.saveConfig();
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.2f);
+                    ConfigGUI.open(player);
+                    break;
+                }
+                case "beacon_toggle": {
+                    boolean cur = plugin.isBeaconShopEnabled();
+                    plugin.setBeaconShopEnabled(!cur);
+                    player.sendMessage(TTRPrefix.TTR_GAME + TextUtil.toTiny("Tienda del faro: ") + (!cur ? ChatColor.GREEN + TextUtil.toTiny("ACTIVADA") : ChatColor.RED + TextUtil.toTiny("DESACTIVADA")));
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.2f);
+                    ConfigGUI.open(player);
+                    break;
+                }
+                case "mode_cycle": {
+                    plugin.setCurrentSelectionMode(plugin.getCurrentSelectionMode().next());
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.2f);
+                    ConfigGUI.open(player);
+                    break;
+                }
+                case "admin_leaders": {
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.2f);
+                    AdminLeadersGUI.open(player);
+                    break;
+                }
                 case "screen": {
                     player.closeInventory();
                     ConfigScreen.openScreen(player);

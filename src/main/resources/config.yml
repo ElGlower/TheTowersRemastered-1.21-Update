@@ -23,6 +23,17 @@ rollback:
   auto_restore_on_end: true
   clean_entities: true
 
+# Control de Eventos de Caos Dinámicos
+events:
+  enabled: true
+
+# Control de la Tienda Táctica del Faro
+beacon_shop:
+  enabled: true
+
+# Modalidad de Selección de Equipos (STANDARD, LEADER_VOTING, AUCTION_DRAFT)
+selection_mode: STANDARD
+
 # Puntos de Mapa
 map:
   lobby:

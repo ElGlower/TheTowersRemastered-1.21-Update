@@ -82,12 +82,14 @@ public class TTRTeamHandler {
             team.setArmorProtectionLevel(0);
             team.setTeamSpeed(false);
             team.setTeamHaste(false);
+            team.clearLeader();
         }
     }
 
     public void clearTeams() {
         for (TTRTeam team : teams) {
             team.getPlayers().clear();
+            team.clearLeader();
         }
     }
 }

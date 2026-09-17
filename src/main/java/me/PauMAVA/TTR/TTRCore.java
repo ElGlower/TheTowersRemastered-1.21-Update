@@ -2,6 +2,9 @@ package me.PauMAVA.TTR;
 
 import me.PauMAVA.TTR.commands.*;
 import me.PauMAVA.TTR.config.TTRConfigManager;
+import me.PauMAVA.TTR.modes.AuctionDraftManager;
+import me.PauMAVA.TTR.modes.LeaderVoteManager;
+import me.PauMAVA.TTR.modes.TeamSelectionMode;
 import me.PauMAVA.TTR.lang.LanguageManager;
 import me.PauMAVA.TTR.listeners.GameJoinListener;
 import me.PauMAVA.TTR.listeners.TeamCombatListener;
@@ -44,6 +47,11 @@ public class TTRCore extends JavaPlugin {
     private AutoStarter autoStarter;
     private RollbackManager rollbackManager;
 
+    private LeaderVoteManager leaderVoteManager;
+    private AuctionDraftManager auctionDraftManager;
+    private me.PauMAVA.TTR.modes.TeamSelectionMode currentSelectionMode = me.PauMAVA.TTR.modes.TeamSelectionMode.STANDARD;
+    private boolean beaconShopEnabled = true;
+
     private boolean counting = false;
 
     @Override
@@ -57,6 +65,19 @@ public class TTRCore extends JavaPlugin {
         this.eventManager = new GameEventManager();
         this.autoStarter = new AutoStarter(this, getConfig());
         this.rollbackManager = new RollbackManager(this);
+        this.leaderVoteManager = new LeaderVoteManager();
+        this.auctionDraftManager = new AuctionDraftManager();
+
+        this.beaconShopEnabled = getConfig().getBoolean("beacon_shop.enabled", true);
+        boolean eventsEnabled = getConfig().getBoolean("events.enabled", true);
+        this.eventManager.toggleAutoMode(eventsEnabled);
+
+        String modeStr = getConfig().getString("selection_mode", "STANDARD");
+        try {
+            this.currentSelectionMode = me.PauMAVA.TTR.modes.TeamSelectionMode.valueOf(modeStr.toUpperCase());
+        } catch (Exception e) {
+            this.currentSelectionMode = me.PauMAVA.TTR.modes.TeamSelectionMode.STANDARD;
+        }
 
         this.teamHandler.setUpDefaultTeams();
         if (this.configManager.getLobbyLocation() != null) {
@@ -73,6 +94,7 @@ public class TTRCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GameJoinListener(this), this);
         getServer().getPluginManager().registerEvents(new TeamCombatListener(), this);
         getServer().getPluginManager().registerEvents(new TeamSelectListener(this), this);
+        getServer().getPluginManager().registerEvents(new me.PauMAVA.TTR.ui.ModesGUIListener(), this);
 
         if (getConfig().getBoolean("enable_on_start", true)) {
             this.currentMatch = new TTRMatch(MatchStatus.LOBBY);
@@ -170,6 +192,22 @@ public class TTRCore extends JavaPlugin {
     public GameEventManager getEventManager() { return eventManager; }
     public AutoStarter getAutoStarter() { return autoStarter; }
     public RollbackManager getRollbackManager() { return rollbackManager; }
+    public LeaderVoteManager getLeaderVoteManager() { return leaderVoteManager; }
+    public AuctionDraftManager getAuctionDraftManager() { return auctionDraftManager; }
+
+    public me.PauMAVA.TTR.modes.TeamSelectionMode getCurrentSelectionMode() { return currentSelectionMode; }
+    public void setCurrentSelectionMode(me.PauMAVA.TTR.modes.TeamSelectionMode mode) {
+        this.currentSelectionMode = mode;
+        getConfig().set("selection_mode", mode.name());
+        saveConfig();
+    }
+
+    public boolean isBeaconShopEnabled() { return beaconShopEnabled; }
+    public void setBeaconShopEnabled(boolean enabled) {
+        this.beaconShopEnabled = enabled;
+        getConfig().set("beacon_shop.enabled", enabled);
+        saveConfig();
+    }
 
     public void resetMatchLogic() {
         if (this.currentMatch != null) this.currentMatch.cleanup();
