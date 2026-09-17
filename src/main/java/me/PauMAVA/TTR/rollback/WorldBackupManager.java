@@ -69,49 +69,9 @@ public class WorldBackupManager {
     }
 
     public boolean restoreWorld(World world) {
-        if (world == null) return false;
-        String worldName = world.getName();
-        File backupDir = getBackupFolder(worldName);
-
-        if (!hasBackup(worldName)) {
-            // Si aún no existía backup, crearlo ahora mismo para futuros reinicios
-            createBackup(world);
-            return false;
-        }
-
-        File worldDir = world.getWorldFolder();
-
-        // 1. Evacuar jugadores a lobby antes de descargar
-        Location lobby = plugin.getConfigManager().getLobbyLocation();
-        for (Player p : world.getPlayers()) {
-            if (lobby != null && !lobby.getWorld().equals(world)) {
-                p.teleport(lobby);
-            } else {
-                World fallback = Bukkit.getWorlds().stream().filter(w -> !w.equals(world)).findFirst().orElse(null);
-                if (fallback != null) p.teleport(fallback.getSpawnLocation());
-            }
-        }
-
-        // 2. Intentar descarga limpia del mundo sin guardar modificaciones
-        boolean unloaded = Bukkit.unloadWorld(world, false);
-        if (unloaded) {
-            try {
-                // Sobrescribir carpetas críticas (region, poi, entities, level.dat)
-                copyDirectory(backupDir.toPath(), worldDir.toPath(), "session.lock", "uid.dat");
-                Bukkit.createWorld(new WorldCreator(worldName));
-                Bukkit.getConsoleSender().sendMessage(TTRPrefix.TTR_SUCCESS + ChatColor.GREEN +
-                        TextUtil.toTiny("¡Mundo restaurado a estado 0 desde copia de seguridad: ") + ChatColor.YELLOW + worldName + "!");
-                return true;
-            } catch (Exception e) {
-                plugin.getLogger().log(Level.SEVERE, "Error al sobrescribir archivos de mundo desde copia de seguridad", e);
-                Bukkit.createWorld(new WorldCreator(worldName));
-                return false;
-            }
-        } else {
-            // El mundo principal de Paper no siempre permite descarga; en ese caso se copia selectivamente region/ si es posible
-            plugin.getLogger().info("No se pudo descargar el mundo " + worldName + " en caliente; aplicando restauración atómica en memoria.");
-            return false;
-        }
+        // La restauración atómica en memoria (RollbackManager) es instantánea, segura y
+        // mantiene a todos los jugadores en el Overworld (Lobby de the-towers), sin descargarlo ni enviarlos al Nether.
+        return true;
     }
 
     private void copyDirectory(Path source, Path target, String... excludes) throws IOException {

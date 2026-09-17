@@ -36,12 +36,12 @@ public class RollbackManager implements Listener {
     }
 
     public void startTracking() {
-        this.originalBlockData.clear();
         this.trackingActive = true;
     }
 
     public void stopTracking() {
-        this.trackingActive = false;
+        // Mantener el tracking siempre activo para capturar cualquier alteración del mapa
+        this.trackingActive = true;
     }
 
     public boolean isTracking() {
@@ -134,12 +134,11 @@ public class RollbackManager implements Listener {
 
         cleanArenaEntities();
 
-        // Si existe copia física de seguridad del mundo, intentar restaurar los chunks/regiones a 0
+        // Teletransportar a los jugadores al lobby de the-towers (Overworld), nunca al nether
         Location lobby = plugin.getConfigManager().getLobbyLocation();
-        World arenaWorld = (lobby != null) ? lobby.getWorld() : (Bukkit.getWorlds().isEmpty() ? null : Bukkit.getWorlds().get(0));
-        if (arenaWorld != null && plugin.getWorldBackupManager() != null) {
-            if (plugin.getWorldBackupManager().hasBackup(arenaWorld.getName())) {
-                plugin.getWorldBackupManager().restoreWorld(arenaWorld);
+        if (lobby != null && lobby.getWorld() != null) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.teleport(lobby);
             }
         }
 
