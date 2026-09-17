@@ -46,7 +46,7 @@ public class AdminLeadersGUI {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (p.getOpenInventory() != null && p.getOpenInventory().getTitle().equals(TITLE)) {
                     anyViewer = true;
-                    render(p.getOpenInventory().getTopInventory());
+                    updateLiveControls(p.getOpenInventory().getTopInventory());
                 }
             }
             if (!anyViewer && liveTask != null) {
@@ -54,6 +54,58 @@ public class AdminLeadersGUI {
                 liveTask = null;
             }
         }, 20L, 20L);
+    }
+
+    private static void updateLiveControls(Inventory gui) {
+        TTRCore plugin = TTRCore.getInstance();
+        TeamSelectionMode mode = plugin.getCurrentSelectionMode();
+
+        boolean voteActive = plugin.getLeaderVoteManager().isActive();
+        boolean draftActive = plugin.getAuctionDraftManager().isActive();
+        boolean announcing = plugin.getModeAnnouncementManager().isAnnouncing();
+        boolean counting = plugin.isCounting();
+
+        if (announcing || voteActive || draftActive || counting) {
+            List<String> stopLore = new ArrayList<>();
+            String currentPhaseName = "Fase Activa";
+            if (announcing) {
+                currentPhaseName = "Lectura de Reglas (" + plugin.getModeAnnouncementManager().getSecondsRemaining() + "s)";
+            } else if (voteActive) {
+                currentPhaseName = "Votación de Líder (" + plugin.getLeaderVoteManager().getSecondsRemaining() + "s)";
+            } else if (draftActive) {
+                currentPhaseName = "Subasta de Miembros (" + plugin.getAuctionDraftManager().getSecondsRemaining() + "s)";
+            } else if (counting) {
+                currentPhaseName = "Conteo de Inicio (" + plugin.getAutoStarter().getCountdown() + "s)";
+            }
+
+            stopLore.add(ChatColor.GRAY + TextUtil.toTiny("Estado: ") + ChatColor.YELLOW + currentPhaseName);
+            stopLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+            stopLore.add(ChatColor.RED + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Cancelar fase y restablecer"));
+            gui.setItem(4, createActionItem(Material.BARRIER, ChatColor.RED + "" + ChatColor.BOLD + "✖ " + TextUtil.toTiny("Detener / Cancelar Fase"), stopLore, "stop_phase"));
+        }
+
+        if (announcing) {
+            List<String> skipLore = new ArrayList<>();
+            skipLore.add(ChatColor.GRAY + TextUtil.toTiny("Los jugadores están leyendo las reglas."));
+            skipLore.add(ChatColor.GRAY + TextUtil.toTiny("Tiempo restante: ") + ChatColor.YELLOW + plugin.getModeAnnouncementManager().getSecondsRemaining() + "s");
+            skipLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+            skipLore.add(ChatColor.AQUA + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Comenzar ahora (Omitir espera)"));
+            gui.setItem(5, createActionItem(Material.BEACON, ChatColor.AQUA + "" + ChatColor.BOLD + "⚡ " + TextUtil.toTiny("Comenzar Ahora"), skipLore, "skip_announcement"));
+        } else {
+            int online = Bukkit.getOnlinePlayers().size();
+            int required = plugin.getConfig().getInt("autostart.count", 4);
+            boolean ready = online >= required;
+
+            List<String> countLore = new ArrayList<>();
+            countLore.add(ChatColor.GRAY + TextUtil.toTiny("Conectados: ") + (ready ? ChatColor.GREEN : ChatColor.RED) + online + ChatColor.DARK_GRAY + " / " + ChatColor.WHITE + required);
+            countLore.add(ChatColor.GRAY + TextUtil.toTiny("Mínimo recomendado para Subasta: 4"));
+            countLore.add(ChatColor.GRAY + TextUtil.toTiny("Mínimo absoluto para 1v1: 2"));
+            countLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+            countLore.add(ready ? ChatColor.GREEN + "✔ " + TextUtil.toTiny("Cantidad suficiente para iniciar.") : ChatColor.RED + "✖ " + TextUtil.toTiny("Faltan jugadores para auto-inicio."));
+
+            Material countMat = ready ? Material.LIME_DYE : Material.RED_DYE;
+            gui.setItem(5, createActionItem(countMat, (ready ? ChatColor.GREEN : ChatColor.YELLOW) + "" + ChatColor.BOLD + "👥 " + TextUtil.toTiny("Jugadores: ") + online + "/" + required, countLore, "none"));
+        }
     }
 
     public static void render(Inventory gui) {

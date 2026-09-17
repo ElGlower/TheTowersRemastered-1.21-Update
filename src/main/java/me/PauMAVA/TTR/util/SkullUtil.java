@@ -45,21 +45,13 @@ public class SkullUtil {
 
         try {
             PlayerProfile profile = Bukkit.createProfile(uuid, name != null ? name : uuid.toString().substring(0, 8));
-            if (!profile.hasTextures()) {
-                profile.completeFromCache(true, true);
-            }
+            profile.completeFromCache(true, true);
             meta.setPlayerProfile(profile);
             PROFILE_CACHE.put(uuid, profile);
-
-            if (!profile.hasTextures()) {
-                profile.update().thenAccept(updated -> {
-                    if (updated != null && updated.hasTextures()) {
-                        PROFILE_CACHE.put(uuid, updated);
-                    }
-                });
-            }
         } catch (Throwable t) {
-            meta.setOwningPlayer(player);
+            try {
+                meta.setOwningPlayer(player);
+            } catch (Exception ignored) {}
         }
 
         item.setItemMeta(meta);
