@@ -2,6 +2,7 @@ name: DestinyTowers
 version: 1.0.0
 main: me.PauMAVA.TTR.TTRCore
 api-version: '26.2'
+softdepend: [voicechat]
 authors: [PauMAVA, StartCes, Ripkyng1, ElGlower]
 description: Destiny Towers para Paper 26.3 / 26.2 con regeneracion atomica de mapa, Tiny Font, panel GUI y modo pantalla (Book Screen)
 

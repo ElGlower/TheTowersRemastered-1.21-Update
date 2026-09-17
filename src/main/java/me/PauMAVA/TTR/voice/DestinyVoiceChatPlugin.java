@@ -6,6 +6,12 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 
 public class DestinyVoiceChatPlugin implements VoicechatPlugin {
 
+    private final SimpleVoiceChatBridge bridge;
+
+    public DestinyVoiceChatPlugin(SimpleVoiceChatBridge bridge) {
+        this.bridge = bridge;
+    }
+
     @Override
     public String getPluginId() {
         return "destinytowers";
@@ -14,7 +20,7 @@ public class DestinyVoiceChatPlugin implements VoicechatPlugin {
     @Override
     public void initialize(VoicechatApi api) {
         if (api instanceof VoicechatServerApi serverApi) {
-            VoiceChatManager.getInstance().setServerApi(serverApi);
+            bridge.setServerApi(serverApi);
         }
     }
 }
