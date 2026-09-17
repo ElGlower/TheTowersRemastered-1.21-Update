@@ -7,6 +7,7 @@ import me.PauMAVA.TTR.ui.BeaconShop;
 import me.PauMAVA.TTR.ui.ConfigGUI;
 import me.PauMAVA.TTR.listeners.TeamSelectListener;
 import org.bukkit.ChatColor;
+import java.util.List;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -43,9 +44,19 @@ public class EventListener implements Listener {
         Player p = event.getPlayer();
 
         if (event.getBlock().getType() == Material.BEACON) {
-            event.setCancelled(true);
-            p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡El Faro es indestructible!"));
-            return;
+            if (plugin.isBeaconShopEnabled()) {
+                event.setCancelled(true);
+                p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡El Faro con tienda es indestructible!"));
+                return;
+            } else {
+                if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
+                    if (p.getGameMode() != GameMode.CREATIVE) {
+                        event.setCancelled(true);
+                        p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes romper faros fuera de la partida!"));
+                        return;
+                    }
+                }
+            }
         }
 
         if (plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
@@ -74,12 +85,36 @@ public class EventListener implements Listener {
             return;
         }
 
+        if (isCageZone(event.getBlock().getLocation())) {
+            if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+                event.setCancelled(true);
+                event.getPlayer().sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes colocar bloques dentro de las jaulas!"));
+                return;
+            }
+        }
+
         if (isSpawnZone(event.getBlock().getLocation())) {
             if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
                 event.setCancelled(true);
                 event.getPlayer().sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes construir en la zona de Spawn!"));
             }
         }
+    }
+
+    private boolean isCageZone(Location blockLoc) {
+        for (TTRTeam team : plugin.getTeamHandler().getTeams()) {
+            List<Location> cages = plugin.getConfigManager().getTeamCages(team.getIdentifier());
+            if (cages != null) {
+                for (Location cage : cages) {
+                    if (cage != null && cage.getWorld() != null && cage.getWorld().equals(blockLoc.getWorld())) {
+                        if (cage.distance(blockLoc) <= 3.5) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private boolean isSpawnZone(Location blockLoc) {
@@ -113,7 +148,7 @@ public class EventListener implements Listener {
 
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (event.getItem() != null) {
-                if (event.getItem().getType() == Material.COMPARATOR && event.getPlayer().hasPermission("ttr.admin")) {
+                if (event.getItem().getType() == Material.COMPARATOR && (event.getPlayer().hasPermission("destinytowers.admin") || event.getPlayer().hasPermission("ttr.admin") || event.getPlayer().isOp())) {
                     event.setCancelled(true);
                     ConfigGUI.open(event.getPlayer());
                     return;

@@ -39,8 +39,14 @@ public class AdminLeadersGUI {
             border.setItemMeta(bm);
         }
 
-        // Center separator
-        for (int row = 0; row < 6; row++) {
+        // Top border items
+        gui.setItem(1, border);
+        gui.setItem(3, border);
+        gui.setItem(5, border);
+        gui.setItem(7, border);
+
+        // Center separator (rows 1 to 4)
+        for (int row = 1; row < 5; row++) {
             gui.setItem(row * 9 + 4, border);
         }
 
@@ -89,7 +95,7 @@ public class AdminLeadersGUI {
         backLore.add(ChatColor.GRAY + TextUtil.toTiny("Regresar al panel de configuración principal."));
         gui.setItem(6, createActionItem(Material.ARROW, ChatColor.YELLOW + "" + ChatColor.BOLD + "« " + TextUtil.toTiny("Volver"), backLore, "back"));
 
-        // Red Team Members (Left columns: 0, 1, 2, 3)
+        // Red Team Members (Left columns: 0, 1, 2, 3 in rows 1 to 4)
         TTRTeam red = plugin.getTeamHandler().getTeam("Red");
         ItemStack redHeader = new ItemStack(Material.RED_BANNER);
         ItemMeta rm = redHeader.getItemMeta();
@@ -102,12 +108,12 @@ public class AdminLeadersGUI {
         }
         gui.setItem(0, redHeader);
 
-        int[] redSlots = {9, 10, 11, 12, 18, 19, 20, 21, 27, 28, 29, 30, 36, 37, 38, 39, 45, 46, 47, 48};
+        int[] redSlots = {9, 10, 11, 12, 18, 19, 20, 21, 27, 28, 29, 30, 36, 37, 38, 39};
         if (red != null) {
             populateTeamMembers(gui, red, redSlots);
         }
 
-        // Blue Team Members (Right columns: 5, 6, 7, 8)
+        // Blue Team Members (Right columns: 5, 6, 7, 8 in rows 1 to 4)
         TTRTeam blue = plugin.getTeamHandler().getTeam("Blue");
         ItemStack blueHeader = new ItemStack(Material.BLUE_BANNER);
         ItemMeta bm2 = blueHeader.getItemMeta();
@@ -120,9 +126,59 @@ public class AdminLeadersGUI {
         }
         gui.setItem(8, blueHeader);
 
-        int[] blueSlots = {14, 15, 16, 17, 23, 24, 25, 26, 32, 33, 34, 35, 41, 42, 43, 44, 50, 51, 52, 53};
+        int[] blueSlots = {14, 15, 16, 17, 23, 24, 25, 26, 32, 33, 34, 35, 41, 42, 43, 44};
         if (blue != null) {
             populateTeamMembers(gui, blue, blueSlots);
+        }
+
+        // Unassigned Players Shelf (Row 5: slots 45 - 53)
+        List<Player> unassigned = new ArrayList<>();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (plugin.getTeamHandler().getPlayerTeam(p) == null) {
+                unassigned.add(p);
+            }
+        }
+
+        ItemStack unassignedHeader = new ItemStack(Material.NAME_TAG);
+        ItemMeta uhMeta = unassignedHeader.getItemMeta();
+        if (uhMeta != null) {
+            uhMeta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "⚡ " + TextUtil.toTiny("Sin Asignar"));
+            List<String> uhLore = new ArrayList<>();
+            uhLore.add(ChatColor.GRAY + TextUtil.toTiny("Jugadores conectados sin equipo: ") + ChatColor.WHITE + unassigned.size());
+            uhLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+            uhLore.add(ChatColor.YELLOW + TextUtil.toTiny("Haz clic en una cabeza para asignarlo."));
+            uhMeta.setLore(uhLore);
+            unassignedHeader.setItemMeta(uhMeta);
+        }
+        gui.setItem(45, unassignedHeader);
+
+        int[] unassignedSlots = {46, 47, 48, 49, 50, 51, 52, 53};
+        for (int i = 0; i < unassignedSlots.length; i++) {
+            int slot = unassignedSlots[i];
+            if (i < unassigned.size()) {
+                Player target = unassigned.get(i);
+                ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+                SkullMeta sm = (SkullMeta) skull.getItemMeta();
+                if (sm != null) {
+                    sm.setOwningPlayer(target);
+                    sm.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + target.getName());
+                    List<String> lore = new ArrayList<>();
+                    lore.add(ChatColor.GRAY + TextUtil.toTiny("Estado: Sin equipo asignado"));
+                    lore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+                    lore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic Izquierdo: ") +
+                            ChatColor.RED + TextUtil.toTiny("Asignar a Rojo"));
+                    lore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic Derecho: ") +
+                            ChatColor.BLUE + TextUtil.toTiny("Asignar a Azul"));
+
+                    sm.getPersistentDataContainer().set(KEY_ACTION, PersistentDataType.STRING, "player_assign_unassigned");
+                    sm.getPersistentDataContainer().set(KEY_PLAYER_UUID, PersistentDataType.STRING, target.getUniqueId().toString());
+                    sm.setLore(lore);
+                    skull.setItemMeta(sm);
+                }
+                gui.setItem(slot, skull);
+            } else {
+                gui.setItem(slot, border);
+            }
         }
 
         player.openInventory(gui);

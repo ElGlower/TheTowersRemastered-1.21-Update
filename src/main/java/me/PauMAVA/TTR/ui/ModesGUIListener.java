@@ -135,6 +135,9 @@ public class ModesGUIListener implements Listener {
                             // Kick from team
                             currentTeam.getPlayers().remove(targetUuid);
                             if (currentTeam.isLeader(targetUuid)) currentTeam.clearLeader();
+                            if (targetPlayer != null) {
+                                me.PauMAVA.TTR.voice.VoiceChatManager.getInstance().assignPlayerToTeamVoice(targetPlayer, null);
+                            }
                             player.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Jugador expulsado del equipo."));
                         } else if (click.isRightClick()) {
                             // Move to opposite team
@@ -145,8 +148,11 @@ public class ModesGUIListener implements Listener {
                                 if (currentTeam.isLeader(targetUuid)) currentTeam.clearLeader();
 
                                 targetTeam.getPlayers().add(targetUuid);
-                                if (targetPlayer != null && targetTeam.getSpawnPoint() != null) {
-                                    targetPlayer.teleport(targetTeam.getSpawnPoint());
+                                if (targetPlayer != null) {
+                                    if (targetTeam.getSpawnPoint() != null) {
+                                        targetPlayer.teleport(targetTeam.getSpawnPoint());
+                                    }
+                                    me.PauMAVA.TTR.voice.VoiceChatManager.getInstance().assignPlayerToTeamVoice(targetPlayer, other);
                                 }
                                 player.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Jugador transferido a ") + targetTeam.getColor() + targetTeam.getIdentifier());
                             }
@@ -161,6 +167,30 @@ public class ModesGUIListener implements Listener {
                         }
 
                         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
+                        AdminLeadersGUI.open(player);
+                    } catch (Exception ignored) {}
+                    break;
+                }
+                case "player_assign_unassigned": {
+                    String uuidStr = item.getItemMeta().getPersistentDataContainer().get(AdminLeadersGUI.KEY_PLAYER_UUID, PersistentDataType.STRING);
+                    if (uuidStr == null) return;
+
+                    try {
+                        UUID targetUuid = UUID.fromString(uuidStr);
+                        Player targetPlayer = Bukkit.getPlayer(targetUuid);
+                        if (targetPlayer == null || !targetPlayer.isOnline()) {
+                            player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("El jugador ya no está conectado."));
+                            AdminLeadersGUI.open(player);
+                            return;
+                        }
+
+                        String targetTeamName = click.isRightClick() ? "Blue" : "Red";
+                        TTRTeam targetTeam = plugin.getTeamHandler().getTeam(targetTeamName);
+                        if (targetTeam != null) {
+                            plugin.getTeamHandler().addPlayerToTeam(targetPlayer, targetTeamName);
+                            player.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Jugador asignado a ") + targetTeam.getColor() + targetTeam.getIdentifier());
+                            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
+                        }
                         AdminLeadersGUI.open(player);
                     } catch (Exception ignored) {}
                     break;

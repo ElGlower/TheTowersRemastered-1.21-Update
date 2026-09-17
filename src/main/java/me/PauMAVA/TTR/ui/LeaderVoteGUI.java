@@ -66,12 +66,11 @@ public class LeaderVoteGUI {
                 sm.setDisplayName(state.getTeam().getColor() + "" + ChatColor.BOLD + name);
 
                 List<String> lore = new ArrayList<>();
-                lore.add(ChatColor.GRAY + TextUtil.toTiny("Votos en esta ronda: ") +
-                        ChatColor.YELLOW + state.getVotesFor(candUuid));
+                lore.add(ChatColor.GRAY + TextUtil.toTiny("Candidato a líder de tu equipo"));
                 lore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
 
                 if (candUuid.equals(votedFor)) {
-                    lore.add(ChatColor.GREEN + "✔ " + TextUtil.toTiny("¡Tu voto actual!"));
+                    lore.add(ChatColor.GREEN + "✔ " + TextUtil.toTiny("¡Tu voto emitido!"));
                 } else {
                     lore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic para votar a este líder"));
                 }

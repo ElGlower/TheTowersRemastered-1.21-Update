@@ -66,12 +66,17 @@ public class TTRTeamHandler {
             if (team.getSpawnPoint() != null) {
                 player.teleport(team.getSpawnPoint());
             }
+
+            me.PauMAVA.TTR.voice.VoiceChatManager.getInstance().assignPlayerToTeamVoice(player, teamIdentifier);
         }
     }
 
     public void removePlayer(Player player) {
         TTRTeam current = getPlayerTeam(player);
-        if (current != null) current.removePlayer(player);
+        if (current != null) {
+            current.removePlayer(player);
+            me.PauMAVA.TTR.voice.VoiceChatManager.getInstance().assignPlayerToTeamVoice(player, null);
+        }
     }
 
     public List<TTRTeam> getTeams() { return teams; }
@@ -84,6 +89,7 @@ public class TTRTeamHandler {
             team.setTeamHaste(false);
             team.clearLeader();
         }
+        me.PauMAVA.TTR.voice.VoiceChatManager.getInstance().clearAllVoiceGroups();
     }
 
     public void clearTeams() {
@@ -91,5 +97,6 @@ public class TTRTeamHandler {
             team.getPlayers().clear();
             team.clearLeader();
         }
+        me.PauMAVA.TTR.voice.VoiceChatManager.getInstance().clearAllVoiceGroups();
     }
 }

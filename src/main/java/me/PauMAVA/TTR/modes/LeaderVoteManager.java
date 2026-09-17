@@ -100,14 +100,19 @@ public class LeaderVoteManager {
         Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.GOLD + "" + ChatColor.BOLD +
                 TextUtil.toTiny("¡Comienza la votación de líderes por rondas!"));
         Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.GRAY +
-                TextUtil.toTiny("Vota a tu compañero preferido en el menú interactivo (Ronda 1)."));
+                TextUtil.toTiny("Vota a tu compañero de equipo para líder (Ronda 1)."));
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1.2f);
             TTRTeam team = plugin.getTeamHandler().getPlayerTeam(p);
             if (team != null) {
                 TeamVoteState state = getState(team.getIdentifier());
-                if (state != null && !state.isFinished()) {
+                if (state != null) {
+                    LeaderVoteGUI.open(p, state);
+                }
+            } else {
+                TeamVoteState state = getState("red");
+                if (state != null) {
                     LeaderVoteGUI.open(p, state);
                 }
             }
@@ -274,7 +279,7 @@ public class LeaderVoteManager {
 
         Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
         Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "★ " +
-                TextUtil.toTiny("LOS LÍDERES DE EQUIPO HAN SIDO CORONADOS") + " ★");
+                TextUtil.toTiny("Los líderes del equipo han sido seleccionados") + " ★");
         Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -282,6 +287,13 @@ public class LeaderVoteManager {
             if (p.getOpenInventory().getTitle().contains(TextUtil.toTiny("Votación de Líder"))) {
                 p.closeInventory();
             }
+        }
+
+        // Si la modalidad activa es Subasta (Auction Draft), transicionar automáticamente
+        if (plugin.getCurrentSelectionMode() == TeamSelectionMode.AUCTION_DRAFT) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                plugin.getAuctionDraftManager().startDraft();
+            }, 60L);
         }
     }
 

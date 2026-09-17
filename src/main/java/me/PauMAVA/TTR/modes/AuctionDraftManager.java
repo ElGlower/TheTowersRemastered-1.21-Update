@@ -47,8 +47,16 @@ public class AuctionDraftManager {
         passed.put("red", false);
         passed.put("blue", false);
 
-        // Ensure leaders exist
-        ensureLeaders();
+        TTRTeam red = plugin.getTeamHandler().getTeam("Red");
+        TTRTeam blue = plugin.getTeamHandler().getTeam("Blue");
+
+        if ((red != null && red.getLeader() == null) || (blue != null && blue.getLeader() == null)) {
+            Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.GOLD + "" + ChatColor.BOLD +
+                    TextUtil.toTiny("Antes de la subasta, cada equipo debe elegir a su líder por votación."));
+            plugin.setCurrentSelectionMode(TeamSelectionMode.AUCTION_DRAFT);
+            plugin.getLeaderVoteManager().startVoting(true);
+            return;
+        }
 
         // Populate pool with players who are not leaders
         pool.clear();
@@ -58,6 +66,13 @@ public class AuctionDraftManager {
                 continue; // Leaders don't get auctioned
             }
             pool.add(p.getUniqueId());
+        }
+
+        if (pool.isEmpty()) {
+            // Include all online players if testing
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                pool.add(p.getUniqueId());
+            }
         }
 
         if (pool.isEmpty()) {
@@ -140,9 +155,8 @@ public class AuctionDraftManager {
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
+            AuctionDraftGUI.open(p, this);
         }
-
-        refreshGUI();
     }
 
     private void resolveCurrentAuction() {

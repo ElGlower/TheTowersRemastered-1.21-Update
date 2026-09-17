@@ -1,38 +1,34 @@
 package me.PauMAVA.TTR.rollback;
 
 import me.PauMAVA.TTR.TTRCore;
-import me.PauMAVA.TTR.match.MatchStatus;
-import me.PauMAVA.TTR.util.TextUtil;
-import me.PauMAVA.TTR.util.TTRPrefix;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Motor de Regeneración Automática del Mapa sin reiniciar el servidor.
- * Registra cada bloque alterado durante la partida y lo restaura de forma atómica.
+ * Motor de Regeneración Atómica Integral del Mapa sin reiniciar el servidor.
+ * Registra cada bloque original antes de su primera modificación en EventPriority.LOWEST
+ * y lo restaura de forma 100% fiel usando BlockData inmutable sin física.
  */
 public class RollbackManager implements Listener {
 
     private final TTRCore plugin;
-    // Mapa de bloques: Ubicación -> Estado Original (Capturado antes de la primera modificación)
-    private final Map<Location, BlockState> originalBlockStates = new ConcurrentHashMap<>();
-    private boolean trackingActive = false;
+    // Mapa: Ubicación -> BlockData original antes de cualquier alteración
+    private final Map<Location, BlockData> originalBlockData = new ConcurrentHashMap<>();
+    private boolean trackingActive = true;
 
     public RollbackManager(TTRCore plugin) {
         this.plugin = plugin;
@@ -40,7 +36,7 @@ public class RollbackManager implements Listener {
     }
 
     public void startTracking() {
-        this.originalBlockStates.clear();
+        this.originalBlockData.clear();
         this.trackingActive = true;
     }
 
@@ -53,82 +49,97 @@ public class RollbackManager implements Listener {
     }
 
     public int getModifiedBlockCount() {
-        return originalBlockStates.size();
+        return originalBlockData.size();
     }
 
     public int getRecordedBlockModifications() {
-        return getModifiedBlockCount();
+        return originalBlockData.size();
     }
 
-    /**
-     * Guarda el estado original del bloque si no ha sido registrado previamente.
-     */
-    private void recordOriginalState(Block block) {
-        if (!trackingActive) return;
-        if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) return;
-
-        Location loc = block.getLocation();
-        originalBlockStates.putIfAbsent(loc, block.getState());
+    public void record(Location loc, BlockData data) {
+        if (!trackingActive || loc == null || data == null) return;
+        originalBlockData.putIfAbsent(loc.clone(), data.clone());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        recordOriginalState(event.getBlock());
+        Block block = event.getBlock();
+        record(block.getLocation(), block.getBlockData());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
-        recordOriginalState(event.getBlockReplacedState().getBlock());
+        // En BlockPlaceEvent, el estado previo intacto (habitualmente AIR) es el que debemos restaurar
+        BlockData previousData = event.getBlockReplacedState().getBlockData();
+        record(event.getBlock().getLocation(), previousData);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
-        for (Block block : event.blockList()) {
-            recordOriginalState(block);
+        for (Block b : event.blockList()) {
+            record(b.getLocation(), b.getBlockData());
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent event) {
-        for (Block block : event.blockList()) {
-            recordOriginalState(block);
+        for (Block b : event.blockList()) {
+            record(b.getLocation(), b.getBlockData());
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBlockBurn(BlockBurnEvent event) {
-        recordOriginalState(event.getBlock());
+        Block b = event.getBlock();
+        record(b.getLocation(), b.getBlockData());
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onBlockFade(BlockFadeEvent event) {
+        Block b = event.getBlock();
+        record(b.getLocation(), b.getBlockData());
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onBlockFromTo(BlockFromToEvent event) {
+        Block toBlock = event.getToBlock();
+        if (toBlock.getType() != Material.AIR && !toBlock.isLiquid()) {
+            record(toBlock.getLocation(), toBlock.getBlockData());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+        Block b = event.getBlock();
+        record(b.getLocation(), b.getBlockData());
     }
 
     /**
-     * Restaura todos los bloques a su estado inicial y limpia entidades residuales (ítems, proyectiles).
-     * @return El número de bloques restaurados.
+     * Restaura todos los bloques a su estado original exacto y limpia entidades residuales.
+     * @return Número de bloques regenerados.
      */
     public int restoreMap() {
-        int restoredCount = originalBlockStates.size();
+        int count = originalBlockData.size();
 
-        if (restoredCount > 0) {
-            // Restaurar bloques sin física para evitar lag y cascadas de redstone/agua
-            for (Map.Entry<Location, BlockState> entry : originalBlockStates.entrySet()) {
-                BlockState originalState = entry.getValue();
-                originalState.update(true, false);
+        if (count > 0) {
+            for (Map.Entry<Location, BlockData> entry : originalBlockData.entrySet()) {
+                Location loc = entry.getKey();
+                BlockData data = entry.getValue();
+                if (loc.getWorld() != null) {
+                    loc.getBlock().setBlockData(data, false);
+                }
             }
-            originalBlockStates.clear();
+            originalBlockData.clear();
         }
 
-        // Limpieza de entidades residuales de la arena
         cleanArenaEntities();
-
-        return restoredCount;
+        return count;
     }
 
     public int rollback() {
         return restoreMap();
     }
 
-    /**
-     * Elimina ítems tirados, orbes de experiencia y proyectiles huérfanos.
-     */
     public void cleanArenaEntities() {
         Location lobby = plugin.getConfigManager().getLobbyLocation();
         World arenaWorld = (lobby != null) ? lobby.getWorld() : (Bukkit.getWorlds().isEmpty() ? null : Bukkit.getWorlds().get(0));

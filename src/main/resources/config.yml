@@ -34,6 +34,11 @@ beacon_shop:
 # Modalidad de Selección de Equipos (STANDARD, LEADER_VOTING, AUCTION_DRAFT)
 selection_mode: STANDARD
 
+# Integración de Chat de Voz (Simple Voice Chat API)
+voicechat:
+  enabled: true
+  isolated: true
+
 # Puntos de Mapa
 map:
   lobby:

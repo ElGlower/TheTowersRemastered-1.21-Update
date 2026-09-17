@@ -96,6 +96,9 @@ public class TTRCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TeamSelectListener(this), this);
         getServer().getPluginManager().registerEvents(new me.PauMAVA.TTR.ui.ModesGUIListener(), this);
 
+        // Simple Voice Chat API Integration
+        me.PauMAVA.TTR.voice.VoiceChatManager.getInstance().init();
+
         if (getConfig().getBoolean("enable_on_start", true)) {
             this.currentMatch = new TTRMatch(MatchStatus.LOBBY);
         } else {

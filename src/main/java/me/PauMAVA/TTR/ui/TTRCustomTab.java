@@ -93,8 +93,8 @@ public class TTRCustomTab extends BukkitRunnable {
             ChatColor color = team.getColor();
             formattedName = color + " ▪ " + leaderBadge + color + "" + ChatColor.BOLD + teamPrefix + ChatColor.DARK_GRAY + " | " + color + player.getName() + killsInfo;
         } else {
-            if (player.isOp() || player.hasPermission("ttr.admin")) {
-                formattedName = ChatColor.RED + " ▪ " + ChatColor.RED + "" + ChatColor.BOLD + TextUtil.toTiny("Admin") + ChatColor.DARK_GRAY + " | " + ChatColor.WHITE + player.getName();
+            if (player.isOp() || player.hasPermission("destinytowers.admin") || player.hasPermission("ttr.admin")) {
+                formattedName = ChatColor.GOLD + " ▪ " + ChatColor.GOLD + "" + ChatColor.BOLD + TextUtil.toTiny("Destiny") + ChatColor.DARK_GRAY + " | " + ChatColor.WHITE + player.getName();
             } else {
                 formattedName = ChatColor.GRAY + " ▪ " + ChatColor.WHITE + player.getName();
             }
