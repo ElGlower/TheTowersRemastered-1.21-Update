@@ -11,13 +11,29 @@ autostart:
   count: 4          # Cantidad mínima de jugadores requeridos para iniciar
   countdown: 10     # Segundos de cuenta regresiva
 
-# Configuración de la Partida
-match:
-  duration: 1200    # Duración en segundos (20 minutos)
-  maxpoints: 10     # Puntos necesarios para ganar
-  weather: CLEAR    # Clima fijo durante la partida
-  time: 6000        # Hora fija del mundo (mediodía)
+# Modalidad de Selección de Equipos (STANDARD, LEADER_VOTING, AUCTION_DRAFT)
+selection_mode: STANDARD
 
+# Configuración de Votación de Líder
+voting:
+  round_seconds: 20       # Duración en segundos de cada ronda de votación
+
+# Configuración de Subasta (Auction Draft)
+auction:
+  initial_credits: 100    # Créditos iniciales para cada capitán
+  turn_seconds: 15        # Segundos por turno para pujar por cada jugador
+
+# Tiempo de Anuncio / Lectura de Reglas de Modo
+modes:
+  explanation_seconds: 60 # Segundos de espera para que los jugadores lean las reglas
+
+# Cuenta atrás previa al inicio de partida tras selección/subasta
+match:
+  duration: 1200          # Duración en segundos (20 minutos)
+  maxpoints: 10           # Puntos necesarios para ganar
+  weather: CLEAR          # Clima fijo durante la partida
+  time: 6000              # Hora fija del mundo (mediodía)
+  prestart_countdown: 10  # Segundos de conteo antes de soltar a los jugadores
 # Configuración de Regeneración Automática del Mapa sin Reinicio
 rollback:
   auto_restore_on_end: true
@@ -30,9 +46,6 @@ events:
 # Control de la Tienda Táctica del Faro
 beacon_shop:
   enabled: true
-
-# Modalidad de Selección de Equipos (STANDARD, LEADER_VOTING, AUCTION_DRAFT)
-selection_mode: STANDARD
 
 # Integración de Chat de Voz (Simple Voice Chat API)
 voicechat:

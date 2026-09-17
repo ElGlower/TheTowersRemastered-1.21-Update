@@ -108,11 +108,30 @@ public class AuctionDraftGUI {
             gui.setItem(13, skull);
         }
 
-        // Bidding controls (Slots 19, 20, 21, 25)
-        gui.setItem(19, createActionItem(Material.EMERALD, ChatColor.GREEN + "+10 " + TextUtil.toTiny("Créditos"), "bid_10"));
-        gui.setItem(20, createActionItem(Material.EMERALD_BLOCK, ChatColor.GREEN + "" + ChatColor.BOLD + "+25 " + TextUtil.toTiny("Créditos"), "bid_25"));
-        gui.setItem(21, createActionItem(Material.GOLD_BLOCK, ChatColor.GOLD + "" + ChatColor.BOLD + "+50 " + TextUtil.toTiny("Créditos"), "bid_50"));
-        gui.setItem(25, createActionItem(Material.BARRIER, ChatColor.RED + "" + ChatColor.BOLD + TextUtil.toTiny("Pasar Turno"), "pass"));
+        // Bidding controls (Slots 19, 20, 21, 25) vs Spectator info (Slot 22)
+        TTRTeam viewerTeam = plugin.getTeamHandler().getPlayerTeam(viewer);
+        boolean isCaptain = (viewerTeam != null && viewerTeam.isLeader(viewer.getUniqueId())) || viewer.isOp();
+
+        if (isCaptain) {
+            gui.setItem(19, createActionItem(Material.EMERALD, ChatColor.GREEN + "+10 " + TextUtil.toTiny("Créditos"), "bid_10"));
+            gui.setItem(20, createActionItem(Material.EMERALD_BLOCK, ChatColor.GREEN + "" + ChatColor.BOLD + "+25 " + TextUtil.toTiny("Créditos"), "bid_25"));
+            gui.setItem(21, createActionItem(Material.GOLD_BLOCK, ChatColor.GOLD + "" + ChatColor.BOLD + "+50 " + TextUtil.toTiny("Créditos"), "bid_50"));
+            gui.setItem(25, createActionItem(Material.BARRIER, ChatColor.RED + "" + ChatColor.BOLD + TextUtil.toTiny("Pasar Turno"), "pass"));
+        } else {
+            ItemStack spectatorItem = new ItemStack(Material.PAPER);
+            ItemMeta spMeta = spectatorItem.getItemMeta();
+            if (spMeta != null) {
+                spMeta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "👁 " + TextUtil.toTiny("Modo Espectador"));
+                List<String> sl = new ArrayList<>();
+                sl.add(ChatColor.GRAY + TextUtil.toTiny("Solo los líderes de equipo pueden"));
+                sl.add(ChatColor.GRAY + TextUtil.toTiny("pujar con créditos por los jugadores."));
+                sl.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+                sl.add(ChatColor.AQUA + TextUtil.toTiny("Observa la subasta en vivo."));
+                spMeta.setLore(sl);
+                spectatorItem.setItemMeta(spMeta);
+            }
+            gui.setItem(22, spectatorItem);
+        }
     }
 
     private static ItemStack createTeamHead(TTRTeam team, int credits, boolean passed) {

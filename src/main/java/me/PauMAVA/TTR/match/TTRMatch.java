@@ -42,7 +42,7 @@ public class TTRMatch {
 
     public void startMatch() {
         TTRCore.getInstance().getTeamHandler().loadSpawnsFromConfig();
-        TTRCore.getInstance().getTeamHandler().restartTeams();
+        TTRCore.getInstance().getTeamHandler().resetMatchStats();
 
         TTRTeam red = TTRCore.getInstance().getTeamHandler().getTeam("Red");
         TTRTeam blue = TTRCore.getInstance().getTeamHandler().getTeam("Blue");

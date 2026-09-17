@@ -108,6 +108,35 @@ public class AutoStarter {
         cancel();
     }
 
+    public void startMatchCountdown(int seconds) {
+        cancel();
+        plugin.setCounting(true);
+        this.countdown = seconds;
+
+        this.taskID = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (countdown <= 0) {
+                    plugin.setCounting(false);
+                    cancel();
+                    plugin.getCurrentMatch().startMatch();
+                    return;
+                }
+
+                if (countdown == 10 || (countdown <= 5 && countdown > 0)) {
+                    String title = TextUtil.color("&#FFFFFF" + TextUtil.toTiny("Iniciando en"));
+                    String sub = TextUtil.color("&#FF2E2E§l" + countdown + "s");
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        p.sendTitle(title, sub, 0, 25, 5);
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, (countdown <= 3) ? 2.0f : 1.0f);
+                    }
+                }
+
+                countdown--;
+            }
+        }.runTaskTimer(plugin, 0L, 20L).getTaskId();
+    }
+
     public void cancel() {
         if (taskID != -1) {
             Bukkit.getScheduler().cancelTask(taskID);

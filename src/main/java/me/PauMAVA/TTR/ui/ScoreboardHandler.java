@@ -21,6 +21,8 @@ public class ScoreboardHandler {
     private final Map<UUID, Scoreboard> playerBoards = new ConcurrentHashMap<>();
     private final Map<UUID, List<String>> playerLastLines = new ConcurrentHashMap<>();
 
+    private int animStep = 0;
+
     public ScoreboardHandler(TTRCore plugin) {
         this.plugin = plugin;
     }
@@ -30,9 +32,10 @@ public class ScoreboardHandler {
         this.taskID = new BukkitRunnable() {
             @Override
             public void run() {
+                animStep++;
                 updateAll();
             }
-        }.runTaskTimer(plugin, 0L, 20L).getTaskId();
+        }.runTaskTimer(plugin, 0L, 5L).getTaskId();
     }
 
     public void stopScoreboardTask() {
@@ -68,10 +71,12 @@ public class ScoreboardHandler {
         });
 
         Objective obj = board.getObjective("TTR");
+        String animatedTitle = DestinyTheme.SHINE_FRAMES[animStep % DestinyTheme.SHINE_FRAMES.length];
         if (obj == null) {
-            obj = board.registerNewObjective("TTR", Criteria.DUMMY, 
-                    ChatColor.GOLD + "" + ChatColor.BOLD + "◆ " + ChatColor.YELLOW + "" + ChatColor.BOLD + TextUtil.toTiny("DESTINY TOWERS") + ChatColor.GOLD + "" + ChatColor.BOLD + " ◆");
+            obj = board.registerNewObjective("TTR", Criteria.DUMMY, animatedTitle);
             obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        } else {
+            obj.setDisplayName(animatedTitle);
         }
         obj.numberFormat(io.papermc.paper.scoreboard.numbers.NumberFormat.blank());
 
@@ -138,7 +143,8 @@ public class ScoreboardHandler {
 
         // Footer DestinyOwners
         newLines.add(ChatColor.DARK_GRAY + "§m                      §r");
-        newLines.add(ChatColor.YELLOW + "● " + ChatColor.GOLD + "" + ChatColor.BOLD + TextUtil.toTiny("DESTINYOWNERS") + ChatColor.YELLOW + " ●");
+        String animatedFooter = DestinyTheme.FOOTER_FRAMES[(animStep / 2) % DestinyTheme.FOOTER_FRAMES.length];
+        newLines.add(animatedFooter);
 
         // Comparar con líneas anteriores para evitar parpadeo
         List<String> lastLines = playerLastLines.getOrDefault(player.getUniqueId(), Collections.emptyList());

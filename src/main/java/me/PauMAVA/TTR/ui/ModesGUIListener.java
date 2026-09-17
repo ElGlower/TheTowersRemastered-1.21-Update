@@ -82,12 +82,26 @@ public class ModesGUIListener implements Listener {
 
             switch (action) {
                 case "cycle_mode": {
-                    plugin.setCurrentSelectionMode(plugin.getCurrentSelectionMode().next());
+                    me.PauMAVA.TTR.modes.TeamSelectionMode nextMode = plugin.getCurrentSelectionMode().next();
+                    plugin.setCurrentSelectionMode(nextMode);
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.2f);
+                    plugin.getModeAnnouncementManager().announceMode(nextMode, null);
+                    AdminLeadersGUI.open(player);
+                    break;
+                }
+                case "open_settings": {
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.2f);
+                    ModeSettingsGUI.open(player);
+                    break;
+                }
+                case "skip_announcement": {
+                    plugin.getModeAnnouncementManager().forceStartNow();
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
                     AdminLeadersGUI.open(player);
                     break;
                 }
                 case "stop_phase": {
+                    plugin.getModeAnnouncementManager().cancel();
                     plugin.getLeaderVoteManager().cancelVoting();
                     plugin.getAuctionDraftManager().cancelDraft();
                     player.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Fase activa detenida con éxito."));
@@ -96,13 +110,25 @@ public class ModesGUIListener implements Listener {
                     break;
                 }
                 case "start_voting": {
-                    plugin.getLeaderVoteManager().startVoting(true);
+                    plugin.getModeAnnouncementManager().announceMode(me.PauMAVA.TTR.modes.TeamSelectionMode.LEADER_VOTING, () -> {
+                        plugin.getLeaderVoteManager().startVoting(true);
+                    });
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.2f);
                     AdminLeadersGUI.open(player);
                     break;
                 }
                 case "start_draft": {
-                    plugin.getAuctionDraftManager().startDraft();
+                    plugin.getModeAnnouncementManager().announceMode(me.PauMAVA.TTR.modes.TeamSelectionMode.AUCTION_DRAFT, () -> {
+                        plugin.getAuctionDraftManager().startDraft();
+                    });
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.2f);
+                    AdminLeadersGUI.open(player);
+                    break;
+                }
+                case "start_standard": {
+                    plugin.getModeAnnouncementManager().announceMode(me.PauMAVA.TTR.modes.TeamSelectionMode.STANDARD, () -> {
+                        plugin.getAutoStarter().checkStart();
+                    });
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.2f);
                     AdminLeadersGUI.open(player);
                     break;
@@ -196,6 +222,74 @@ public class ModesGUIListener implements Listener {
                     break;
                 }
             }
+            return;
         }
+
+        // 4. Mode Settings GUI
+        if (title.equals(ModeSettingsGUI.TITLE)) {
+            event.setCancelled(true);
+            ItemStack item = event.getCurrentItem();
+            if (item == null || !item.hasItemMeta()) return;
+
+            String action = item.getItemMeta().getPersistentDataContainer().get(ModeSettingsGUI.KEY_ACTION, PersistentDataType.STRING);
+            if (action == null) return;
+
+            switch (action) {
+                case "cycle_vote_secs": {
+                    int[] opts = {10, 15, 20, 30, 45, 60};
+                    int cur = plugin.getConfig().getInt("voting.round_seconds", 20);
+                    int next = getNextOption(opts, cur);
+                    plugin.getConfig().set("voting.round_seconds", next);
+                    plugin.saveConfig();
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
+                    ModeSettingsGUI.open(player);
+                    break;
+                }
+                case "cycle_turn_secs": {
+                    int[] opts = {10, 15, 20, 25, 30};
+                    int cur = plugin.getConfig().getInt("auction.turn_seconds", 15);
+                    int next = getNextOption(opts, cur);
+                    plugin.getConfig().set("auction.turn_seconds", next);
+                    plugin.saveConfig();
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
+                    ModeSettingsGUI.open(player);
+                    break;
+                }
+                case "cycle_credits": {
+                    int[] opts = {50, 100, 150, 200, 250, 300};
+                    int cur = plugin.getConfig().getInt("auction.initial_credits", 100);
+                    int next = getNextOption(opts, cur);
+                    plugin.getConfig().set("auction.initial_credits", next);
+                    plugin.saveConfig();
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
+                    ModeSettingsGUI.open(player);
+                    break;
+                }
+                case "cycle_read_secs": {
+                    int[] opts = {0, 15, 30, 45, 60, 90};
+                    int cur = plugin.getConfig().getInt("modes.explanation_seconds", 60);
+                    int next = getNextOption(opts, cur);
+                    plugin.getConfig().set("modes.explanation_seconds", next);
+                    plugin.saveConfig();
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
+                    ModeSettingsGUI.open(player);
+                    break;
+                }
+                case "back_leaders": {
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+                    AdminLeadersGUI.open(player);
+                    break;
+                }
+            }
+        }
+    }
+
+    private int getNextOption(int[] options, int current) {
+        for (int i = 0; i < options.length; i++) {
+            if (options[i] == current) {
+                return options[(i + 1) % options.length];
+            }
+        }
+        return options[0];
     }
 }

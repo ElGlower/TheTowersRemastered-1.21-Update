@@ -249,12 +249,17 @@ public class EventListener implements Listener {
         if (!plugin.enabled()) return;
         Player p = event.getPlayer();
         TTRTeam team = plugin.getTeamHandler().getPlayerTeam(p);
+        boolean isStaff = p.isOp() || p.hasPermission("destinytowers.admin") || p.hasPermission("ttr.admin");
+        String staffPrefix = isStaff ? me.PauMAVA.TTR.ui.DestinyTheme.DESTINY_ROLE_BADGE + " " : "";
+
         if (team != null && team.isLeader(p.getUniqueId())) {
             String leaderBadge = ChatColor.GOLD + "★ [" + team.getColor() + TextUtil.toTiny("Líder ") + team.getColor() + TextUtil.toTiny(team.getIdentifier()) + ChatColor.GOLD + "] " + ChatColor.RESET;
-            event.setFormat(leaderBadge + team.getColor() + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
+            event.setFormat(staffPrefix + leaderBadge + team.getColor() + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
         } else if (team != null) {
             String teamPrefix = ChatColor.DARK_GRAY + "[" + team.getColor() + TextUtil.toTiny(team.getIdentifier()) + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
-            event.setFormat(teamPrefix + team.getColor() + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
+            event.setFormat(staffPrefix + teamPrefix + team.getColor() + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
+        } else if (isStaff) {
+            event.setFormat(staffPrefix + ChatColor.WHITE + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
         }
     }
 }

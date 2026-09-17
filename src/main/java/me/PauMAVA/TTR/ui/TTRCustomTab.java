@@ -14,32 +14,6 @@ public class TTRCustomTab extends BukkitRunnable {
     private final TTRCore plugin;
     private int animStep = 0;
 
-    // Efecto de brillo animado en la cabecera
-    private static final String[] SHINE_FRAMES = {
-        "§6§l◆ §e§lᴅᴇsᴛɪɴʏ ᴛᴏᴡᴇʀs §6§l◆",
-        "§e§l◆ §f§lᴅ§e§lsᴛɪɴʏ ᴛᴏᴡᴇʀs §6§l◆",
-        "§6§l◆ §e§lᴅ§f§lᴇ§e§lsᴛɪɴʏ ᴛᴏᴡᴇʀs §6§l◆",
-        "§6§l◆ §e§lᴅᴇ§f§ls§e§lᴛɪɴʏ ᴛᴏᴡᴇʀs §6§l◆",
-        "§6§l◆ §e§lᴅᴇs§f§lᴛ§e§lɪɴʏ ᴛᴏᴡᴇʀs §6§l◆",
-        "§6§l◆ §e§lᴅᴇsᴛ§f§lɪ§e§lɴʏ ᴛᴏᴡᴇʀs §6§l◆",
-        "§6§l◆ §e§lᴅᴇsᴛɪ§f§lɴ§e§lʏ ᴛᴏᴡᴇʀs §6§l◆",
-        "§6§l◆ §e§lᴅᴇsᴛɪɴ§f§lʏ§e§l ᴛᴏᴡᴇʀs §6§l◆",
-        "§6§l◆ §e§lᴅᴇsᴛɪɴʏ §f§lᴛ§e§lᴏᴡᴇʀs §6§l◆",
-        "§6§l◆ §e§lᴅᴇsᴛɪɴʏ ᴛ§f§lᴏ§e§lᴡᴇʀs §6§l◆",
-        "§6§l◆ §e§lᴅᴇsᴛɪɴʏ ᴛᴏ§f§lᴡ§e§lᴇʀs §6§l◆",
-        "§6§l◆ §e§lᴅᴇsᴛɪɴʏ ᴛᴏᴡ§f§lᴇ§e§lʀs §6§l◆",
-        "§6§l◆ §e§lᴅᴇsᴛɪɴʏ ᴛᴏᴡᴇ§f§lʀ§e§ls §6§l◆",
-        "§6§l◆ §e§lᴅᴇsᴛɪɴʏ ᴛᴏᴡᴇʀ§f§ls §6§l◆",
-        "§e§l◆ §f§l◆ §e§lᴅᴇsᴛɪɴʏ ᴛᴏᴡᴇʀs §f§l◆ §e§l◆"
-    };
-
-    private static final String[] FOOTER_FRAMES = {
-        "§e● §6§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs §e●",
-        "§6● §e§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs §6●",
-        "§f● §e§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs §f●",
-        "§e● §f§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs §e●"
-    };
-
     public TTRCustomTab(TTRCore plugin) {
         this.plugin = plugin;
     }
@@ -55,8 +29,8 @@ public class TTRCustomTab extends BukkitRunnable {
     }
 
     private void updateTabList(Player player) {
-        String animatedTitle = SHINE_FRAMES[animStep % SHINE_FRAMES.length];
-        String animatedFooter = FOOTER_FRAMES[(animStep / 2) % FOOTER_FRAMES.length];
+        String animatedTitle = DestinyTheme.SHINE_FRAMES[animStep % DestinyTheme.SHINE_FRAMES.length];
+        String animatedFooter = DestinyTheme.FOOTER_FRAMES[(animStep / 2) % DestinyTheme.FOOTER_FRAMES.length];
 
         String header = "\n" +
                 animatedTitle + "\n" +
@@ -86,15 +60,18 @@ public class TTRCustomTab extends BukkitRunnable {
             killsInfo = ChatColor.DARK_GRAY + " [" + ChatColor.YELLOW + TextUtil.toTiny(String.valueOf(kills)) + ChatColor.DARK_GRAY + "]";
         }
 
+        boolean isStaff = player.isOp() || player.hasPermission("destinytowers.admin") || player.hasPermission("ttr.admin");
+
         if (team != null) {
             boolean isLeader = team.isLeader(player.getUniqueId());
             String leaderBadge = isLeader ? ChatColor.GOLD + "★" + TextUtil.toTiny("Líder ") : "";
             String teamPrefix = TextUtil.toTiny(team.getIdentifier().substring(0, 1).toUpperCase());
             ChatColor color = team.getColor();
-            formattedName = color + " ▪ " + leaderBadge + color + "" + ChatColor.BOLD + teamPrefix + ChatColor.DARK_GRAY + " | " + color + player.getName() + killsInfo;
+            String staffBadge = isStaff ? DestinyTheme.DESTINY_ROLE_BADGE + " " : "";
+            formattedName = color + " ▪ " + staffBadge + leaderBadge + color + "" + ChatColor.BOLD + teamPrefix + ChatColor.DARK_GRAY + " | " + color + player.getName() + killsInfo;
         } else {
-            if (player.isOp() || player.hasPermission("destinytowers.admin") || player.hasPermission("ttr.admin")) {
-                formattedName = ChatColor.GOLD + " ▪ " + ChatColor.GOLD + "" + ChatColor.BOLD + TextUtil.toTiny("Destiny") + ChatColor.DARK_GRAY + " | " + ChatColor.WHITE + player.getName();
+            if (isStaff) {
+                formattedName = TextUtil.color("&#888888▪ ") + DestinyTheme.DESTINY_ROLE_BADGE + ChatColor.DARK_GRAY + " | " + ChatColor.WHITE + player.getName();
             } else {
                 formattedName = ChatColor.GRAY + " ▪ " + ChatColor.WHITE + player.getName();
             }

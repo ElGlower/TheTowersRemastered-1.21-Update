@@ -81,6 +81,15 @@ public class TTRTeamHandler {
 
     public List<TTRTeam> getTeams() { return teams; }
 
+    public void resetMatchStats() {
+        for (TTRTeam team : teams) {
+            team.setPoints(0);
+            team.setArmorProtectionLevel(0);
+            team.setTeamSpeed(false);
+            team.setTeamHaste(false);
+        }
+    }
+
     public void restartTeams() {
         for (TTRTeam team : teams) {
             team.setPoints(0);

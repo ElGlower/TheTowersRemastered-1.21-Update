@@ -49,6 +49,7 @@ public class TTRCore extends JavaPlugin {
 
     private LeaderVoteManager leaderVoteManager;
     private AuctionDraftManager auctionDraftManager;
+    private me.PauMAVA.TTR.modes.ModeAnnouncementManager modeAnnouncementManager;
     private me.PauMAVA.TTR.modes.TeamSelectionMode currentSelectionMode = me.PauMAVA.TTR.modes.TeamSelectionMode.STANDARD;
     private boolean beaconShopEnabled = true;
 
@@ -67,6 +68,7 @@ public class TTRCore extends JavaPlugin {
         this.rollbackManager = new RollbackManager(this);
         this.leaderVoteManager = new LeaderVoteManager();
         this.auctionDraftManager = new AuctionDraftManager();
+        this.modeAnnouncementManager = new me.PauMAVA.TTR.modes.ModeAnnouncementManager();
 
         this.beaconShopEnabled = getConfig().getBoolean("beacon_shop.enabled", true);
         boolean eventsEnabled = getConfig().getBoolean("events.enabled", true);
@@ -197,6 +199,7 @@ public class TTRCore extends JavaPlugin {
     public RollbackManager getRollbackManager() { return rollbackManager; }
     public LeaderVoteManager getLeaderVoteManager() { return leaderVoteManager; }
     public AuctionDraftManager getAuctionDraftManager() { return auctionDraftManager; }
+    public me.PauMAVA.TTR.modes.ModeAnnouncementManager getModeAnnouncementManager() { return modeAnnouncementManager; }
 
     public me.PauMAVA.TTR.modes.TeamSelectionMode getCurrentSelectionMode() { return currentSelectionMode; }
     public void setCurrentSelectionMode(me.PauMAVA.TTR.modes.TeamSelectionMode mode) {

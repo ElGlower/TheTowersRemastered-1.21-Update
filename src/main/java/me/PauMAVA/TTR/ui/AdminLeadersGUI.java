@@ -56,14 +56,30 @@ public class AdminLeadersGUI {
         modeLore.add(ChatColor.GRAY + TextUtil.toTiny("Modalidad activa: ") + mode.getDisplayName());
         modeLore.add(ChatColor.DARK_GRAY + TextUtil.toTiny(mode.getDescription()));
         modeLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-        modeLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Rotar modalidad"));
+        modeLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Rotar y anunciar modalidad"));
         gui.setItem(2, createActionItem(Material.COMPASS, ChatColor.GOLD + "" + ChatColor.BOLD + "🎲 " + TextUtil.toTiny("Modo de Selección"), modeLore, "cycle_mode"));
 
-        // 2. Control de Fase (Slot 4)
+        // 2. Ajustes de Tiempos y Créditos (Slot 3)
+        List<String> setLore = new ArrayList<>();
+        setLore.add(ChatColor.GRAY + TextUtil.toTiny("Configura segundos de votación, subasta,"));
+        setLore.add(ChatColor.GRAY + TextUtil.toTiny("créditos de capitanes y tiempo de lectura."));
+        setLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        setLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Abrir menú de tiempos"));
+        gui.setItem(3, createActionItem(Material.CLOCK, ChatColor.AQUA + "" + ChatColor.BOLD + "⚙ " + TextUtil.toTiny("Ajustes de Tiempos"), setLore, "open_settings"));
+
+        // 3. Control de Fase (Slot 4)
         boolean voteActive = plugin.getLeaderVoteManager().isActive();
         boolean draftActive = plugin.getAuctionDraftManager().isActive();
+        boolean announcing = plugin.getModeAnnouncementManager().isAnnouncing();
 
-        if (voteActive || draftActive) {
+        if (announcing) {
+            List<String> skipLore = new ArrayList<>();
+            skipLore.add(ChatColor.GRAY + TextUtil.toTiny("Los jugadores están leyendo las reglas."));
+            skipLore.add(ChatColor.GRAY + TextUtil.toTiny("Tiempo restante: ") + ChatColor.YELLOW + plugin.getModeAnnouncementManager().getSecondsRemaining() + "s");
+            skipLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+            skipLore.add(ChatColor.AQUA + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Comenzar ahora (Omitir espera)"));
+            gui.setItem(4, createActionItem(Material.BEACON, ChatColor.AQUA + "" + ChatColor.BOLD + "⚡ " + TextUtil.toTiny("Comenzar Ahora"), skipLore, "skip_announcement"));
+        } else if (voteActive || draftActive) {
             List<String> stopLore = new ArrayList<>();
             stopLore.add(ChatColor.GRAY + TextUtil.toTiny("Hay una fase activa en curso."));
             stopLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
@@ -87,10 +103,12 @@ public class AdminLeadersGUI {
             List<String> stdLore = new ArrayList<>();
             stdLore.add(ChatColor.GRAY + TextUtil.toTiny("En modo estándar los jugadores eligen"));
             stdLore.add(ChatColor.GRAY + TextUtil.toTiny("su equipo libremente o por auto-inicio."));
-            gui.setItem(4, createActionItem(Material.IRON_SWORD, ChatColor.AQUA + "" + ChatColor.BOLD + "🎮 " + TextUtil.toTiny("Modo Estándar Activo"), stdLore, "none"));
+            stdLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+            stdLore.add(ChatColor.GREEN + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Anunciar e iniciar modo"));
+            gui.setItem(4, createActionItem(Material.IRON_SWORD, ChatColor.AQUA + "" + ChatColor.BOLD + "🎮 " + TextUtil.toTiny("Iniciar Modo Estándar"), stdLore, "start_standard"));
         }
 
-        // 3. Volver a Config (Slot 6)
+        // 4. Volver a Config (Slot 6)
         List<String> backLore = new ArrayList<>();
         backLore.add(ChatColor.GRAY + TextUtil.toTiny("Regresar al panel de configuración principal."));
         gui.setItem(6, createActionItem(Material.ARROW, ChatColor.YELLOW + "" + ChatColor.BOLD + "« " + TextUtil.toTiny("Volver"), backLore, "back"));

@@ -49,7 +49,6 @@ public class LeaderVoteManager {
 
     private boolean active = false;
     private int secondsRemaining = 20;
-    private final int ROUND_DURATION = 20;
     private BukkitTask voteTask = null;
     private final Map<String, TeamVoteState> teamStates = new ConcurrentHashMap<>();
 
@@ -59,6 +58,10 @@ public class LeaderVoteManager {
 
     public int getSecondsRemaining() {
         return secondsRemaining;
+    }
+
+    public int getRoundDuration() {
+        return TTRCore.getInstance().getConfig().getInt("voting.round_seconds", 20);
     }
 
     public TeamVoteState getState(String teamId) {
@@ -95,7 +98,7 @@ public class LeaderVoteManager {
         }
 
         this.active = true;
-        this.secondsRemaining = ROUND_DURATION;
+        this.secondsRemaining = getRoundDuration();
 
         Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.GOLD + "" + ChatColor.BOLD +
                 TextUtil.toTiny("¡Comienza la votación de líderes por rondas!"));
@@ -128,11 +131,24 @@ public class LeaderVoteManager {
 
                 secondsRemaining--;
 
+                // Actionbar con segundos para los votantes
+                String ab = TextUtil.color("&#FFFFFF⏱ " + TextUtil.toTiny("Tiempo para votar: ") + "&#FF2E2E§l" + secondsRemaining + "s");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    TTRTeam t = plugin.getTeamHandler().getPlayerTeam(p);
+                    if (t != null) {
+                        TeamVoteState s = getState(t.getIdentifier());
+                        if (s != null && !s.isFinished()) {
+                            p.sendActionBar(net.kyori.adventure.text.Component.text(ab));
+                            LeaderVoteGUI.updateTimer(p, secondsRemaining);
+                        }
+                    }
+                }
+
                 if (secondsRemaining <= 0) {
                     processRounds();
-                } else if (secondsRemaining == 10 || secondsRemaining <= 5) {
+                } else if (secondsRemaining <= 5) {
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 0.8f, 1.5f);
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1.8f);
                     }
                 }
             }
@@ -260,9 +276,9 @@ public class LeaderVoteManager {
             concludeVoting();
         } else {
             // Reset round timer for remaining teams
-            this.secondsRemaining = ROUND_DURATION;
+            this.secondsRemaining = getRoundDuration();
             Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.GOLD +
-                    TextUtil.toTiny("¡Siguiente ronda de votación iniciada! Tienes 20s."));
+                    TextUtil.toTiny("¡Siguiente ronda de votación iniciada! Tienes " + secondsRemaining + "s."));
         }
     }
 
@@ -289,10 +305,15 @@ public class LeaderVoteManager {
             }
         }
 
-        // Si la modalidad activa es Subasta (Auction Draft), transicionar automáticamente
+        // Si la modalidad activa es Subasta (Auction Draft), transicionar a subasta
         if (plugin.getCurrentSelectionMode() == TeamSelectionMode.AUCTION_DRAFT) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 plugin.getAuctionDraftManager().startDraft();
+            }, 60L);
+        } else if (plugin.getCurrentSelectionMode() == TeamSelectionMode.LEADER_VOTING) {
+            int prestart = plugin.getConfig().getInt("match.prestart_countdown", 10);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                plugin.getAutoStarter().startMatchCountdown(prestart);
             }, 60L);
         }
     }

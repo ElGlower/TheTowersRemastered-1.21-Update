@@ -35,15 +35,18 @@ public class AuctionDraftManager {
     public int getCurrentBid() { return currentBid; }
     public String getHighestBidderTeam() { return highestBidderTeam; }
     public int getSecondsRemaining() { return secondsRemaining; }
-    public int getTeamCredits(String team) { return credits.getOrDefault(team.toLowerCase(), 100); }
+    public int getStartingCredits() { return TTRCore.getInstance().getConfig().getInt("auction.initial_credits", 100); }
+    public int getTurnDuration() { return TTRCore.getInstance().getConfig().getInt("auction.turn_seconds", 15); }
+    public int getTeamCredits(String team) { return credits.getOrDefault(team.toLowerCase(), getStartingCredits()); }
     public boolean hasPassed(String team) { return passed.getOrDefault(team.toLowerCase(), false); }
 
     public void startDraft() {
         TTRCore plugin = TTRCore.getInstance();
         cancelDraft();
 
-        credits.put("red", 100);
-        credits.put("blue", 100);
+        int startingCredits = getStartingCredits();
+        credits.put("red", startingCredits);
+        credits.put("blue", startingCredits);
         passed.put("red", false);
         passed.put("blue", false);
 
@@ -86,7 +89,7 @@ public class AuctionDraftManager {
         Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
         Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "⚖ " +
                 TextUtil.toTiny("¡COMIENZA LA SUBASTA DE JUGADORES (AUCTION DRAFT)!") + " ⚖");
-        Bukkit.broadcastMessage(ChatColor.GRAY + TextUtil.toTiny("Cada capitán tiene 100 créditos para pujar por sus compañeros."));
+        Bukkit.broadcastMessage(ChatColor.GRAY + TextUtil.toTiny("Cada capitán tiene " + startingCredits + " créditos para pujar por sus compañeros."));
         Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 
         nextCandidate();
@@ -100,6 +103,17 @@ public class AuctionDraftManager {
                 }
 
                 secondsRemaining--;
+
+                // Actionbar informativa en tiempo real
+                Player candPlayer = (currentCandidate != null) ? Bukkit.getPlayer(currentCandidate) : null;
+                String cName = (candPlayer != null) ? candPlayer.getName() : "Jugador";
+                String ab = TextUtil.color("&#FFFFFF⚖ " + TextUtil.toTiny("Subasta: ") + "&#FFFF55" + cName +
+                        " &#888888| " + "&#FFFFFF⏱ " + "&#FF2E2E§l" + secondsRemaining + "s" +
+                        " &#888888| " + TextUtil.toTiny("Oferta: ") + "&#55FF55" + currentBid + "c");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.sendActionBar(net.kyori.adventure.text.Component.text(ab));
+                }
+
                 if (secondsRemaining <= 0 || (hasPassed("red") && hasPassed("blue"))) {
                     resolveCurrentAuction();
                 } else {
@@ -142,7 +156,7 @@ public class AuctionDraftManager {
         currentBid = 0;
         highestBidderTeam = null;
         highestBidderUuid = null;
-        secondsRemaining = TURN_DURATION;
+        secondsRemaining = getTurnDuration();
         passed.put("red", false);
         passed.put("blue", false);
 
@@ -151,7 +165,7 @@ public class AuctionDraftManager {
 
         Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + "" + ChatColor.BOLD +
                 TextUtil.toTiny("En subasta: ") + ChatColor.WHITE + name +
-                ChatColor.GRAY + TextUtil.toTiny(" | Puja inicial: 0 créditos. Tienes 15s."));
+                ChatColor.GRAY + TextUtil.toTiny(" | Puja inicial: 0 créditos. Tienes ") + secondsRemaining + "s.");
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
@@ -296,6 +310,11 @@ public class AuctionDraftManager {
                 p.closeInventory();
             }
         }
+
+        int prestart = TTRCore.getInstance().getConfig().getInt("match.prestart_countdown", 10);
+        Bukkit.getScheduler().runTaskLater(TTRCore.getInstance(), () -> {
+            TTRCore.getInstance().getAutoStarter().startMatchCountdown(prestart);
+        }, 60L);
     }
 
     public void cancelDraft() {

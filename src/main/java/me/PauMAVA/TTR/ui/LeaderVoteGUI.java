@@ -84,4 +84,18 @@ public class LeaderVoteGUI {
 
         player.openInventory(gui);
     }
+
+    public static void updateTimer(Player player, int seconds) {
+        if (player.getOpenInventory() != null && player.getOpenInventory().getTitle().contains(TextUtil.toTiny("Votación de Líder"))) {
+            Inventory inv = player.getOpenInventory().getTopInventory();
+            ItemStack timer = new ItemStack(Material.CLOCK);
+            ItemMeta tm = timer.getItemMeta();
+            if (tm != null) {
+                tm.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "⏱ " +
+                        TextUtil.toTiny("Tiempo restante: ") + ChatColor.WHITE + seconds + "s");
+                timer.setItemMeta(tm);
+            }
+            inv.setItem(22, timer);
+        }
+    }
 }
