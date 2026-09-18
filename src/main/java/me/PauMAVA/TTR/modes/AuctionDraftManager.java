@@ -191,7 +191,9 @@ public class AuctionDraftManager {
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
-            AuctionDraftGUI.open(p, this);
+            if (isCaptain(p) || p.getOpenInventory().getTitle().equals(AuctionDraftGUI.TITLE)) {
+                AuctionDraftGUI.open(p, this);
+            }
         }
     }
 
@@ -321,6 +323,24 @@ public class AuctionDraftManager {
         Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Créditos del equipo ") +
                 ChatColor.WHITE + team.toUpperCase() + ChatColor.YELLOW + TextUtil.toTiny(" fijados en: ") +
                 ChatColor.GREEN + amount + " créditos");
+        refreshGUI();
+    }
+
+    public void addSeconds(int s) {
+        if (!active) return;
+        this.secondsRemaining += s;
+        if (this.secondsRemaining < 0) this.secondsRemaining = 0;
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Tiempo de turno modificado: ") +
+                (s >= 0 ? ChatColor.GREEN + "+" + s : ChatColor.RED + "" + s) + "s" +
+                ChatColor.GRAY + " (" + ChatColor.WHITE + secondsRemaining + "s restantes" + ChatColor.GRAY + ")");
+        refreshGUI();
+    }
+
+    public void setSeconds(int s) {
+        if (!active) return;
+        this.secondsRemaining = Math.max(0, s);
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Tiempo de turno establecido en: ") +
+                ChatColor.GREEN + s + "s");
         refreshGUI();
     }
 

@@ -31,6 +31,8 @@ public class TTRMatch {
     private int matchTaskID;
     private int prepTaskID = -1;
     private int prepRemaining = 0;
+    private int prepTotalSeconds = 30;
+    private BossBar prepBar;
     private int remainingTime;
     private int maxPointsToWin;
 
@@ -49,6 +51,7 @@ public class TTRMatch {
     public void startPreparationPhase(int seconds) {
         this.status = MatchStatus.PREPARATION;
         this.prepRemaining = seconds;
+        this.prepTotalSeconds = Math.max(1, seconds);
 
         TTRCore.getInstance().getTeamHandler().loadSpawnsFromConfig();
         ChestRestockManager.getInstance().restockAndPurgeArenaChests(true);
@@ -85,12 +88,24 @@ public class TTRMatch {
             }
         }
 
+        if (this.prepBar != null) {
+            this.prepBar.removeAll();
+        }
+        this.prepBar = Bukkit.createBossBar(
+                TextUtil.color("&#FFAA00§l🛡 " + TextUtil.toTiny("PREPARACIÓN EN BASES") + " &#888888▪ &#FFFFFF⏱ §l" + formatTime(prepRemaining)),
+                BarColor.YELLOW,
+                BarStyle.SOLID
+        );
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            this.prepBar.addPlayer(p);
+        }
+
         Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
         Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "🛡 " +
-                TextUtil.toTiny("¡FASE DE PREPARACIÓN!") + " 🛡");
+                TextUtil.toTiny("¡FASE DE PREPARACIÓN EN BASES!") + " 🛡");
         Bukkit.broadcastMessage(ChatColor.GRAY + TextUtil.toTiny("Tienes ") + ChatColor.WHITE + seconds + "s" +
-                ChatColor.GRAY + TextUtil.toTiny(" para inspeccionar los cofres de tu base y coordinar con tu equipo."));
-        Bukkit.broadcastMessage(ChatColor.RED + TextUtil.toTiny("Nota: No puedes romper bloques ni agarrar objetos en esta fase."));
+                ChatColor.GRAY + TextUtil.toTiny(" para inspeccionar los cofres de tu isla y preparar tu estrategia."));
+        Bukkit.broadcastMessage(ChatColor.RED + TextUtil.toTiny("Nota: No puedes romper bloques ni extraer objetos hasta que inicie el combate."));
         Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 
         if (prepTaskID != -1) {
@@ -102,28 +117,123 @@ public class TTRMatch {
             public void run() {
                 if (status != MatchStatus.PREPARATION) {
                     this.cancel();
+                    if (prepBar != null) {
+                        prepBar.removeAll();
+                        prepBar = null;
+                    }
                     return;
                 }
 
                 if (prepRemaining <= 0) {
                     this.cancel();
+                    if (prepBar != null) {
+                        prepBar.removeAll();
+                        prepBar = null;
+                    }
                     startMatch();
                     return;
                 }
 
-                String title = TextUtil.color("&#FFFFFF" + TextUtil.toTiny("Preparación: ") + "&#FF5555§l" + prepRemaining + "s");
-                String sub = TextUtil.color("&#FFFF55" + TextUtil.toTiny("¡Inspecciona los cofres!"));
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (prepRemaining <= 5 || prepRemaining == 10 || prepRemaining == seconds) {
-                        p.sendTitle(title, sub, 0, 25, 5);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, (prepRemaining <= 3) ? 2.0f : 1.2f);
-                    }
-                    p.sendActionBar(net.kyori.adventure.text.Component.text(title));
-                }
-
+                updatePrepBar();
                 prepRemaining--;
             }
         }.runTaskTimer(TTRCore.getInstance(), 0L, 20L).getTaskId();
+    }
+
+    public void updatePrepBar() {
+        if (prepBar == null) return;
+        double progress = Math.max(0.0, Math.min(1.0, (double) prepRemaining / (double) Math.max(1, prepTotalSeconds)));
+        prepBar.setProgress(progress);
+
+        String timeStr = formatTime(prepRemaining);
+        if (prepRemaining <= 10) {
+            prepBar.setColor(BarColor.RED);
+            prepBar.setTitle(TextUtil.color("&#FF2E2E§l⚠ " + TextUtil.toTiny("¡PREPÁRATE!") + " &#888888▪ &#FFFFFF⏱ §l" + timeStr));
+        } else {
+            prepBar.setColor(BarColor.YELLOW);
+            prepBar.setTitle(TextUtil.color("&#FFAA00§l🛡 " + TextUtil.toTiny("PREPARACIÓN EN BASES") + " &#888888▪ &#FFFFFF⏱ §l" + timeStr));
+        }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!prepBar.getPlayers().contains(p)) {
+                prepBar.addPlayer(p);
+            }
+
+            String abColor = (prepRemaining <= 10) ? "&#FF2E2E§l" : "&#FFFF55§l";
+            String ab = TextUtil.color("&#FFFFFF🛡 " + TextUtil.toTiny("Preparación en bases: ") + abColor + timeStr +
+                    " &#888888[" + TextUtil.toTiny("Inspecciona los cofres") + "]");
+            p.sendActionBar(net.kyori.adventure.text.Component.text(ab));
+
+            if (prepRemaining <= 5 && prepRemaining > 0) {
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, (prepRemaining <= 2) ? 2.0f : 1.4f);
+                String title = TextUtil.color("&#FF2E2E§l" + prepRemaining);
+                String sub = TextUtil.color("&#FFFF55" + TextUtil.toTiny("¡A luchar por las torres!"));
+                p.sendTitle(title, sub, 0, 22, 3);
+            } else if (prepRemaining == 10 || prepRemaining == prepTotalSeconds) {
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1.0f, 1.0f);
+            }
+        }
+    }
+
+    public void addPreparationTime(int seconds) {
+        if (this.status != MatchStatus.PREPARATION) return;
+        this.prepRemaining += seconds;
+        if (this.prepRemaining < 0) this.prepRemaining = 0;
+        this.prepTotalSeconds = Math.max(this.prepTotalSeconds, this.prepRemaining);
+        updatePrepBar();
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Tiempo de preparación modificado: ") +
+                (seconds >= 0 ? ChatColor.GREEN + "+" + seconds : ChatColor.RED + "" + seconds) + "s" +
+                ChatColor.GRAY + " (" + ChatColor.WHITE + prepRemaining + "s restantes" + ChatColor.GRAY + ")");
+    }
+
+    public void setPreparationTime(int seconds) {
+        if (this.status != MatchStatus.PREPARATION) return;
+        this.prepRemaining = Math.max(0, seconds);
+        this.prepTotalSeconds = Math.max(this.prepTotalSeconds, this.prepRemaining);
+        updatePrepBar();
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Tiempo de preparación establecido en: ") +
+                ChatColor.GREEN + seconds + "s");
+    }
+
+    public void skipPreparation() {
+        if (this.status != MatchStatus.PREPARATION) return;
+        if (prepTaskID != -1) {
+            Bukkit.getScheduler().cancelTask(prepTaskID);
+            prepTaskID = -1;
+        }
+        if (prepBar != null) {
+            prepBar.removeAll();
+            prepBar = null;
+        }
+        Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + "" + ChatColor.BOLD +
+                TextUtil.toTiny("¡Fase de preparación finalizada por la administración! Iniciando combate..."));
+        Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+        startMatch();
+    }
+
+    public int getPrepRemaining() {
+        return this.prepRemaining;
+    }
+
+    public void addGameTime(int seconds) {
+        if (this.status != MatchStatus.INGAME) return;
+        this.remainingTime += seconds;
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Tiempo de partida modificado: ") +
+                (seconds >= 0 ? ChatColor.GREEN + "+" + seconds : ChatColor.RED + "" + seconds) + "s");
+    }
+
+    public void setGameTime(int seconds) {
+        if (this.status != MatchStatus.INGAME) return;
+        this.remainingTime = Math.max(0, seconds);
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Tiempo de partida establecido en: ") +
+                ChatColor.GREEN + seconds + "s");
+    }
+
+    private String formatTime(int totalSecs) {
+        int m = Math.max(0, totalSecs) / 60;
+        int s = Math.max(0, totalSecs) % 60;
+        return String.format("%02d:%02d", m, s);
     }
 
     public void startMatch() {
@@ -378,6 +488,10 @@ public class TTRMatch {
 
         TTRCore.getInstance().getScoreboard().stopScoreboardTask();
         if (this.gameBar != null) this.gameBar.removeAll();
+        if (this.prepBar != null) {
+            this.prepBar.removeAll();
+            this.prepBar = null;
+        }
     }
 
     public void endMatch(TTRTeam team) {

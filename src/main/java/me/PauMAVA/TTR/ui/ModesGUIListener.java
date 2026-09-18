@@ -66,6 +66,36 @@ public class ModesGUIListener implements Listener {
             String action = item.getItemMeta().getPersistentDataContainer().get(AuctionDraftGUI.KEY_ACTION, PersistentDataType.STRING);
             if (action == null) return;
 
+            if (action.equals("close_gui")) {
+                player.closeInventory();
+                return;
+            }
+
+            // Acciones Administrativas
+            if (action.startsWith("admin_")) {
+                if (!TTRCore.isAdmin(player)) {
+                    player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Solo administradores pueden usar estos controles."));
+                    return;
+                }
+                switch (action) {
+                    case "admin_add_time_10" -> plugin.getAuctionDraftManager().addSeconds(10);
+                    case "admin_add_time_30" -> plugin.getAuctionDraftManager().addSeconds(30);
+                    case "admin_add_red_credits" -> plugin.getAuctionDraftManager().addCredits("red", 25);
+                    case "admin_add_blue_credits" -> plugin.getAuctionDraftManager().addCredits("blue", 25);
+                    case "admin_skip_candidate" -> plugin.getAuctionDraftManager().skipCandidate(player);
+                    case "admin_conclude_draft" -> {
+                        plugin.getAuctionDraftManager().autoBalanceRemainingPool();
+                        plugin.getAuctionDraftManager().concludeDraft();
+                    }
+                    case "admin_cancel_draft" -> {
+                        plugin.getAuctionDraftManager().cancelDraft();
+                        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.RED + TextUtil.toTiny("Subasta cancelada por la administración."));
+                    }
+                }
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
+                return;
+            }
+
             // Validar estrictamente que solo los líderes de equipo puedan pujar o pasar
             TTRTeam team = plugin.getTeamHandler().getPlayerTeam(player);
             if (team == null || !team.isLeader(player.getUniqueId())) {
@@ -151,8 +181,25 @@ public class ModesGUIListener implements Listener {
                     ModeSettingsGUI.open(player);
                     break;
                 }
+                case "skip_phase":
                 case "skip_announcement": {
-                    plugin.getModeAnnouncementManager().forceStartNow();
+                    if (plugin.getModeAnnouncementManager().isAnnouncing()) {
+                        plugin.getModeAnnouncementManager().forceStartNow();
+                    } else if (plugin.getLeaderVoteManager().isActive()) {
+                        plugin.getLeaderVoteManager().forceNextRound();
+                    } else if (plugin.getAuctionDraftManager().isActive()) {
+                        plugin.getAuctionDraftManager().skipCandidate(player);
+                    } else if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().isPreparing()) {
+                        plugin.getCurrentMatch().skipPreparation();
+                    } else if (plugin.isCounting()) {
+                        plugin.getAutoStarter().forceStart();
+                    }
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
+                    AdminLeadersGUI.open(player);
+                    break;
+                }
+                case "add_time_15": {
+                    addTimeToActivePhase(plugin, 15);
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);
                     AdminLeadersGUI.open(player);
                     break;
@@ -163,6 +210,9 @@ public class ModesGUIListener implements Listener {
                     plugin.getAuctionDraftManager().cancelDraft();
                     if (plugin.getAutoStarter() != null) {
                         plugin.getAutoStarter().cancelCountdown();
+                    }
+                    if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().isPreparing()) {
+                        plugin.resetMatchLogic();
                     }
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         p.setLevel(0);
@@ -370,5 +420,19 @@ public class ModesGUIListener implements Listener {
             }
         }
         return options[0];
+    }
+
+    private void addTimeToActivePhase(TTRCore plugin, int seconds) {
+        if (plugin.getModeAnnouncementManager().isAnnouncing()) {
+            plugin.getModeAnnouncementManager().addSeconds(seconds);
+        } else if (plugin.getLeaderVoteManager().isActive()) {
+            plugin.getLeaderVoteManager().addSeconds(seconds);
+        } else if (plugin.getAuctionDraftManager().isActive()) {
+            plugin.getAuctionDraftManager().addSeconds(seconds);
+        } else if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().isPreparing()) {
+            plugin.getCurrentMatch().addPreparationTime(seconds);
+        } else if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().isOnCourse()) {
+            plugin.getCurrentMatch().addGameTime(seconds);
+        }
     }
 }

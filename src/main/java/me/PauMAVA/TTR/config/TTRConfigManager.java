@@ -110,6 +110,62 @@ public class TTRConfigManager {
         saveLocation("teams." + teamIdentifier + ".cage", location);
     }
 
+    public void setTeamBaseRegion(String teamIdentifier, Location pos1, Location pos2) {
+        if (pos1 == null || pos2 == null || pos1.getWorld() == null) return;
+        String path = "teams." + teamIdentifier + ".base";
+        config.set(path + ".world", pos1.getWorld().getName());
+        config.set(path + ".minX", Math.min(pos1.getX(), pos2.getX()));
+        config.set(path + ".maxX", Math.max(pos1.getX(), pos2.getX()));
+        config.set(path + ".minY", Math.min(pos1.getY(), pos2.getY()));
+        config.set(path + ".maxY", Math.max(pos1.getY(), pos2.getY()));
+        config.set(path + ".minZ", Math.min(pos1.getZ(), pos2.getZ()));
+        config.set(path + ".maxZ", Math.max(pos1.getZ(), pos2.getZ()));
+        TTRCore.getInstance().saveConfig();
+    }
+
+    public boolean isInsideTeamBase(String teamIdentifier, Location loc) {
+        if (loc == null || loc.getWorld() == null) return false;
+        String path = "teams." + teamIdentifier + ".base";
+        if (config.contains(path + ".world")) {
+            String wName = config.getString(path + ".world");
+            if (wName != null && wName.equals(loc.getWorld().getName())) {
+                double minX = config.getDouble(path + ".minX");
+                double maxX = config.getDouble(path + ".maxX");
+                double minY = config.getDouble(path + ".minY");
+                double maxY = config.getDouble(path + ".maxY");
+                double minZ = config.getDouble(path + ".minZ");
+                double maxZ = config.getDouble(path + ".maxZ");
+                return loc.getX() >= minX && loc.getX() <= maxX &&
+                       loc.getY() >= minY && loc.getY() <= maxY &&
+                       loc.getZ() >= minZ && loc.getZ() <= maxZ;
+            }
+        }
+
+        // Fallback dinámico basado en la distancia al spawn de la isla del equipo
+        Location spawn = getTeamSpawn(teamIdentifier);
+        if (spawn != null && spawn.getWorld() != null && spawn.getWorld().equals(loc.getWorld())) {
+            double baseRadius = config.getDouble("match.team_base_radius", 48.0);
+            double dx = Math.abs(spawn.getX() - loc.getX());
+            double dz = Math.abs(spawn.getZ() - loc.getZ());
+            double dy = Math.abs(spawn.getY() - loc.getY());
+            return dx <= baseRadius && dz <= baseRadius && dy <= 35.0;
+        }
+        return false;
+    }
+
+    public String getTeamBaseAt(Location loc) {
+        if (loc == null || loc.getWorld() == null) return null;
+        Set<String> names = getTeamNames();
+        if (names != null) {
+            for (String team : names) {
+                if (isInsideTeamBase(team, loc)) {
+                    return team;
+                }
+            }
+        }
+        return null;
+    }
+
     public List<Location> getTeamCages() {
         List<Location> all = new ArrayList<>();
         Set<String> names = getTeamNames();

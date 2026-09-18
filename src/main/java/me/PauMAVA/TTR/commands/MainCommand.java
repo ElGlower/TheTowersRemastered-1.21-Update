@@ -3,6 +3,7 @@ package me.PauMAVA.TTR.commands;
 import me.PauMAVA.TTR.TTRCore;
 import me.PauMAVA.TTR.match.ChestRestockManager;
 import me.PauMAVA.TTR.match.LobbyParkourManager;
+import me.PauMAVA.TTR.match.MatchStatus;
 import me.PauMAVA.TTR.match.ZoneWandManager;
 import me.PauMAVA.TTR.ui.AdminLeadersGUI;
 import me.PauMAVA.TTR.ui.AuctionDraftGUI;
@@ -44,9 +45,11 @@ public class MainCommand implements CommandExecutor {
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt config" + ChatColor.GRAY + " - " + TextUtil.toTiny("Abrir panel de configuración (GUI)"));
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt screen" + ChatColor.GRAY + " - " + TextUtil.toTiny("Abrir modo pantalla interactivo (Libro)"));
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt start [now]" + ChatColor.GRAY + " - " + TextUtil.toTiny("Iniciar preparación / partida"));
-            sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt stop" + ChatColor.GRAY + " - " + TextUtil.toTiny("Detener y limpiar partida"));
+            sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt next" + ChatColor.GRAY + " - " + TextUtil.toTiny("Saltar fase activa / Iniciar de inmediato"));
+            sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt time <add|set> <s >" + ChatColor.GRAY + " - " + TextUtil.toTiny("Modificar tiempo en tiempo real"));
+            sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt stop / cancel" + ChatColor.GRAY + " - " + TextUtil.toTiny("Detener y restablecer partida al lobby"));
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt resetmap" + ChatColor.GRAY + " - " + TextUtil.toTiny("Regenerar mapa atómicamente"));
-            sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt wand [setspawn|setcage|setlobby]" + ChatColor.GRAY + " - " + TextUtil.toTiny("Varita de delimitación de zonas"));
+            sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt wand [setspawn|setcage|setbase|setlobby]" + ChatColor.GRAY + " - " + TextUtil.toTiny("Varita de delimitación de zonas"));
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt parkour <start|cp|end|clear>" + ChatColor.GRAY + " - " + TextUtil.toTiny("Gestionar parkour del lobby"));
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt reroll" + ChatColor.GRAY + " - " + TextUtil.toTiny("Barajar equipos aleatoriamente"));
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt credits <add|set> <red|blue> <cant>" + ChatColor.GRAY + " - " + TextUtil.toTiny("Gestión de créditos de subasta"));
@@ -84,7 +87,91 @@ public class MainCommand implements CommandExecutor {
             case "start":
                 return new StartCommand().onCommand(sender, command, label, subArgs);
             case "stop":
+            case "cancel":
                 return new StopCommand().onCommand(sender, command, label, subArgs);
+            case "next":
+            case "skipphase":
+            case "forcestart":
+            case "skip": {
+                TTRCore plugin = TTRCore.getInstance();
+                if (plugin.getModeAnnouncementManager().isAnnouncing()) {
+                    plugin.getModeAnnouncementManager().forceStartNow();
+                    sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Lectura de reglas omitida. Iniciando fase..."));
+                    return true;
+                } else if (plugin.getLeaderVoteManager().isActive()) {
+                    plugin.getLeaderVoteManager().forceNextRound();
+                    sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Ronda de votación acelerada."));
+                    return true;
+                } else if (plugin.getAuctionDraftManager().isActive()) {
+                    Player p = (sender instanceof Player pl) ? pl : null;
+                    plugin.getAuctionDraftManager().skipCandidate(p);
+                    sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Jugador en subasta omitido/asignado."));
+                    return true;
+                } else if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().isPreparing()) {
+                    plugin.getCurrentMatch().skipPreparation();
+                    sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Fase de preparación finalizada."));
+                    return true;
+                } else if (plugin.isCounting()) {
+                    plugin.getAutoStarter().forceStart();
+                    sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Conteo forzado a inicio inmediato."));
+                    return true;
+                } else if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() == MatchStatus.LOBBY) {
+                    return new StartCommand().onCommand(sender, command, label, new String[]{"now"});
+                } else {
+                    sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No hay ninguna fase activa para saltar."));
+                    return true;
+                }
+            }
+            case "time":
+            case "timer": {
+                if (subArgs.length < 2) {
+                    sender.sendMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + "Uso: /dt time <add|set> <segundos>");
+                    return true;
+                }
+                String tSub = subArgs[0].toLowerCase();
+                int seconds;
+                try {
+                    seconds = Integer.parseInt(subArgs[1]);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Cantidad de segundos no válida."));
+                    return true;
+                }
+
+                TTRCore plugin = TTRCore.getInstance();
+                if (tSub.equals("add")) {
+                    if (plugin.getModeAnnouncementManager().isAnnouncing()) {
+                        plugin.getModeAnnouncementManager().addSeconds(seconds);
+                    } else if (plugin.getLeaderVoteManager().isActive()) {
+                        plugin.getLeaderVoteManager().addSeconds(seconds);
+                    } else if (plugin.getAuctionDraftManager().isActive()) {
+                        plugin.getAuctionDraftManager().addSeconds(seconds);
+                    } else if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().isPreparing()) {
+                        plugin.getCurrentMatch().addPreparationTime(seconds);
+                    } else if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().isOnCourse()) {
+                        plugin.getCurrentMatch().addGameTime(seconds);
+                    } else {
+                        sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No hay ninguna fase activa con temporizador."));
+                    }
+                    return true;
+                } else if (tSub.equals("set")) {
+                    if (plugin.getModeAnnouncementManager().isAnnouncing()) {
+                        plugin.getModeAnnouncementManager().setSeconds(seconds);
+                    } else if (plugin.getLeaderVoteManager().isActive()) {
+                        plugin.getLeaderVoteManager().setSeconds(seconds);
+                    } else if (plugin.getAuctionDraftManager().isActive()) {
+                        plugin.getAuctionDraftManager().setSeconds(seconds);
+                    } else if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().isPreparing()) {
+                        plugin.getCurrentMatch().setPreparationTime(seconds);
+                    } else if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().isOnCourse()) {
+                        plugin.getCurrentMatch().setGameTime(seconds);
+                    } else {
+                        sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No hay ninguna fase activa con temporizador."));
+                    }
+                    return true;
+                }
+                sender.sendMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + "Uso: /dt time <add|set> <segundos>");
+                return true;
+            }
             case "resetmap":
             case "rollback":
                 return new ResetMapCommand().onCommand(sender, command, label, subArgs);
@@ -118,13 +205,25 @@ public class MainCommand implements CommandExecutor {
                     p.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Jaula de ") + ChatColor.YELLOW + team +
                             ChatColor.GREEN + TextUtil.toTiny(" guardada en tu ubicación."));
                     return true;
+                } else if (wandSub.equals("setbase") && subArgs.length > 1) {
+                    String team = subArgs[1];
+                    Location pos1 = ZoneWandManager.getInstance().getPos1(p);
+                    Location pos2 = ZoneWandManager.getInstance().getPos2(p);
+                    if (pos1 == null || pos2 == null) {
+                        p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Debes seleccionar Pos1 y Pos2 con la varita primero."));
+                        return true;
+                    }
+                    TTRCore.getInstance().getConfigManager().setTeamBaseRegion(team, pos1, pos2);
+                    p.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Base de ") + ChatColor.YELLOW + team +
+                            ChatColor.GREEN + TextUtil.toTiny(" delimitada y guardada exitosamente."));
+                    return true;
                 } else if (wandSub.equals("setlobby")) {
                     Location loc = p.getLocation();
                     TTRCore.getInstance().getConfigManager().setLobby(loc);
                     p.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Lobby establecido en tu ubicación."));
                     return true;
                 }
-                p.sendMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + "Uso: /dt wand [setspawn <red|blue> | setcage <red|blue> | setlobby]");
+                p.sendMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + "Uso: /dt wand [setspawn <red|blue> | setcage <red|blue> | setbase <red|blue> | setlobby]");
                 return true;
             }
             case "parkour": {

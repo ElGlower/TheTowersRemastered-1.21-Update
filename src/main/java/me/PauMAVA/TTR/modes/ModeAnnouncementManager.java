@@ -105,6 +105,22 @@ public class ModeAnnouncementManager {
         finishAndRun();
     }
 
+    public void addSeconds(int s) {
+        if (!announcing) return;
+        this.secondsRemaining += s;
+        if (this.secondsRemaining < 0) this.secondsRemaining = 0;
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Tiempo de lectura modificado: ") +
+                (s >= 0 ? ChatColor.GREEN + "+" + s : ChatColor.RED + "" + s) + "s" +
+                ChatColor.GRAY + " (" + ChatColor.WHITE + secondsRemaining + "s restantes" + ChatColor.GRAY + ")");
+    }
+
+    public void setSeconds(int s) {
+        if (!announcing) return;
+        this.secondsRemaining = Math.max(0, s);
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Tiempo de lectura establecido en: ") +
+                ChatColor.GREEN + s + "s");
+    }
+
     private void finishAndRun() {
         cancel();
         if (onComplete != null) {

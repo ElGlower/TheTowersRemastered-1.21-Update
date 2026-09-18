@@ -90,6 +90,21 @@ public class EventListener implements Listener {
                 p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes romper bloques en la zona de Spawn!"));
             }
         }
+
+        if (isChestOrContainer(event.getBlock())) {
+            String baseTeam = plugin.getConfigManager().getTeamBaseAt(event.getBlock().getLocation());
+            if (baseTeam != null) {
+                TTRTeam playerTeam = plugin.getTeamHandler().getPlayerTeam(p);
+                if (playerTeam != null && !playerTeam.getIdentifier().equalsIgnoreCase(baseTeam)) {
+                    if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
+                        event.setCancelled(true);
+                        p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes romper cofres de la base enemiga!"));
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     @EventHandler
@@ -211,6 +226,13 @@ public class EventListener implements Listener {
         return false;
     }
 
+    public boolean isChestOrContainer(org.bukkit.block.Block b) {
+        if (b == null) return false;
+        Material m = b.getType();
+        return m == Material.CHEST || m == Material.TRAPPED_CHEST || m == Material.BARREL ||
+               m == Material.ENDER_CHEST || m == Material.SHULKER_BOX || b.getState() instanceof Container;
+    }
+
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         if (!plugin.enabled()) return;
@@ -286,6 +308,21 @@ public class EventListener implements Listener {
         }
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null) {
+            if (isChestOrContainer(event.getClickedBlock())) {
+                String baseTeam = plugin.getConfigManager().getTeamBaseAt(event.getClickedBlock().getLocation());
+                if (baseTeam != null) {
+                    TTRTeam playerTeam = plugin.getTeamHandler().getPlayerTeam(player);
+                    if (playerTeam != null && !playerTeam.getIdentifier().equalsIgnoreCase(baseTeam)) {
+                        if (!(player.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(player))) {
+                            event.setCancelled(true);
+                            player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes abrir cofres de la base enemiga!"));
+                            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
+                            return;
+                        }
+                    }
+                }
+            }
+
             if (event.getClickedBlock().getType() == Material.BEACON) {
                 event.setCancelled(true);
                 if (!plugin.isBeaconShopEnabled()) {
@@ -327,6 +364,23 @@ public class EventListener implements Listener {
         if (!plugin.enabled()) return;
         if (event.getInventory().getHolder() instanceof Container || event.getInventory().getHolder() instanceof DoubleChest) {
             ChestRestockManager.getInstance().purgeLiquids(event.getInventory());
+        }
+
+        if (event.getPlayer() instanceof Player player) {
+            Location invLoc = event.getInventory().getLocation();
+            if (invLoc != null) {
+                String baseTeam = plugin.getConfigManager().getTeamBaseAt(invLoc);
+                if (baseTeam != null) {
+                    TTRTeam playerTeam = plugin.getTeamHandler().getPlayerTeam(player);
+                    if (playerTeam != null && !playerTeam.getIdentifier().equalsIgnoreCase(baseTeam)) {
+                        if (!(player.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(player))) {
+                            event.setCancelled(true);
+                            player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes abrir cofres de la base enemiga!"));
+                            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -64,8 +64,9 @@ public class AdminLeadersGUI {
         boolean draftActive = plugin.getAuctionDraftManager().isActive();
         boolean announcing = plugin.getModeAnnouncementManager().isAnnouncing();
         boolean counting = plugin.isCounting();
+        boolean prepActive = plugin.getCurrentMatch() != null && plugin.getCurrentMatch().isPreparing();
 
-        if (announcing || voteActive || draftActive || counting) {
+        if (announcing || voteActive || draftActive || counting || prepActive) {
             List<String> stopLore = new ArrayList<>();
             String currentPhaseName = "Fase Activa";
             if (announcing) {
@@ -74,6 +75,8 @@ public class AdminLeadersGUI {
                 currentPhaseName = "Votación de Líder (" + plugin.getLeaderVoteManager().getSecondsRemaining() + "s)";
             } else if (draftActive) {
                 currentPhaseName = "Subasta de Miembros (" + plugin.getAuctionDraftManager().getSecondsRemaining() + "s)";
+            } else if (prepActive) {
+                currentPhaseName = "Preparación en Bases (" + plugin.getCurrentMatch().getPrepRemaining() + "s)";
             } else if (counting) {
                 currentPhaseName = "Conteo de Inicio (" + plugin.getAutoStarter().getCountdown() + "s)";
             }
@@ -82,16 +85,27 @@ public class AdminLeadersGUI {
             stopLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
             stopLore.add(ChatColor.RED + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Cancelar fase y restablecer"));
             gui.setItem(4, createActionItem(Material.BARRIER, ChatColor.RED + "" + ChatColor.BOLD + "✖ " + TextUtil.toTiny("Detener / Cancelar Fase"), stopLore, "stop_phase"));
-        }
 
-        if (announcing) {
             List<String> skipLore = new ArrayList<>();
-            skipLore.add(ChatColor.GRAY + TextUtil.toTiny("Los jugadores están leyendo las reglas."));
-            skipLore.add(ChatColor.GRAY + TextUtil.toTiny("Tiempo restante: ") + ChatColor.YELLOW + plugin.getModeAnnouncementManager().getSecondsRemaining() + "s");
+            skipLore.add(ChatColor.GRAY + TextUtil.toTiny("Fase: ") + ChatColor.YELLOW + currentPhaseName);
             skipLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-            skipLore.add(ChatColor.AQUA + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Comenzar ahora (Omitir espera)"));
-            gui.setItem(5, createActionItem(Material.BEACON, ChatColor.AQUA + "" + ChatColor.BOLD + "⚡ " + TextUtil.toTiny("Comenzar Ahora"), skipLore, "skip_announcement"));
+            skipLore.add(ChatColor.AQUA + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Saltar fase / Iniciar de inmediato"));
+            gui.setItem(5, createActionItem(Material.BEACON, ChatColor.AQUA + "" + ChatColor.BOLD + "⚡ " + TextUtil.toTiny("Saltar Fase"), skipLore, "skip_phase"));
+
+            List<String> addTimeLore = new ArrayList<>();
+            addTimeLore.add(ChatColor.GRAY + TextUtil.toTiny("Añade 15 segundos al cronómetro de la fase activa."));
+            addTimeLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+            addTimeLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: +15 segundos"));
+            gui.setItem(8, createActionItem(Material.CLOCK, ChatColor.YELLOW + "" + ChatColor.BOLD + "⏱ +15s " + TextUtil.toTiny("Tiempo"), addTimeLore, "add_time_15"));
         } else {
+            ItemStack border = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+            ItemMeta bm = border.getItemMeta();
+            if (bm != null) {
+                bm.setDisplayName(" ");
+                border.setItemMeta(bm);
+            }
+            gui.setItem(8, border);
+
             int playingCount = 0;
             int adminCount = 0;
             for (Player p : Bukkit.getOnlinePlayers()) {

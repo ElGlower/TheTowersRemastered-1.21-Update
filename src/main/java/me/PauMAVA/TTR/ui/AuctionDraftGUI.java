@@ -109,22 +109,32 @@ public class AuctionDraftGUI {
             gui.setItem(13, skull);
         }
 
-        // Bidding controls (Slots 18 to 26)
+        // Controls (Slots 18 to 26)
         TTRTeam viewerTeam = plugin.getTeamHandler().getPlayerTeam(viewer);
         boolean isCaptain = viewerTeam != null && viewerTeam.isLeader(viewer.getUniqueId());
         boolean isAdmin = TTRCore.isAdmin(viewer);
 
-        if (isCaptain || isAdmin) {
-            gui.setItem(18, createActionItem(Material.LIME_DYE, ChatColor.GREEN + "+1 " + TextUtil.toTiny("Crédito"), "bid_1", 1));
-            gui.setItem(19, createActionItem(Material.EMERALD, ChatColor.GREEN + "+5 " + TextUtil.toTiny("Créditos"), "bid_5", 5));
-            gui.setItem(20, createActionItem(Material.EMERALD_BLOCK, ChatColor.GREEN + "" + ChatColor.BOLD + "+10 " + TextUtil.toTiny("Créditos"), "bid_10", 10));
-            gui.setItem(21, createActionItem(Material.GOLD_INGOT, ChatColor.GOLD + "+25 " + TextUtil.toTiny("Créditos"), "bid_25", 25));
-            gui.setItem(22, createActionItem(Material.GOLD_BLOCK, ChatColor.GOLD + "" + ChatColor.BOLD + "+50 " + TextUtil.toTiny("Créditos"), "bid_50", 50));
-            gui.setItem(23, createActionItem(Material.DIAMOND, ChatColor.AQUA + "" + ChatColor.BOLD + "+100 " + TextUtil.toTiny("Créditos"), "bid_100", 100));
+        if (isCaptain) {
+            gui.setItem(18, createActionItem(Material.LIME_DYE, ChatColor.GREEN + "+1 " + TextUtil.toTiny("Crédito"), "bid_1", 1, null));
+            gui.setItem(19, createActionItem(Material.EMERALD, ChatColor.GREEN + "+5 " + TextUtil.toTiny("Créditos"), "bid_5", 5, null));
+            gui.setItem(20, createActionItem(Material.EMERALD_BLOCK, ChatColor.GREEN + "" + ChatColor.BOLD + "+10 " + TextUtil.toTiny("Créditos"), "bid_10", 10, null));
+            gui.setItem(21, createActionItem(Material.GOLD_INGOT, ChatColor.GOLD + "+25 " + TextUtil.toTiny("Créditos"), "bid_25", 25, null));
+            gui.setItem(22, createActionItem(Material.GOLD_BLOCK, ChatColor.GOLD + "" + ChatColor.BOLD + "+50 " + TextUtil.toTiny("Créditos"), "bid_50", 50, null));
+            gui.setItem(23, createActionItem(Material.DIAMOND, ChatColor.AQUA + "" + ChatColor.BOLD + "+100 " + TextUtil.toTiny("Créditos"), "bid_100", 100, null));
 
-            gui.setItem(24, createActionItem(Material.NAME_TAG, ChatColor.YELLOW + "" + ChatColor.BOLD + TextUtil.toTiny("Pujar Cifra"), "custom_bid", 0));
-            gui.setItem(25, createActionItem(Material.BARRIER, ChatColor.RED + "" + ChatColor.BOLD + TextUtil.toTiny("Pasar Turno"), "pass", 0));
-            gui.setItem(26, createActionItem(Material.HOPPER, ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + TextUtil.toTiny("Saltar Jugador"), "skip", 0));
+            gui.setItem(24, createActionItem(Material.NAME_TAG, ChatColor.YELLOW + "" + ChatColor.BOLD + TextUtil.toTiny("Pujar Cifra"), "custom_bid", 0, List.of(ChatColor.GRAY + TextUtil.toTiny("Usa /bid <cantidad>"))));
+            gui.setItem(25, createActionItem(Material.BARRIER, ChatColor.RED + "" + ChatColor.BOLD + TextUtil.toTiny("Pasar Turno"), "pass", 0, null));
+            gui.setItem(26, createActionItem(Material.IRON_DOOR, ChatColor.GRAY + TextUtil.toTiny("Cerrar (ESC)"), "close_gui", 0, null));
+        } else if (isAdmin) {
+            // Panel de Control y Monitoreo Administrativo
+            gui.setItem(18, createActionItem(Material.CLOCK, ChatColor.YELLOW + "" + ChatColor.BOLD + "⏱ +10s " + TextUtil.toTiny("Tiempo"), "admin_add_time_10", 0, List.of(ChatColor.GRAY + TextUtil.toTiny("Extender turno actual"))));
+            gui.setItem(19, createActionItem(Material.RECOVERY_COMPASS, ChatColor.GOLD + "" + ChatColor.BOLD + "⏱ +30s " + TextUtil.toTiny("Tiempo"), "admin_add_time_30", 0, List.of(ChatColor.GRAY + TextUtil.toTiny("Añadir 30s de subasta"))));
+            gui.setItem(20, createActionItem(Material.RED_DYE, ChatColor.RED + "" + ChatColor.BOLD + "+25c " + TextUtil.toTiny("Rojo"), "admin_add_red_credits", 0, List.of(ChatColor.GRAY + TextUtil.toTiny("Sumar 25 créditos al equipo rojo"))));
+            gui.setItem(21, createActionItem(Material.LAPIS_LAZULI, ChatColor.BLUE + "" + ChatColor.BOLD + "+25c " + TextUtil.toTiny("Azul"), "admin_add_blue_credits", 0, List.of(ChatColor.GRAY + TextUtil.toTiny("Sumar 25 créditos al equipo azul"))));
+            gui.setItem(22, createActionItem(Material.HOPPER, ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "⏭ " + TextUtil.toTiny("Saltar Jugador"), "admin_skip_candidate", 0, List.of(ChatColor.GRAY + TextUtil.toTiny("Asigna equitativamente y pasa al siguiente"))));
+            gui.setItem(23, createActionItem(Material.EMERALD_BLOCK, ChatColor.GREEN + "" + ChatColor.BOLD + "⚡ " + TextUtil.toTiny("Auto-Balancear"), "admin_conclude_draft", 0, List.of(ChatColor.GRAY + TextUtil.toTiny("Finalizar subasta y repartir miembros"))));
+            gui.setItem(24, createActionItem(Material.BARRIER, ChatColor.RED + "" + ChatColor.BOLD + "✖ " + TextUtil.toTiny("Cancelar Subasta"), "admin_cancel_draft", 0, List.of(ChatColor.GRAY + TextUtil.toTiny("Detener subasta inmediatamente"))));
+            gui.setItem(26, createActionItem(Material.IRON_DOOR, ChatColor.WHITE + "" + ChatColor.BOLD + "🚪 " + TextUtil.toTiny("Cerrar Screen"), "close_gui", 0, List.of(ChatColor.GRAY + TextUtil.toTiny("Puedes volver a abrir con /dt auction gui"))));
         } else {
             ItemStack spectatorItem = new ItemStack(Material.PAPER);
             ItemMeta spMeta = spectatorItem.getItemMeta();
@@ -139,6 +149,7 @@ public class AuctionDraftGUI {
                 spectatorItem.setItemMeta(spMeta);
             }
             gui.setItem(22, spectatorItem);
+            gui.setItem(26, createActionItem(Material.IRON_DOOR, ChatColor.GRAY + TextUtil.toTiny("Cerrar (ESC)"), "close_gui", 0, null));
         }
     }
 
@@ -163,11 +174,12 @@ public class AuctionDraftGUI {
         return item;
     }
 
-    private static ItemStack createActionItem(Material mat, String name, String action, int amount) {
+    private static ItemStack createActionItem(Material mat, String name, String action, int amount, List<String> lore) {
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(name);
+            if (lore != null) meta.setLore(lore);
             meta.getPersistentDataContainer().set(KEY_ACTION, PersistentDataType.STRING, action);
             if (amount > 0) {
                 meta.getPersistentDataContainer().set(KEY_BID_AMOUNT, PersistentDataType.INTEGER, amount);

@@ -384,6 +384,28 @@ public class LeaderVoteManager {
         }
     }
 
+    public void addSeconds(int s) {
+        if (!active) return;
+        this.secondsRemaining += s;
+        if (this.secondsRemaining < 0) this.secondsRemaining = 0;
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Tiempo de votación modificado: ") +
+                (s >= 0 ? ChatColor.GREEN + "+" + s : ChatColor.RED + "" + s) + "s" +
+                ChatColor.GRAY + " (" + ChatColor.WHITE + secondsRemaining + "s restantes" + ChatColor.GRAY + ")");
+    }
+
+    public void setSeconds(int s) {
+        if (!active) return;
+        this.secondsRemaining = Math.max(0, s);
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Tiempo de votación establecido en: ") +
+                ChatColor.GREEN + s + "s");
+    }
+
+    public void forceNextRound() {
+        if (!active) return;
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("¡Ronda de votación acelerada por la administración!"));
+        processRounds();
+    }
+
     public void cancelVoting() {
         cancelTaskOnly();
         this.active = false;

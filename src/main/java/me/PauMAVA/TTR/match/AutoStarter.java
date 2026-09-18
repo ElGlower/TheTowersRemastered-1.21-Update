@@ -146,6 +146,14 @@ public class AutoStarter {
         }.runTaskTimer(plugin, 0L, 20L).getTaskId();
     }
 
+    public void forceStart() {
+        cancel();
+        int prep = plugin.getConfig().getInt("match.prestart_countdown", 15);
+        if (plugin.getCurrentMatch() != null) {
+            plugin.getCurrentMatch().startPreparationPhase(prep);
+        }
+    }
+
     public void cancel() {
         if (taskID != -1) {
             Bukkit.getScheduler().cancelTask(taskID);

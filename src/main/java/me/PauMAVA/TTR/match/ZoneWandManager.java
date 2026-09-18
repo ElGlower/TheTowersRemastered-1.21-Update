@@ -54,6 +54,7 @@ public class ZoneWandManager {
             lore.add(ChatColor.GREEN + TextUtil.toTiny("Comandos útiles:"));
             lore.add(ChatColor.WHITE + "/dt wand setspawn <red|blue>");
             lore.add(ChatColor.WHITE + "/dt wand setcage <red|blue>");
+            lore.add(ChatColor.WHITE + "/dt wand setbase <red|blue>");
             lore.add(ChatColor.WHITE + "/dt wand setlobby");
             meta.setLore(lore);
             meta.getPersistentDataContainer().set(KEY_WAND, PersistentDataType.BYTE, (byte) 1);

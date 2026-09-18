@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class TTRTabCompleter implements TabCompleter {
 
     private static final List<String> ADMIN_MAIN_SUBS = Arrays.asList(
-            "start", "stop", "resetmap", "wand", "parkour", "reroll", "credits", "restock",
+            "start", "stop", "cancel", "next", "skipphase", "time", "resetmap", "wand", "parkour", "reroll", "credits", "restock",
             "set", "config", "screen", "gui", "leaders", "voteleader", "auction", "shop",
             "event", "forcejoin", "revive", "spectate", "play", "join", "bid", "reload"
     );
@@ -38,7 +38,7 @@ public class TTRTabCompleter implements TabCompleter {
     );
 
     private static final List<String> WAND_SUBS = Arrays.asList(
-            "setspawn", "setcage", "setlobby"
+            "setspawn", "setcage", "setbase", "setlobby"
     );
 
     private static final List<String> PARKOUR_SUBS = Arrays.asList(
@@ -59,6 +59,14 @@ public class TTRTabCompleter implements TabCompleter {
 
     private static final List<String> COMMON_AMOUNTS = Arrays.asList(
             "1", "5", "10", "25", "50", "100"
+    );
+
+    private static final List<String> TIME_SUBS = Arrays.asList(
+            "add", "set"
+    );
+
+    private static final List<String> COMMON_SECONDS = Arrays.asList(
+            "5", "10", "15", "20", "30", "45", "60"
     );
 
     @Override
@@ -86,6 +94,7 @@ public class TTRTabCompleter implements TabCompleter {
 
                 if (sub.equals("start")) return filterStartingWith(Arrays.asList("now"), args[1]);
                 if (sub.equals("wand")) return filterStartingWith(WAND_SUBS, args[1]);
+                if (sub.equals("time") || sub.equals("timer")) return filterStartingWith(TIME_SUBS, args[1]);
                 if (sub.equals("parkour")) return filterStartingWith(PARKOUR_SUBS, args[1]);
                 if (sub.equals("credits")) return filterStartingWith(CREDITS_SUBS, args[1]);
                 if (sub.equals("auction")) return filterStartingWith(AUCTION_SUBS, args[1]);
@@ -105,7 +114,10 @@ public class TTRTabCompleter implements TabCompleter {
                 if (sub.equals("forcejoin")) {
                     return filterStartingWith(TEAMS, args[2]);
                 }
-                if (sub.equals("wand") && (sub2.equals("setspawn") || sub2.equals("setcage"))) {
+                if (sub.equals("time") || sub.equals("timer")) {
+                    return filterStartingWith(COMMON_SECONDS, args[2]);
+                }
+                if (sub.equals("wand") && (sub2.equals("setspawn") || sub2.equals("setcage") || sub2.equals("setbase"))) {
                     return filterStartingWith(TEAMS, args[2]);
                 }
                 if (sub.equals("credits")) {
