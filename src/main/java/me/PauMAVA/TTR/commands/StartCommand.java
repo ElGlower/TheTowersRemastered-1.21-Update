@@ -27,8 +27,14 @@ public class StartCommand implements CommandExecutor {
             return true;
         }
 
-        TTRCore.getInstance().getCurrentMatch().startMatch();
-        sender.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.GREEN + " ¡Partida iniciada forzosamente!");
+        int prepTime = TTRCore.getInstance().getConfig().getInt("match.prestart_countdown", 15);
+        if (args.length > 0 && args[0].equalsIgnoreCase("now")) {
+            TTRCore.getInstance().getCurrentMatch().startMatch();
+            sender.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.GREEN + " ¡Partida iniciada instantáneamente!");
+        } else {
+            TTRCore.getInstance().getCurrentMatch().startPreparationPhase(prepTime);
+            sender.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.GREEN + " ¡Fase de preparación (" + prepTime + "s) iniciada!");
+        }
         return true;
     }
 }

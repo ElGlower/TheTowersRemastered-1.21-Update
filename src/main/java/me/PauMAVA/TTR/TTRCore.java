@@ -138,6 +138,7 @@ public class TTRCore extends JavaPlugin {
         registerCmd("destinytowers", mainCmd);
         registerCmd("dt", mainCmd);
         registerCmd("ttr", mainCmd);
+        registerCmd("bid", new me.PauMAVA.TTR.commands.BidCommand());
 
         // Comandos de partida y control
         registerCmd("ttrstart", new StartCommand());
@@ -228,7 +229,34 @@ public class TTRCore extends JavaPlugin {
     public void resetMatchLogic() {
         if (this.currentMatch != null) this.currentMatch.cleanup();
         this.currentMatch = new TTRMatch(MatchStatus.LOBBY);
-        this.scoreboard.updateAll();
+        if (this.teamHandler != null) this.teamHandler.clearTeams();
+        if (this.leaderVoteManager != null) this.leaderVoteManager.cancelVoting();
+        if (this.auctionDraftManager != null) this.auctionDraftManager.cancelDraft();
+        if (this.autoStarter != null) this.autoStarter.cancelCountdown();
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.getInventory().clear();
+            p.getInventory().setArmorContents(null);
+            p.getInventory().setItemInOffHand(null);
+            for (org.bukkit.potion.PotionEffect pe : p.getActivePotionEffects()) {
+                p.removePotionEffect(pe.getType());
+            }
+            p.setFireTicks(0);
+            p.setFreezeTicks(0);
+            if (p.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH) != null) {
+                p.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).setBaseValue(20.0);
+            }
+            p.setHealth(20.0);
+            p.setFoodLevel(20);
+            p.setGameMode(org.bukkit.GameMode.ADVENTURE);
+            this.currentMatch.giveLobbyItems(p);
+
+            Location lobby = this.configManager.getLobbyLocation();
+            if (lobby != null) p.teleport(lobby);
+
+            if (this.scoreboard != null) this.scoreboard.update(p);
+        }
+        if (this.scoreboard != null) this.scoreboard.updateAll();
     }
 
     public boolean isCounting() { return counting; }

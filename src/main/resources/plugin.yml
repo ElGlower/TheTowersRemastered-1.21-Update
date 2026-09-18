@@ -9,16 +9,16 @@ description: Destiny Towers para Paper 26.3 / 26.2 con regeneracion atomica de m
 commands:
   destinytowers:
     description: Comando principal de Destiny Towers
-    permission: destinytowers.admin
     aliases: [dt, ttr, thetowers, towers, destiny]
   dt:
     description: Comando abreviado de Destiny Towers
-    permission: destinytowers.admin
     aliases: [destinytowers]
   ttr:
     description: Comando heredado de The Towers
-    permission: destinytowers.admin
     aliases: [destinytowers]
+  bid:
+    description: Pujar en la subasta activa
+    aliases: [dtbid, puja]
   setlobby:
     description: Establece el punto de aparición del Lobby
     permission: destinytowers.admin

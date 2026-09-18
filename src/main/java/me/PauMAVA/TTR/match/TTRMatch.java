@@ -29,6 +29,8 @@ public class TTRMatch {
     private BossBar gameBar;
     private int regenTaskID;
     private int matchTaskID;
+    private int prepTaskID = -1;
+    private int prepRemaining = 0;
     private int remainingTime;
     private int maxPointsToWin;
 
@@ -38,6 +40,90 @@ public class TTRMatch {
 
     public boolean isOnCourse() {
         return this.status == MatchStatus.INGAME;
+    }
+
+    public boolean isPreparing() {
+        return this.status == MatchStatus.PREPARATION;
+    }
+
+    public void startPreparationPhase(int seconds) {
+        this.status = MatchStatus.PREPARATION;
+        this.prepRemaining = seconds;
+
+        TTRCore.getInstance().getTeamHandler().loadSpawnsFromConfig();
+        ChestRestockManager.getInstance().restockAndPurgeArenaChests(true);
+
+        TTRTeam red = TTRCore.getInstance().getTeamHandler().getTeam("Red");
+        TTRTeam blue = TTRCore.getInstance().getTeamHandler().getTeam("Blue");
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (TTRCore.isAdmin(p)) continue;
+            if (TTRCore.getInstance().getTeamHandler().getPlayerTeam(p) == null) {
+                if (red != null && blue != null) {
+                    if (red.getPlayers().size() <= blue.getPlayers().size()) {
+                        TTRCore.getInstance().getTeamHandler().addPlayerToTeam(p, "Red");
+                    } else {
+                        TTRCore.getInstance().getTeamHandler().addPlayerToTeam(p, "Blue");
+                    }
+                }
+            }
+        }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (TTRCore.isAdmin(p)) continue;
+            TTRTeam team = TTRCore.getInstance().getTeamHandler().getPlayerTeam(p);
+            if (team != null && team.getSpawnPoint() != null) {
+                p.teleport(team.getSpawnPoint());
+            }
+            p.getInventory().clear();
+            p.getInventory().setArmorContents(null);
+            p.getInventory().setItemInOffHand(null);
+            p.setGameMode(GameMode.SURVIVAL);
+            p.setHealth(20.0);
+            p.setFoodLevel(20);
+            for (PotionEffect pe : p.getActivePotionEffects()) {
+                p.removePotionEffect(pe.getType());
+            }
+        }
+
+        Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+        Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "🛡 " +
+                TextUtil.toTiny("¡FASE DE PREPARACIÓN!") + " 🛡");
+        Bukkit.broadcastMessage(ChatColor.GRAY + TextUtil.toTiny("Tienes ") + ChatColor.WHITE + seconds + "s" +
+                ChatColor.GRAY + TextUtil.toTiny(" para inspeccionar los cofres de tu base y coordinar con tu equipo."));
+        Bukkit.broadcastMessage(ChatColor.RED + TextUtil.toTiny("Nota: No puedes romper bloques ni agarrar objetos en esta fase."));
+        Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+
+        if (prepTaskID != -1) {
+            Bukkit.getScheduler().cancelTask(prepTaskID);
+        }
+
+        prepTaskID = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (status != MatchStatus.PREPARATION) {
+                    this.cancel();
+                    return;
+                }
+
+                if (prepRemaining <= 0) {
+                    this.cancel();
+                    startMatch();
+                    return;
+                }
+
+                String title = TextUtil.color("&#FFFFFF" + TextUtil.toTiny("Preparación: ") + "&#FF5555§l" + prepRemaining + "s");
+                String sub = TextUtil.color("&#FFFF55" + TextUtil.toTiny("¡Inspecciona los cofres!"));
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (prepRemaining <= 5 || prepRemaining == 10 || prepRemaining == seconds) {
+                        p.sendTitle(title, sub, 0, 25, 5);
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, (prepRemaining <= 3) ? 2.0f : 1.2f);
+                    }
+                    p.sendActionBar(net.kyori.adventure.text.Component.text(title));
+                }
+
+                prepRemaining--;
+            }
+        }.runTaskTimer(TTRCore.getInstance(), 0L, 20L).getTaskId();
     }
 
     public void startMatch() {
@@ -137,6 +223,8 @@ public class TTRMatch {
         }
 
         player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
+        player.getInventory().setItemInOffHand(null);
         player.setGameMode(GameMode.SURVIVAL);
 
         if (player.getAttribute(Attribute.MAX_HEALTH) != null) {
@@ -272,6 +360,11 @@ public class TTRMatch {
     }
 
     public void cleanup() {
+        if (this.prepTaskID != -1) {
+            Bukkit.getScheduler().cancelTask(this.prepTaskID);
+            this.prepTaskID = -1;
+        }
+
         if (this.lootSpawner != null) this.lootSpawner.stopSpawning();
         if (this.checker != null) this.checker.stopChecking();
 
@@ -333,12 +426,16 @@ public class TTRMatch {
             player.sendMessage(" ");
 
             player.getInventory().clear();
+            player.getInventory().setArmorContents(null);
+            player.getInventory().setItemInOffHand(null);
             player.setGameMode(GameMode.ADVENTURE);
 
             for (PotionEffect effect : player.getActivePotionEffects()) {
                 player.removePotionEffect(effect.getType());
             }
 
+            player.setFireTicks(0);
+            player.setFreezeTicks(0);
             if (player.getAttribute(Attribute.MAX_HEALTH) != null) {
                 player.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20.0);
             }
@@ -349,6 +446,8 @@ public class TTRMatch {
 
             Location lobby = TTRCore.getInstance().getConfigManager().getLobbyLocation();
             if (lobby != null) player.teleport(lobby);
+
+            TTRCore.getInstance().getScoreboard().update(player);
         }
 
         if (TTRCore.getInstance().getWorldHandler() != null) {
@@ -371,6 +470,8 @@ public class TTRMatch {
 
     public void giveLobbyItems(Player p) {
         p.getInventory().clear();
+        p.getInventory().setArmorContents(null);
+        p.getInventory().setItemInOffHand(null);
 
         ItemStack star = new ItemStack(Material.NETHER_STAR);
         ItemMeta meta = star.getItemMeta();

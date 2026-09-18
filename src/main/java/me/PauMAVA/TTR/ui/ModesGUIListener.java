@@ -6,6 +6,7 @@ import me.PauMAVA.TTR.teams.TTRTeam;
 import me.PauMAVA.TTR.util.TextUtil;
 import me.PauMAVA.TTR.util.TTRPrefix;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,7 +16,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.UUID;
+import java.util.*;
 
 public class ModesGUIListener implements Listener {
 
@@ -85,6 +86,12 @@ public class ModesGUIListener implements Listener {
                 plugin.getAuctionDraftManager().bid(player, amount);
             } else if (action.equals("pass")) {
                 plugin.getAuctionDraftManager().pass(player);
+            } else if (action.equals("skip")) {
+                plugin.getAuctionDraftManager().skipCandidate(player);
+            } else if (action.equals("custom_bid")) {
+                player.closeInventory();
+                player.sendMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + TextUtil.toTiny("Para pujar cualquier cifra usa: ") +
+                        ChatColor.WHITE + "/bid <cantidad>" + ChatColor.YELLOW + TextUtil.toTiny(" o ") + ChatColor.WHITE + "/dt bid <cantidad>");
             }
             return;
         }
@@ -101,6 +108,36 @@ public class ModesGUIListener implements Listener {
             ClickType click = event.getClick();
 
             switch (action) {
+                case "reroll_teams": {
+                    List<Player> eligible = new ArrayList<>();
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (!TTRCore.isAdmin(p)) eligible.add(p);
+                    }
+                    Collections.shuffle(eligible);
+                    plugin.getTeamHandler().clearTeams();
+                    for (int i = 0; i < eligible.size(); i++) {
+                        Player target = eligible.get(i);
+                        String teamId = (i % 2 == 0) ? "Red" : "Blue";
+                        plugin.getTeamHandler().addPlayerToTeam(target, teamId);
+                    }
+                    Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + "" + ChatColor.BOLD +
+                            TextUtil.toTiny("¡Equipos barajados aleatoriamente por la administración!"));
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1.5f);
+                    }
+                    AdminLeadersGUI.open(player);
+                    break;
+                }
+                case "add_credits_quick": {
+                    if (click.isRightClick()) {
+                        plugin.getAuctionDraftManager().addCredits("blue", 25);
+                    } else {
+                        plugin.getAuctionDraftManager().addCredits("red", 25);
+                    }
+                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.2f);
+                    AdminLeadersGUI.open(player);
+                    break;
+                }
                 case "cycle_mode": {
                     me.PauMAVA.TTR.modes.TeamSelectionMode nextMode = plugin.getCurrentSelectionMode().next();
                     plugin.setCurrentSelectionMode(nextMode);

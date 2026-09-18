@@ -127,9 +127,24 @@ public class AdminLeadersGUI {
         }
 
         // Top border items
-        gui.setItem(1, border);
-        gui.setItem(3, border);
-        gui.setItem(7, border);
+        if (plugin.getAuctionDraftManager().isActive()) {
+            List<String> credLore = new ArrayList<>();
+            credLore.add(ChatColor.RED + "Rojo: " + ChatColor.GREEN + plugin.getAuctionDraftManager().getTeamCredits("red") + "c");
+            credLore.add(ChatColor.BLUE + "Azul: " + ChatColor.GREEN + plugin.getAuctionDraftManager().getTeamCredits("blue") + "c");
+            credLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+            credLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic Izq: +25 a Rojo | Der: +25 a Azul"));
+            gui.setItem(1, createActionItem(Material.GOLD_INGOT, ChatColor.YELLOW + "" + ChatColor.BOLD + "💰 " + TextUtil.toTiny("Añadir Créditos"), credLore, "add_credits_quick"));
+        } else {
+            gui.setItem(1, border);
+        }
+
+        // Slot 7: Re-Roll de Equipos
+        List<String> rerollLore = new ArrayList<>();
+        rerollLore.add(ChatColor.GRAY + TextUtil.toTiny("Baraja aleatoriamente a todos"));
+        rerollLore.add(ChatColor.GRAY + TextUtil.toTiny("los jugadores entre Rojo y Azul."));
+        rerollLore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+        rerollLore.add(ChatColor.YELLOW + "» " + ChatColor.WHITE + TextUtil.toTiny("Clic: Re-roll aleatorio"));
+        gui.setItem(7, createActionItem(Material.DISPENSER, ChatColor.GOLD + "" + ChatColor.BOLD + "🎲 " + TextUtil.toTiny("Re-Roll de Equipos"), rerollLore, "reroll_teams"));
 
         // Center separator (rows 1 to 4)
         for (int row = 1; row < 5; row++) {

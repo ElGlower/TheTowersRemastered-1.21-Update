@@ -94,7 +94,8 @@ public class AutoStarter {
                 if (countdown <= 0) {
                     plugin.setCounting(false);
                     cancel();
-                    plugin.getCurrentMatch().startMatch();
+                    int prep = plugin.getConfig().getInt("match.prestart_countdown", 15);
+                    plugin.getCurrentMatch().startPreparationPhase(prep);
                     return;
                 }
 
@@ -126,7 +127,8 @@ public class AutoStarter {
                 if (countdown <= 0) {
                     plugin.setCounting(false);
                     cancel();
-                    plugin.getCurrentMatch().startMatch();
+                    int prep = plugin.getConfig().getInt("match.prestart_countdown", 15);
+                    plugin.getCurrentMatch().startPreparationPhase(prep);
                     return;
                 }
 

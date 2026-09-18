@@ -7,6 +7,7 @@ import me.PauMAVA.TTR.util.TextUtil;
 import me.PauMAVA.TTR.util.TTRPrefix;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -100,6 +101,10 @@ public class AuctionDraftManager {
 
         Collections.shuffle(pool);
         this.active = true;
+
+        // Entregar ítem interactivo del panel de subasta a los líderes
+        giveLeaderAuctionItem(red);
+        giveLeaderAuctionItem(blue);
 
         Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
         Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "⚖ " +
@@ -230,7 +235,110 @@ public class AuctionDraftManager {
             p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.2f);
         }
 
+        if (getTeamCredits("red") <= 0 && getTeamCredits("blue") <= 0) {
+            autoBalanceRemainingPool();
+            concludeDraft();
+            return;
+        }
+
         nextCandidate();
+    }
+
+    public void autoBalanceRemainingPool() {
+        TTRCore plugin = TTRCore.getInstance();
+        TTRTeam red = plugin.getTeamHandler().getTeam("Red");
+        TTRTeam blue = plugin.getTeamHandler().getTeam("Blue");
+
+        List<UUID> toAssign = new ArrayList<>();
+        if (currentCandidate != null) {
+            toAssign.add(currentCandidate);
+            currentCandidate = null;
+        }
+        toAssign.addAll(pool);
+        pool.clear();
+
+        for (UUID u : toAssign) {
+            Player p = Bukkit.getPlayer(u);
+            if (p != null) {
+                int rCount = (red != null) ? red.getPlayers().size() : 0;
+                int bCount = (blue != null) ? blue.getPlayers().size() : 0;
+                String assigned = (rCount <= bCount) ? "Red" : "Blue";
+                plugin.getTeamHandler().addPlayerToTeam(p, assigned);
+            }
+        }
+
+        Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + "" + ChatColor.BOLD +
+                TextUtil.toTiny("¡Ambos capitanes se quedaron sin créditos! Los jugadores restantes se han asignado equitativamente."));
+    }
+
+    public void skipCandidate(Player requester) {
+        if (!active || currentCandidate == null) return;
+        if (requester != null && !requester.isOp() && !isCaptain(requester)) {
+            requester.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Solo los capitanes o administradores pueden saltar jugadores."));
+            return;
+        }
+
+        Player candidate = Bukkit.getPlayer(currentCandidate);
+        String name = (candidate != null) ? candidate.getName() : "Jugador";
+
+        TTRCore plugin = TTRCore.getInstance();
+        TTRTeam red = plugin.getTeamHandler().getTeam("Red");
+        TTRTeam blue = plugin.getTeamHandler().getTeam("Blue");
+        int rCount = (red != null) ? red.getPlayers().size() : 0;
+        int bCount = (blue != null) ? blue.getPlayers().size() : 0;
+        String assigned = (rCount <= bCount) ? "Red" : "Blue";
+
+        if (candidate != null) {
+            plugin.getTeamHandler().addPlayerToTeam(candidate, assigned);
+        }
+
+        TTRTeam wonTeam = plugin.getTeamHandler().getTeam(assigned);
+        ChatColor col = (wonTeam != null) ? wonTeam.getColor() : ChatColor.WHITE;
+
+        Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + TextUtil.toTiny("Subasta omitida para ") +
+                ChatColor.WHITE + name + ChatColor.YELLOW + TextUtil.toTiny(". Asignado al equipo ") + col + TextUtil.toTiny(assigned));
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1.2f);
+        }
+
+        nextCandidate();
+    }
+
+    public void addCredits(String team, int amount) {
+        String key = team.toLowerCase();
+        int cur = getTeamCredits(key);
+        credits.put(key, Math.max(0, cur + amount));
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Créditos del equipo ") +
+                ChatColor.WHITE + team.toUpperCase() + ChatColor.YELLOW + TextUtil.toTiny(" actualizados: ") +
+                ChatColor.GREEN + (cur + amount) + " créditos" + ChatColor.GRAY + " (" + (amount >= 0 ? "+" : "") + amount + ")");
+        refreshGUI();
+    }
+
+    public void setCredits(String team, int amount) {
+        String key = team.toLowerCase();
+        credits.put(key, Math.max(0, amount));
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Créditos del equipo ") +
+                ChatColor.WHITE + team.toUpperCase() + ChatColor.YELLOW + TextUtil.toTiny(" fijados en: ") +
+                ChatColor.GREEN + amount + " créditos");
+        refreshGUI();
+    }
+
+    private void giveLeaderAuctionItem(TTRTeam team) {
+        if (team == null || team.getLeader() == null) return;
+        Player leader = Bukkit.getPlayer(team.getLeader());
+        if (leader != null) {
+            org.bukkit.inventory.ItemStack panelItem = new org.bukkit.inventory.ItemStack(Material.GOLD_INGOT);
+            org.bukkit.inventory.meta.ItemMeta meta = panelItem.getItemMeta();
+            if (meta != null) {
+                meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "⚖ " + TextUtil.toTiny("Panel de Subasta") + ChatColor.GRAY + " (" + TextUtil.toTiny("Clic Derecho") + ")");
+                List<String> lore = new ArrayList<>();
+                lore.add(ChatColor.GRAY + TextUtil.toTiny("Haz clic derecho para abrir la mesa de pujas en cualquier momento."));
+                meta.setLore(lore);
+                panelItem.setItemMeta(meta);
+            }
+            leader.getInventory().setItem(0, panelItem);
+        }
     }
 
     public boolean bid(Player captain, int amountToAdd) {
@@ -300,8 +408,6 @@ public class AuctionDraftManager {
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.getOpenInventory().getTitle().contains(TextUtil.toTiny("Subasta de Miembros"))) {
                 AuctionDraftGUI.update(p, this);
-            } else if (active && (p.isOp() || isCaptain(p))) {
-                AuctionDraftGUI.open(p, this);
             }
         }
     }
@@ -326,12 +432,15 @@ public class AuctionDraftManager {
             if (p.getOpenInventory().getTitle().contains(TextUtil.toTiny("Subasta de Miembros"))) {
                 p.closeInventory();
             }
+            if (p.getInventory().contains(Material.GOLD_INGOT)) {
+                p.getInventory().remove(Material.GOLD_INGOT);
+            }
         }
 
-        int prestart = TTRCore.getInstance().getConfig().getInt("match.prestart_countdown", 10);
+        int prestart = TTRCore.getInstance().getConfig().getInt("match.prestart_countdown", 15);
         Bukkit.getScheduler().runTaskLater(TTRCore.getInstance(), () -> {
-            TTRCore.getInstance().getAutoStarter().startMatchCountdown(prestart);
-        }, 60L);
+            TTRCore.getInstance().getCurrentMatch().startPreparationPhase(prestart);
+        }, 40L);
     }
 
     public void cancelDraft() {
@@ -341,6 +450,9 @@ public class AuctionDraftManager {
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.getOpenInventory().getTitle().contains(TextUtil.toTiny("Subasta de Miembros"))) {
                 p.closeInventory();
+            }
+            if (p.getInventory().contains(Material.GOLD_INGOT)) {
+                p.getInventory().remove(Material.GOLD_INGOT);
             }
         }
     }

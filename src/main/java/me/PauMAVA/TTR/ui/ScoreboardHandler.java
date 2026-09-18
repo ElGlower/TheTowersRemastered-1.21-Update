@@ -51,6 +51,10 @@ public class ScoreboardHandler {
         }
     }
 
+    public void update(Player p) {
+        updateScoreboard(p);
+    }
+
     public void refreshScoreboard() {
         updateAll();
     }

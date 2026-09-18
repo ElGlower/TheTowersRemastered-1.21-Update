@@ -28,6 +28,16 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import me.PauMAVA.TTR.match.ChestRestockManager;
+import me.PauMAVA.TTR.match.LobbyParkourManager;
+import me.PauMAVA.TTR.match.ZoneWandManager;
+import me.PauMAVA.TTR.ui.AuctionDraftGUI;
+import org.bukkit.block.Container;
+import org.bukkit.block.DoubleChest;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.util.Vector;
 
 public class EventListener implements Listener {
 
@@ -59,15 +69,15 @@ public class EventListener implements Listener {
             }
         }
 
-        if (plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
-            if (p.getGameMode() != GameMode.CREATIVE) {
+        if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
+            if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
                 event.setCancelled(true);
             }
             return;
         }
 
         if (isCageZone(event.getBlock().getLocation())) {
-            if (p.getGameMode() != GameMode.CREATIVE) {
+            if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
                 event.setCancelled(true);
                 p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡Zona de puntuación protegida! No puedes romper bloques aquí."));
                 return;
@@ -75,7 +85,7 @@ public class EventListener implements Listener {
         }
 
         if (isSpawnZone(event.getBlock().getLocation())) {
-            if (p.getGameMode() != GameMode.CREATIVE) {
+            if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
                 event.setCancelled(true);
                 p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes romper bloques en la zona de Spawn!"));
             }
@@ -85,26 +95,27 @@ public class EventListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         if (!plugin.enabled()) return;
+        Player p = event.getPlayer();
 
-        if (plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
-            if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+        if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
+            if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
                 event.setCancelled(true);
             }
             return;
         }
 
-        if (isCageZone(event.getBlock().getLocation())) {
-            if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+        if (isCageZone(event.getBlock().getLocation()) || isCageZone(event.getBlockPlaced().getLocation())) {
+            if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
                 event.setCancelled(true);
-                event.getPlayer().sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡Zona de puntuación protegida! No puedes construir aquí."));
+                p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡Zona de puntuación protegida! No puedes construir aquí."));
                 return;
             }
         }
 
-        if (isSpawnZone(event.getBlock().getLocation())) {
-            if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+        if (isSpawnZone(event.getBlock().getLocation()) || isSpawnZone(event.getBlockPlaced().getLocation())) {
+            if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
                 event.setCancelled(true);
-                event.getPlayer().sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes construir en la zona de Spawn!"));
+                p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes construir en la zona de Spawn!"));
             }
         }
     }
@@ -173,8 +184,7 @@ public class EventListener implements Listener {
                         double dx = Math.abs(cage.getX() - blockLoc.getX());
                         double dz = Math.abs(cage.getZ() - blockLoc.getZ());
                         double dy = blockLoc.getY() - cage.getY();
-                        // Volumen tridimensional de protección de la jaula / tiro de caída
-                        if (dx <= 5.5 && dz <= 5.5 && dy >= -4.0 && dy <= 14.0) {
+                        if (dx <= 4.5 && dz <= 4.5 && dy >= -4.0 && dy <= 14.0) {
                             return true;
                         }
                     }
@@ -192,7 +202,8 @@ public class EventListener implements Listener {
                 double dx = Math.abs(spawn.getX() - blockLoc.getX());
                 double dz = Math.abs(spawn.getZ() - blockLoc.getZ());
                 double dy = blockLoc.getY() - spawn.getY();
-                if (dx <= 9.0 && dz <= 9.0 && dy >= -4.0 && dy <= 14.0) {
+                // Protección reducida exclusivamente a la celda de reaparición
+                if (dx <= 3.5 && dz <= 3.5 && dy >= -1.0 && dy <= 5.0) {
                     return true;
                 }
             }
@@ -201,44 +212,146 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (!plugin.enabled()) return;
+        Player p = event.getPlayer();
+
+        // Control de caída al vacío en Lobby o Fuera de Partida
+        if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
+            Location lobby = plugin.getConfigManager().getLobbyLocation();
+            if (lobby != null && lobby.getWorld() != null && p.getWorld().equals(lobby.getWorld())) {
+                if (p.getLocation().getY() < (lobby.getY() - 15.0) || p.getLocation().getY() < 60.0) {
+                    if (LobbyParkourManager.getInstance().isDoingParkour(p)) {
+                        LobbyParkourManager.getInstance().handleFall(p);
+                    } else {
+                        p.teleport(lobby);
+                        p.setVelocity(new Vector(0, 0, 0));
+                        p.setFallDistance(0f);
+                    }
+                    return;
+                }
+            }
+
+            // Detección de placas de presión del Parkour del Lobby
+            Location to = event.getTo();
+            if (to != null && to.getBlock().getType().toString().endsWith("_PRESSURE_PLATE")) {
+                LobbyParkourManager parkour = LobbyParkourManager.getInstance();
+                Location blockLoc = to.getBlock().getLocation();
+                if (parkour.getStartLocation() != null && parkour.getStartLocation().getBlock().equals(to.getBlock())) {
+                    parkour.startParkour(p);
+                } else if (parkour.getEndLocation() != null && parkour.getEndLocation().getBlock().equals(to.getBlock())) {
+                    parkour.finishParkour(p);
+                } else {
+                    List<Location> cps = parkour.getCheckpoints();
+                    for (int i = 0; i < cps.size(); i++) {
+                        if (cps.get(i).getBlock().equals(to.getBlock())) {
+                            parkour.triggerCheckpoint(p, i + 1, blockLoc);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         if (!plugin.enabled()) return;
+        Player player = event.getPlayer();
+
+        // Herramienta Vara de Zonas (/dt wand)
+        if (event.getItem() != null && ZoneWandManager.getInstance().isWand(event.getItem()) && TTRCore.isAdmin(player)) {
+            if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getClickedBlock() != null) {
+                event.setCancelled(true);
+                ZoneWandManager.getInstance().setPos1(player, event.getClickedBlock().getLocation());
+                return;
+            } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null) {
+                event.setCancelled(true);
+                ZoneWandManager.getInstance().setPos2(player, event.getClickedBlock().getLocation());
+                return;
+            }
+        }
+
+        // Ítem de Subasta para Líderes (Panel de Subasta)
+        if (event.getItem() != null && event.getItem().getType() == Material.GOLD_INGOT && event.getItem().hasItemMeta()) {
+            if (event.getItem().getItemMeta().getDisplayName().contains(TextUtil.toTiny("Subasta"))) {
+                event.setCancelled(true);
+                if (plugin.getAuctionDraftManager().isActive()) {
+                    AuctionDraftGUI.open(player, plugin.getAuctionDraftManager());
+                } else {
+                    player.sendMessage(TTRPrefix.TTR_GAME + TextUtil.toTiny("No hay subasta activa en este momento."));
+                }
+                return;
+            }
+        }
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null) {
             if (event.getClickedBlock().getType() == Material.BEACON) {
                 event.setCancelled(true);
                 if (!plugin.isBeaconShopEnabled()) {
-                    event.getPlayer().sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("La tienda del faro está desactivada por la administración."));
-                    event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
+                    player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("La tienda del faro está desactivada por la administración."));
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
                     return;
                 }
-                new BeaconShop().openMain(event.getPlayer());
+                new BeaconShop().openMain(player);
                 return;
             }
         }
 
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (event.getItem() != null) {
-                if (event.getItem().getType() == Material.COMPARATOR && (event.getPlayer().hasPermission("destinytowers.admin") || event.getPlayer().hasPermission("ttr.admin") || event.getPlayer().isOp())) {
+                if (event.getItem().getType() == Material.COMPARATOR && (player.hasPermission("destinytowers.admin") || player.hasPermission("ttr.admin") || player.isOp())) {
                     event.setCancelled(true);
-                    ConfigGUI.open(event.getPlayer());
+                    ConfigGUI.open(player);
                     return;
                 }
                 if (event.getItem().getType() == Material.NETHER_STAR && plugin.getCurrentMatch() != null && plugin.getCurrentMatch().getStatus() == MatchStatus.LOBBY) {
                     event.setCancelled(true);
-                    new TeamSelectListener(plugin).openTeamSelection(event.getPlayer());
+                    new TeamSelectListener(plugin).openTeamSelection(player);
                     return;
                 }
                 if (event.getItem().getType() == Material.FIRE_CHARGE) {
                     event.setCancelled(true);
-                    Player p = event.getPlayer();
-                    if (p.getGameMode() != GameMode.CREATIVE) {
-                        p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - 1);
+                    if (player.getGameMode() != GameMode.CREATIVE) {
+                        player.getInventory().getItemInMainHand().setAmount(player.getInventory().getItemInMainHand().getAmount() - 1);
                     }
-                    Fireball fb = p.launchProjectile(Fireball.class);
+                    Fireball fb = player.launchProjectile(Fireball.class);
                     fb.setYield(2.0F);
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        if (!plugin.enabled()) return;
+        if (event.getInventory().getHolder() instanceof Container || event.getInventory().getHolder() instanceof DoubleChest) {
+            ChestRestockManager.getInstance().purgeLiquids(event.getInventory());
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!plugin.enabled()) return;
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+
+        // Fase de preparación: pueden mirar los cofres pero NO agarrar ningún ítem
+        if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().getStatus() == MatchStatus.PREPARATION) {
+            if (event.getView().getTopInventory().getHolder() instanceof Container || event.getView().getTopInventory().getHolder() instanceof DoubleChest) {
+                event.setCancelled(true);
+                player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡Fase de preparación! Solo puedes inspeccionar el cofre."));
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
+                return;
+            }
+        }
+
+        // Prohibir agarrar o mover cualquier cubo de líquido
+        ItemStack current = event.getCurrentItem();
+        if (current != null && ChestRestockManager.isLiquidBucket(current.getType())) {
+            event.setCurrentItem(null);
+            event.setCancelled(true);
+            player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡Los líquidos están prohibidos en las torres!"));
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
         }
     }
 
@@ -279,7 +392,10 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
-        if (plugin.enabled() && plugin.getCurrentMatch().getStatus() == MatchStatus.LOBBY) {
+        if (!plugin.enabled()) return;
+        if (plugin.getCurrentMatch() == null) return;
+        MatchStatus status = plugin.getCurrentMatch().getStatus();
+        if (status == MatchStatus.LOBBY || status == MatchStatus.PREPARATION) {
             event.setCancelled(true);
         }
     }
@@ -288,21 +404,32 @@ public class EventListener implements Listener {
     public void onDamage(EntityDamageEvent event) {
         if (!plugin.enabled()) return;
         if (event.getEntity() instanceof Player player) {
-            if (plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
+            if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
                 event.setCancelled(true);
                 if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
-                    Location lobby = plugin.getConfigManager().getLobbyLocation();
-                    if (lobby != null) player.teleport(lobby);
+                    if (LobbyParkourManager.getInstance().isDoingParkour(player)) {
+                        LobbyParkourManager.getInstance().handleFall(player);
+                    } else {
+                        Location lobby = plugin.getConfigManager().getLobbyLocation();
+                        if (lobby != null) {
+                            player.teleport(lobby);
+                            player.setVelocity(new Vector(0, 0, 0));
+                            player.setFallDistance(0f);
+                        }
+                    }
                 }
                 return;
             }
 
-            // Spawn protection en partida contra daños ambientales, fuego, lava y explosiones
+            // Spawn protection en partida contra spawn-killing dentro de la celda
             TTRTeam victimTeam = plugin.getTeamHandler().getPlayerTeam(player);
             if (victimTeam != null) {
                 Location spawn = plugin.getConfigManager().getTeamSpawn(victimTeam.getIdentifier());
                 if (spawn != null && spawn.getWorld() != null && spawn.getWorld().equals(player.getWorld())) {
-                    if (spawn.distance(player.getLocation()) <= 9.0) {
+                    double dx = Math.abs(spawn.getX() - player.getLocation().getX());
+                    double dz = Math.abs(spawn.getZ() - player.getLocation().getZ());
+                    double dy = player.getLocation().getY() - spawn.getY();
+                    if (dx <= 4.0 && dz <= 4.0 && dy >= -1.0 && dy <= 5.0) {
                         if (event.getCause() != EntityDamageEvent.DamageCause.VOID) {
                             event.setCancelled(true);
                         }
