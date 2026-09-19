@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DESTINYOWNERS — Telemetría Competitiva & The Towers</title>
+  
+  <!-- Tipografías de alta gama (Instrument Sans de McPvP + JetBrains Mono) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Iconografía FontAwesome 6.7.2 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Instrument Sans"', '"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            app: {
+              canvas: '#13111a',
+              window: '#1b1824',
+              surface: '#242030',
+              hover: '#2d293d',
+              border: '#363148',
+              muted: '#8b849e',
+              text: '#f2f0f7',
+              red: '#e53e3e',
+              redDark: '#9b2c2c',
+              blue: '#3182ce',
+              blueDark: '#2b6cb0',
+              gold: '#d69e2e',
+              notch: '#15131d'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      background-color: #110f17;
+      color: #f2f0f7;
+      font-family: 'Instrument Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Scrollbars elegantes y minimalistas */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #181521;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #342e47;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #494163;
+    }
+
+    /* Notch inverso y curvatura suave basada en la referencia visual */
+    .notch-container {
+      position: relative;
+      background: #1e1b29;
+      border-radius: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+    .notch-cutout {
+      position: absolute;
+      top: 0;
+      left: 32px;
+      background: #1b1824;
+      padding: 6px 20px 10px 20px;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      border-left: 1px solid rgba(255, 255, 255, 0.06);
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      z-index: 20;
+    }
+
+    /* Pedestal 3D con luz difusa para la skin de Minecraft */
+    .pedestal-glow {
+      position: relative;
+    }
+    .pedestal-glow::after {
+      content: '';
+      position: absolute;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 190px;
+      height: 40px;
+      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.25) 0%, rgba(139, 132, 158, 0.1) 60%, transparent 80%);
+      border-radius: 50%;
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    /* Partículas sutiles de fondo para el podio estilo McPvP */
+    .podium-ambience {
+      background: radial-gradient(circle at 50% 30%, rgba(214, 158, 46, 0.12) 0%, transparent 65%);
+    }
+
+    /* Transición suave entre pestañas */
+    .tab-view {
+      display: none;
+      animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .tab-view.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Botones de acción flotantes circulares (exactos al mock) */
+    .floating-circle-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f2f0f7;
+      transition: all 0.2s ease;
+    }
+    .floating-circle-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen p-3 sm:p-5 md:p-8 flex items-center justify-center">
+
+  <!-- ============================================================ -->
+  <!-- CONTENEDOR MAESTRO (VENTANA REDONDEADA ESTILO MOCK)           -->
+  <!-- ============================================================ -->
+  <div class="w-full max-w-[1680px] bg-app-window border border-app-border/80 rounded-[36px] p-5 sm:p-7 md:p-9 shadow-2xl flex flex-col gap-6 backdrop-blur-xl">
+
+    <!-- ============================================================ -->
+    <!-- BARRA DE NAVEGACIÓN SUPERIOR (ARRIBA - SIN BARRAS LATERALES) -->
+    <!-- ============================================================ -->
+    <header class="w-full flex flex-col lg:flex-row items-center justify-between gap-4 pb-5 border-b border-app-border/60">
+      
+      <!-- Lado Izquierdo: DESTINYOWNERS en grande -->
+      <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('towers')">
+          <div class="w-12 h-12 rounded-2xl bg-white text-[#110f17] flex items-center justify-center font-extrabold text-2xl tracking-tighter shadow-lg shadow-white/10">
+            DO
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white uppercase leading-none">DESTINYOWNERS</h1>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-white/10 text-white border border-white/15">26.3</span>
+            </div>
+            <p class="text-xs text-app-muted font-medium mt-1">Plataforma Competitiva Oficial The Towers</p>
+          </div>
+        </div>
+
+        <!-- Indicador Móvil de Servidor -->
+        <div class="lg:hidden flex items-center gap-2 bg-app-surface border border-app-border px-3 py-1.5 rounded-full text-xs font-mono">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-white">Online</span>
+        </div>
+      </div>
+
+      <!-- Centro: Segmented Control en Píldora (Navegación Superior) -->
+      <nav class="flex items-center bg-app-surface p-1.5 rounded-full border border-app-border shadow-inner max-w-full overflow-x-auto">
+        <button id="nav-btn-towers" onclick="switchTab('towers')" class="px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 bg-white text-black shadow-md flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-gamepad text-xs"></i>
+          <span>The Towers</span>
+        </button>
+        <button id="nav-btn-podium" onclick="switchTab('podium')" class="px-5 py-2.5 rounded-full text-sm font-medium text-app-muted hover:text-white transition-all duration-200 flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-crown text-xs"></i>
+          <span>Top Players & Tiers</span>
+        </button>
+        <button id="nav-btn-history" onclick="switchTab('history')" class="px-5 py-2.5 rounded-full text-sm font-medium text-app-muted hover:text-white transition-all duration-200 flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+          <span>Historial (100+)</span>
+        </button>
+        <button id="nav-btn-members" onclick="switchTab('members')" class="px-5 py-2.5 rounded-full text-sm font-medium text-app-muted hover:text-white transition-all duration-200 flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-users text-xs"></i>
+          <span>Miembros</span>
+        </button>
+      </nav>
+
+      <!-- Lado Derecho: Buscador en Píldora y Estado del Servidor -->
+      <div class="flex items-center gap-3 w-full lg:w-auto justify-end">
+        <!-- Input de Búsqueda estilo píldora -->
+        <div class="relative w-full sm:w-64">
+          <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-app-muted text-xs"></i>
+          <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)" placeholder="Buscar jugador o ID..." class="w-full bg-app-surface border border-app-border rounded-full pl-10 pr-4 py-2 text-xs text-white placeholder-app-muted focus:outline-none focus:border-white transition-all shadow-inner">
+        </div>
+
+        <!-- Estado HolyHosting en Línea -->
+        <div class="hidden lg:flex items-center gap-2.5 bg-app-surface border border-app-border px-4 py-2 rounded-full text-xs font-mono">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-white font-semibold">8 En Línea</span>
+          <span class="text-app-muted text-[10px]">19ms</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- CUERPO PRINCIPAL EN GRID: VISTAS (IZQUIERDA) + NOTCH (DERECHA) -->
+    <!-- ============================================================ -->
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+
+      <!-- COLUMNA IZQUIERDA: CONTENIDO Y VISTAS INTERACTIVAS (7 COLS) -->
+      <div class="lg:col-span-7 flex flex-col gap-6">
+
+        <!-- ======================================================== -->
+        <!-- VISTA 1: MODALIDAD THE TOWERS (CENTRO DE JUEGO EN VIVO)  -->
+        <!-- ======================================================== -->
+        <section id="view-towers" class="tab-view active flex flex-col gap-6">
+          
+          <!-- TARJETA CENTRADA DE MODALIDAD CON ESTADO EN VIVO -->
+          <div class="bg-app-surface border border-app-border rounded-[28px] p-6 sm:p-7 shadow-xl relative overflow-hidden">
+            
+            <!-- Encabezado de la Modalidad -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-app-border/70">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-white text-lg">
+                  <i class="fa-solid fa-chess-rook"></i>
+                </div>
+                <div>
+                  <h2 class="text-xl font-bold text-white tracking-tight">The Towers Remastered</h2>
+                  <div class="flex items-center gap-2 text-xs text-app-muted mt-0.5">
+                    <span class="font-mono">Partida #DT-2026-092</span>
+                    <span>•</span>
+                    <span class="text-white">Mapa: Ruinas Celestiales</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Badge de Estado En Vivo -->
+              <div class="flex items-center gap-2 bg-emerald-500/15 border border-emerald-500/30 px-3.5 py-1.5 rounded-full text-xs font-mono font-semibold text-emerald-300">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>FASE DE COMBATE</span>
+              </div>
+            </div>
+
+            <!-- Marcador Comparativo en Vivo (Rojo vs Azul) -->
+            <div class="grid grid-cols-3 items-center my-6 bg-app-window/80 border border-app-border/60 rounded-2xl p-4">
+              
+              <!-- Equipo Rojo -->
+              <div class="flex flex-col items-center">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="w-3 h-3 rounded-full bg-red-500 shadow-md shadow-red-500/50"></span>
+                  <span class="text-sm font-bold tracking-wider text-red-400">EQUIPO ROJO</span>
+                </div>
+                <div class="text-4xl sm:text-5xl font-extrabold text-white font-mono">7 <span class="text-lg text-app-muted font-normal">/ 10</span></div>
+                <div class="text-[11px] text-app-muted mt-1 font-mono">Jaula: 100% Integra</div>
+              </div>
+
+              <!-- Centro: Tiempo Transcurrido -->
+              <div class="flex flex-col items-center justify-center border-x border-app-border/80 px-2 text-center">
+                <span class="text-[11px] font-mono text-app-muted uppercase tracking-widest">Cronómetro</span>
+                <span class="text-2xl sm:text-3xl font-extrabold font-mono text-white mt-0.5">14:48</span>
+                <div class="mt-2 text-[10px] font-mono bg-white/10 px-2.5 py-0.5 rounded-full text-zinc-300">
+                  Faro: Nivel II
+                </div>
+              </div>
+
+              <!-- Equipo Azul -->
+              <div class="flex flex-col items-center">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="w-3 h-3 rounded-full bg-blue-500 shadow-md shadow-blue-500/50"></span>
+                  <span class="text-sm font-bold tracking-wider text-blue-400">EQUIPO AZUL</span>
+                </div>
+                <div class="text-4xl sm:text-5xl font-extrabold text-white font-mono">5 <span class="text-lg text-app-muted font-normal">/ 10</span></div>
+                <div class="text-[11px] text-app-muted mt-1 font-mono">Jaula: 82% Integra</div>
+              </div>
+            </div>
+
+            <!-- ROSTER DE JUGADORES EN PARTIDA (ROJO VS AZUL) -->
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-mono font-semibold text-app-muted uppercase tracking-wider">Alineación de Jugadores en Partida</h3>
+                <span class="text-xs text-app-muted">Haz clic en cualquier jugador para ver su telemetría completa</span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Columna Equipo Rojo -->
+                <div class="flex flex-col gap-2">
+                  <div class="text-xs font-bold text-red-400 flex items-center justify-between px-2 pb-1 border-b border-red-500/20">
+                    <span>🔴 RED TEAM (4)</span>
+                    <span class="font-mono text-[11px] text-zinc-400">Kills: 18</span>
+                  </div>
+
+                  <!-- Jugador Rojo 1 (Kylaz) -->
+                  <div onclick="selectPlayer('kylaz')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-red-500/40 cursor-pointer transition-all">
+                    <div class="flex items-center gap-2.5">
+                      <img src="https://visage.surgeplay.com/face/48/f4aa6afad90c4dd297b2ed453b8c99fe" alt="Kylaz" class="w-9 h-9 rounded-xl border border-red-500/40">
+                      <div>
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-sm font-bold text-white group-hover:text-red-300 transition-colors">Kylaz</span>
+                          <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 font-semibold">LÍDER</span>
+                        </div>
+                        <div class="flex items-center gap-1 text-[11px] font-mono text-zinc-400">
+                          <span class="text-red-400">❤❤❤❤❤❤❤❤❤❤</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-right font-mono text-xs">
+                      <div class="text-white font-bold">4 Goles</div>
+                      <div class="text-app-muted text-[11px]">8 Kills • 18ms</div>
+                    </div>
+                  </div>
+
+                  <!-- Jugador Rojo 2 (ElGlower) -->
+                  <div onclick="selectPlayer('elglower')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-red-500/40 cursor-pointer transition-all">
+                    <div class="flex items-center gap-2.5">
+                      <img src="https://visage.surgeplay.com/face/48/853c80ef3c3749fdaa49938b674acd16" alt="ElGlower" class="w-9 h-9 rounded-xl border border-red-500/40">
+                      <div>
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-sm font-bold text-white group-hover:text-red-300 transition-colors">ElGlower</span>
+                          <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-red-400/20 text-red-300">ASALTANTE</span>
+                        </div>
+                        <div class="flex items-center gap-1 text-[11px] font-mono text-zinc-400">
+                          <span class="text-red-400">❤❤❤❤❤❤❤❤❤🖤</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-right font-mono text-xs">
+                      <div class="text-white font-bold">2 Goles</div>
+                      <div class="text-app-muted text-[11px]">5 Kills • 22ms</div>
+                    </div>
+                  </div>
+
+                  <!-- Jugador Rojo 3 (AXIMITY) -->
+                  <div onclick="selectPlayer('aximity')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-red-500/40 cursor-pointer transition-all">
+                    <div class="flex items-center gap-2.5">
+                      <img src="https://visage.surgeplay.com/face/48/37bba5ee9e644d5e975cffe1f139b24e" alt="AXIMITY" class="w-9 h-9 rounded-xl border border-red-500/40">
+                      <div>
+                        <span class="text-sm font-bold text-white group-hover:text-red-300 transition-colors">AXIMITY</span>
+                        <div class="text-[11px] font-mono text-red-400">❤❤❤❤❤❤❤❤🖤🖤</div>
+                      </div>
+                    </div>
+                    <div class="text-right font-mono text-xs">
+                      <div class="text-white font-bold">1 Gol</div>
+                      <div class="text-app-muted text-[11px]">3 Kills • 15ms</div>
+                    </div>
+                  </div>
+
+                  <!-- Jugador Rojo 4 (BlvckWlf) -->
+                  <div onclick="selectPlayer('blvckwlf')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-red-500/40 cursor-pointer transition-all">
+                    <div class="flex items-center gap-2.5">
+                      <img src="https://visage.surgeplay.com/face/48/653bb064799a4bc7983583cce16ddd83" alt="BlvckWlf" class="w-9 h-9 rounded-xl border border-red-500/40">
+                      <div>
+                        <span class="text-sm font-bold text-white group-hover:text-red-300 transition-colors">BlvckWlf</span>
+                        <div class="text-[11px] font-mono text-red-400">❤❤❤❤❤❤❤❤❤❤</div>
+                      </div>
+                    </div>
+                    <div class="text-right font-mono text-xs">
+                      <div class="text-white font-bold">0 Goles</div>
+                      <div class="text-app-muted text-[11px]">2 Kills • 24ms</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Columna Equipo Azul -->
+                <div class="flex flex-col gap-2">
+                  <div class="text-xs font-bold text-blue-400 flex items-center justify-between px-2 pb-1 border-b border-blue-500/20">
+                    <span>🔵 BLUE TEAM (4)</span>
+                    <span class="font-mono text-[11px] text-zinc-400">Kills: 14</span>
+                  </div>
+
+                  <!-- Jugador Azul 1 (Gpminer17) -->
+                  <div onclick="selectPlayer('gpminer17')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-blue-500/40 cursor-pointer transition-all">
+                    <div class="flex items-center gap-2.5">
+                      <img src="https://visage.surgeplay.com/face/48/06af403561ab422faedd1edabc8d71c7" alt="Gpminer17" class="w-9 h-9 rounded-xl border border-blue-500/40">
+                      <div>
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">Gpminer17</span>
+                          <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 font-semibold">LÍDER</span>
+                        </div>
+                        <div class="text-[11px] font-mono text-blue-400">❤❤❤❤❤❤❤❤❤❤</div>
+                      </div>
+                    </div>
+                    <div class="text-right font-mono text-xs">
+                      <div class="text-white font-bold">3 Goles</div>
+                      <div class="text-app-muted text-[11px]">6 Kills • 21ms</div>
+                    </div>
+                  </div>
+
+                  <!-- Jugador Azul 2 (Crozzor) -->
+                  <div onclick="selectPlayer('crozzor')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-blue-500/40 cursor-pointer transition-all">
+                    <div class="flex items-center gap-2.5">
+                      <img src="https://visage.surgeplay.com/face/48/3d50b9cde587408eb401a6afcab79d2c" alt="Crozzor" class="w-9 h-9 rounded-xl border border-blue-500/40">
+                      <div>
+                        <span class="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">Crozzor</span>
+                        <div class="text-[11px] font-mono text-blue-400">❤❤❤❤❤❤❤❤🖤🖤</div>
+                      </div>
+                    </div>
+                    <div class="text-right font-mono text-xs">
+                      <div class="text-white font-bold">2 Goles</div>
+                      <div class="text-app-muted text-[11px]">4 Kills • 20ms</div>
+                    </div>
+                  </div>
+
+                  <!-- Jugador Azul 3 (coldified) -->
+                  <div onclick="selectPlayer('coldified')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-blue-500/40 cursor-pointer transition-all">
+                    <div class="flex items-center gap-2.5">
+                      <img src="https://visage.surgeplay.com/face/48/7e8a77cadaf14224ae1d2df8bab1eccb" alt="coldified" class="w-9 h-9 rounded-xl border border-blue-500/40">
+                      <div>
+                        <span class="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">coldified</span>
+                        <div class="text-[11px] font-mono text-blue-400">❤❤❤❤❤❤❤🖤🖤🖤</div>
+                      </div>
+                    </div>
+                    <div class="text-right font-mono text-xs">
+                      <div class="text-white font-bold">0 Goles</div>
+                      <div class="text-app-muted text-[11px]">3 Kills • 31ms</div>
+                    </div>
+                  </div>
+
+                  <!-- Jugador Azul 4 (ItzRealMe) -->
+                  <div onclick="selectPlayer('itzrealme')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-blue-500/40 cursor-pointer transition-all">
+                    <div class="flex items-center gap-2.5">
+                      <img src="https://visage.surgeplay.com/face/48/06ec3577329945fabbdf613b1f86c8ab" alt="ItzRealMe" class="w-9 h-9 rounded-xl border border-blue-500/40">
+                      <div>
+                        <span class="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">ItzRealMe</span>
+                        <div class="text-[11px] font-mono text-blue-400">❤❤❤❤❤❤❤❤❤❤</div>
+                      </div>
+                    </div>
+                    <div class="text-right font-mono text-xs">
+                      <div class="text-white font-bold">0 Goles</div>
+                      <div class="text-app-muted text-[11px]">1 Kill • 19ms</div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- LOG DE EVENTOS RECIENTES EN VIVO -->
+          <div class="bg-app-surface border border-app-border rounded-[24px] p-5 shadow-lg">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xs font-mono font-semibold text-app-muted uppercase tracking-wider">Telemetría de Eventos en Vivo</h3>
+              <span class="text-xs font-mono text-emerald-400">En tiempo real</span>
+            </div>
+            <div class="space-y-2 text-xs font-mono">
+              <div class="flex items-center justify-between p-2 rounded-xl bg-app-window border border-app-border/40">
+                <div class="flex items-center gap-2">
+                  <span class="text-emerald-400 font-bold">GOL</span>
+                  <span class="text-white font-semibold">Kylaz</span>
+                  <span class="text-app-muted">anotó punto para Equipo Rojo</span>
+                </div>
+                <span class="text-app-muted text-[11px]">14:32</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-xl bg-app-window border border-app-border/40">
+                <div class="flex items-center gap-2">
+                  <span class="text-red-400 font-bold">BAJA</span>
+                  <span class="text-white font-semibold">ElGlower</span>
+                  <span class="text-app-muted">eliminó a</span>
+                  <span class="text-zinc-300 font-semibold">Crozzor</span>
+                </div>
+                <span class="text-app-muted text-[11px]">13:58</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-xl bg-app-window border border-app-border/40">
+                <div class="flex items-center gap-2">
+                  <span class="text-blue-400 font-bold">JAULA</span>
+                  <span class="text-white font-semibold">Gpminer17</span>
+                  <span class="text-app-muted">penetró el perímetro base roja</span>
+                </div>
+                <span class="text-app-muted text-[11px]">12:44</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- VISTA 2: PODIO & TIERS (ESTILO MCPVP)                    -->
+        <!-- ======================================================== -->
+        <section id="view-podium" class="tab-view flex flex-col gap-6">
+          <div class="bg-app-surface border border-app-border rounded-[28px] p-6 sm:p-8 shadow-xl podium-ambience relative overflow-hidden">
+            
+            <div class="text-center mb-8">
+              <span class="px-3 py-1 rounded-full text-[11px] font-mono font-semibold bg-white/10 text-amber-300 border border-amber-300/20 uppercase tracking-widest">
+                Temporada 2026 • Leaderboard Oficial
+              </span>
+              <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-2 tracking-tight">Top Players Competitivos</h2>
+              <p class="text-xs text-app-muted mt-1">Clasificación basada en victorias, goles a la torre y ELO ponderado</p>
+            </div>
+
+            <!-- ESTRUCTURA DEL PODIO (2do - 1ro - 3ro) -->
+            <div class="grid grid-cols-3 gap-3 sm:gap-5 items-end max-w-2xl mx-auto pb-4">
+              
+              <!-- 2DO LUGAR (Izquierda) -->
+              <div onclick="selectPlayer('gpminer17')" class="group flex flex-col items-center cursor-pointer transition-transform hover:-translate-y-1">
+                <span class="text-xs font-bold text-zinc-300 group-hover:text-white transition-colors">Gpminer17</span>
+                <span class="text-[10px] font-mono font-bold text-zinc-400 mt-0.5">TIER LT1</span>
+                
+                <div class="relative mt-2">
+                  <img src="https://visage.surgeplay.com/bust/160/06af403561ab422faedd1edabc8d71c7" alt="Gpminer17" class="w-20 sm:w-28 drop-shadow-2xl">
+                </div>
+
+                <!-- Pedestal 2 -->
+                <div class="w-full bg-gradient-to-t from-[#201d2a] to-[#2e293d] border border-app-border rounded-2xl h-28 flex flex-col items-center justify-center p-3 shadow-lg">
+                  <div class="w-8 h-8 rounded-full bg-zinc-300 text-black font-extrabold flex items-center justify-center text-sm shadow">
+                    2
+                  </div>
+                  <span class="text-xs font-mono font-bold text-white mt-2">295 Pts</span>
+                  <span class="text-[10px] text-app-muted">74.2% WR</span>
+                </div>
+              </div>
+
+              <!-- 1ER LUGAR (Centro - Elevado) -->
+              <div onclick="selectPlayer('kylaz')" class="group flex flex-col items-center cursor-pointer transition-transform hover:-translate-y-1.5">
+                <i class="fa-solid fa-crown text-amber-400 text-lg mb-1 animate-bounce"></i>
+                <span class="text-sm font-extrabold text-amber-300 group-hover:text-white transition-colors">Kylaz</span>
+                <span class="text-[10px] font-mono font-bold text-amber-400 mt-0.5">TIER HT1</span>
+                
+                <div class="relative mt-2">
+                  <img src="https://visage.surgeplay.com/bust/180/f4aa6afad90c4dd297b2ed453b8c99fe" alt="Kylaz" class="w-24 sm:w-36 drop-shadow-2xl">
+                </div>
+
+                <!-- Pedestal 1 -->
+                <div class="w-full bg-gradient-to-t from-[#251f15] to-[#3a301d] border border-amber-500/40 rounded-2xl h-36 flex flex-col items-center justify-center p-3 shadow-xl">
+                  <div class="w-9 h-9 rounded-full bg-amber-400 text-black font-black flex items-center justify-center text-base shadow-lg shadow-amber-500/50">
+                    1
+                  </div>
+                  <span class="text-sm font-mono font-extrabold text-amber-200 mt-2">340 Pts</span>
+                  <span class="text-[11px] text-amber-300/80 font-mono">142 Goles</span>
+                </div>
+              </div>
+
+              <!-- 3ER LUGAR (Derecha) -->
+              <div onclick="selectPlayer('crozzor')" class="group flex flex-col items-center cursor-pointer transition-transform hover:-translate-y-1">
+                <span class="text-xs font-bold text-zinc-300 group-hover:text-white transition-colors">Crozzor</span>
+                <span class="text-[10px] font-mono font-bold text-zinc-400 mt-0.5">TIER HT2</span>
+                
+                <div class="relative mt-2">
+                  <img src="https://visage.surgeplay.com/bust/160/3d50b9cde587408eb401a6afcab79d2c" alt="Crozzor" class="w-20 sm:w-28 drop-shadow-2xl">
+                </div>
+
+                <!-- Pedestal 3 -->
+                <div class="w-full bg-gradient-to-t from-[#201d2a] to-[#2b2533] border border-app-border rounded-2xl h-24 flex flex-col items-center justify-center p-3 shadow-lg">
+                  <div class="w-7 h-7 rounded-full bg-amber-700 text-white font-extrabold flex items-center justify-center text-xs shadow">
+                    3
+                  </div>
+                  <span class="text-xs font-mono font-bold text-white mt-2">275 Pts</span>
+                  <span class="text-[10px] text-app-muted">69.1% WR</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- TABLA DE JUGADORES #4 A #10 -->
+            <div class="mt-6 border-t border-app-border/80 pt-5 space-y-2">
+              <div class="text-xs font-mono text-app-muted uppercase tracking-wider px-3 mb-2 flex justify-between">
+                <span>Posición & Jugador</span>
+                <div class="flex gap-8">
+                  <span>Tier</span>
+                  <span>Puntos</span>
+                </div>
+              </div>
+
+              <!-- Item #4 -->
+              <div onclick="selectPlayer('elglower')" class="flex items-center justify-between p-3 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border cursor-pointer transition-all">
+                <div class="flex items-center gap-3">
+                  <span class="w-6 font-mono font-bold text-zinc-400 text-center">4</span>
+                  <img src="https://visage.surgeplay.com/face/40/853c80ef3c3749fdaa49938b674acd16" alt="ElGlower" class="w-8 h-8 rounded-lg">
+                  <div>
+                    <div class="text-sm font-bold text-white">ElGlower</div>
+                    <div class="text-[10px] text-app-muted font-mono">92 Partidas • 118 Goles</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-8 font-mono text-xs">
+                  <span class="px-2 py-0.5 rounded bg-white/10 text-zinc-300 font-bold">HT2</span>
+                  <span class="text-white font-bold">265 Pts</span>
+                </div>
+              </div>
+
+              <!-- Item #5 -->
+              <div onclick="selectPlayer('aximity')" class="flex items-center justify-between p-3 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border cursor-pointer transition-all">
+                <div class="flex items-center gap-3">
+                  <span class="w-6 font-mono font-bold text-zinc-400 text-center">5</span>
+                  <img src="https://visage.surgeplay.com/face/40/37bba5ee9e644d5e975cffe1f139b24e" alt="AXIMITY" class="w-8 h-8 rounded-lg">
+                  <div>
+                    <div class="text-sm font-bold text-white">AXIMITY</div>
+                    <div class="text-[10px] text-app-muted font-mono">84 Partidas • 95 Goles</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-8 font-mono text-xs">
+                  <span class="px-2 py-0.5 rounded bg-white/10 text-zinc-300 font-bold">MT2</span>
+                  <span class="text-white font-bold">240 Pts</span>
+                </div>
+              </div>
+
+              <!-- Item #6 -->
+              <div onclick="selectPlayer('coldified')" class="flex items-center justify-between p-3 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border cursor-pointer transition-all">
+                <div class="flex items-center gap-3">
+                  <span class="w-6 font-mono font-bold text-zinc-400 text-center">6</span>
+                  <img src="https://visage.surgeplay.com/face/40/7e8a77cadaf14224ae1d2df8bab1eccb" alt="coldified" class="w-8 h-8 rounded-lg">
+                  <div>
+                    <div class="text-sm font-bold text-white">coldified</div>
+                    <div class="text-[10px] text-app-muted font-mono">79 Partidas • 88 Goles</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-8 font-mono text-xs">
+                  <span class="px-2 py-0.5 rounded bg-white/10 text-zinc-300 font-bold">MT2</span>
+                  <span class="text-white font-bold">228 Pts</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- VISTA 3: HISTORIAL (100+ PARTIDAS PAGINADAS)             -->
+        <!-- ======================================================== -->
+        <section id="view-history" class="tab-view flex flex-col gap-5">
+          <div class="bg-app-surface border border-app-border rounded-[28px] p-6 sm:p-7 shadow-xl">
+            
+            <!-- Cabecera y Filtros de Partidas -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-app-border/80">
+              <div>
+                <h2 class="text-xl font-bold text-white tracking-tight">Historial Oficial de Partidas</h2>
+                <p class="text-xs text-app-muted mt-0.5 font-mono">Registro histórico de más de 100 encuentros en 2026</p>
+              </div>
+
+              <!-- Filtros por Equipo Ganador -->
+              <div class="flex items-center gap-1.5 bg-app-window p-1 rounded-full border border-app-border text-xs">
+                <button onclick="filterMatches('ALL')" id="filter-all" class="px-3 py-1 rounded-full font-semibold bg-white text-black">Todas</button>
+                <button onclick="filterMatches('RED')" id="filter-red" class="px-3 py-1 rounded-full text-app-muted hover:text-white">Rojo</button>
+                <button onclick="filterMatches('BLUE')" id="filter-blue" class="px-3 py-1 rounded-full text-app-muted hover:text-white">Azul</button>
+              </div>
+            </div>
+
+            <!-- TABLA DE PARTIDAS CON RENDERIZADO DINÁMICO -->
+            <div class="overflow-x-auto mt-4">
+              <table class="w-full text-left text-xs font-mono">
+                <thead>
+                  <tr class="text-app-muted border-b border-app-border/60 pb-2">
+                    <th class="py-2.5 px-3">ID</th>
+                    <th class="py-2.5 px-3">Fecha</th>
+                    <th class="py-2.5 px-3">Mapa</th>
+                    <th class="py-2.5 px-3">Ganador</th>
+                    <th class="py-2.5 px-3">Marcador</th>
+                    <th class="py-2.5 px-3">Duración</th>
+                    <th class="py-2.5 px-3">MVP</th>
+                  </tr>
+                </thead>
+                <tbody id="matches-table-body" class="divide-y divide-app-border/40 text-zinc-300">
+                  <!-- Inyectado vía JavaScript con 100+ registros -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Paginación de Historial -->
+            <div class="flex items-center justify-between pt-5 border-t border-app-border/80 text-xs">
+              <span id="history-pagination-info" class="text-app-muted font-mono">Página 1 de 11 (105 partidas registradas)</span>
+              <div class="flex items-center gap-2">
+                <button onclick="changeHistoryPage(-1)" class="px-3 py-1.5 rounded-full bg-app-window hover:bg-app-hover border border-app-border text-white transition-colors">
+                  <i class="fa-solid fa-chevron-left mr-1"></i> Anterior
+                </button>
+                <button onclick="changeHistoryPage(1)" class="px-3 py-1.5 rounded-full bg-app-window hover:bg-app-hover border border-app-border text-white transition-colors">
+                  Siguiente <i class="fa-solid fa-chevron-right ml-1"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- VISTA 4: MIEMBROS DE DESTINY (UNKNOWN MEMBER SLOTS)      -->
+        <!-- ======================================================== -->
+        <section id="view-members" class="tab-view flex flex-col gap-5">
+          <div class="bg-app-surface border border-app-border rounded-[28px] p-6 sm:p-7 shadow-xl">
+            
+            <div class="pb-5 border-b border-app-border/80">
+              <h2 class="text-xl font-bold text-white tracking-tight">Miembros Oficiales de Destiny</h2>
+              <p class="text-xs text-app-muted mt-0.5">Slots de plantilla registrados. Pendiente de asignación de credenciales.</p>
+            </div>
+
+            <!-- CUADRÍCULA DE TARJETAS RESERVADAS: UNKNOWN MEMBER STRICTLY -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-5">
+              
+              <!-- Slot 1 -->
+              <div class="p-4 rounded-2xl bg-app-window border border-app-border/80 flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-app-surface border border-app-border flex items-center justify-center text-app-muted text-lg">
+                  <i class="fa-solid fa-user-secret"></i>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-white">Unknown Member</h4>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-app-muted border border-white/10">Slot Reservado</span>
+                  <div class="text-[11px] text-zinc-500 font-mono mt-1">ID: #DESTINY-01</div>
+                </div>
+              </div>
+
+              <!-- Slot 2 -->
+              <div class="p-4 rounded-2xl bg-app-window border border-app-border/80 flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-app-surface border border-app-border flex items-center justify-center text-app-muted text-lg">
+                  <i class="fa-solid fa-user-secret"></i>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-white">Unknown Member</h4>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-app-muted border border-white/10">Slot Reservado</span>
+                  <div class="text-[11px] text-zinc-500 font-mono mt-1">ID: #DESTINY-02</div>
+                </div>
+              </div>
+
+              <!-- Slot 3 -->
+              <div class="p-4 rounded-2xl bg-app-window border border-app-border/80 flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-app-surface border border-app-border flex items-center justify-center text-app-muted text-lg">
+                  <i class="fa-solid fa-user-secret"></i>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-white">Unknown Member</h4>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-app-muted border border-white/10">Slot Reservado</span>
+                  <div class="text-[11px] text-zinc-500 font-mono mt-1">ID: #DESTINY-03</div>
+                </div>
+              </div>
+
+              <!-- Slot 4 -->
+              <div class="p-4 rounded-2xl bg-app-window border border-app-border/80 flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-app-surface border border-app-border flex items-center justify-center text-app-muted text-lg">
+                  <i class="fa-solid fa-user-secret"></i>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-white">Unknown Member</h4>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-app-muted border border-white/10">Slot Reservado</span>
+                  <div class="text-[11px] text-zinc-500 font-mono mt-1">ID: #DESTINY-04</div>
+                </div>
+              </div>
+
+              <!-- Slot 5 -->
+              <div class="p-4 rounded-2xl bg-app-window border border-app-border/80 flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-app-surface border border-app-border flex items-center justify-center text-app-muted text-lg">
+                  <i class="fa-solid fa-user-secret"></i>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-white">Unknown Member</h4>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-app-muted border border-white/10">Slot Reservado</span>
+                  <div class="text-[11px] text-zinc-500 font-mono mt-1">ID: #DESTINY-05</div>
+                </div>
+              </div>
+
+              <!-- Slot 6 -->
+              <div class="p-4 rounded-2xl bg-app-window border border-app-border/80 flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-app-surface border border-app-border flex items-center justify-center text-app-muted text-lg">
+                  <i class="fa-solid fa-user-secret"></i>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-white">Unknown Member</h4>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-app-muted border border-white/10">Slot Reservado</span>
+                  <div class="text-[11px] text-zinc-500 font-mono mt-1">ID: #DESTINY-06</div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- COLUMNA DERECHA: NOTCH SHOWCASE CARD (CARD DE LA IMAGEN)      -->
+      <!-- ============================================================ -->
+      <aside class="lg:col-span-5 flex flex-col gap-6">
+        
+        <!-- CARD PRINCIPAL CON NOTCH Y ACCIONES CIRCULARES -->
+        <div class="notch-container p-6 sm:p-7 shadow-2xl flex flex-col relative">
+          
+          <!-- Notch Cutout Cóncavo Superior (Fiel a la Referencia) -->
+          <div class="notch-cutout flex items-center gap-2.5 shadow-md">
+            <img id="notch-avatar" src="https://visage.surgeplay.com/face/40/f4aa6afad90c4dd297b2ed453b8c99fe" alt="Avatar" class="w-6 h-6 rounded-full border border-white/30">
+            <div class="flex items-center gap-1.5">
+              <span id="notch-nick" class="text-xs font-bold text-white">Kylaz</span>
+              <i class="fa-solid fa-circle-check text-[11px] text-sky-400"></i>
+            </div>
+          </div>
+
+          <!-- Botones de Acción Circulares Flotantes (Lado Derecho Superior) -->
+          <div class="absolute top-6 right-6 flex flex-col gap-3 z-20">
+            <button onclick="shareStats()" title="Copiar enlace del jugador" class="floating-circle-btn">
+              <i class="fa-solid fa-arrow-up-from-bracket text-xs"></i>
+            </button>
+            <button onclick="toggle3DSkinTilt()" title="Alternar Vista 3D" class="floating-circle-btn">
+              <i class="fa-solid fa-cube text-xs"></i>
+            </button>
+            <button onclick="toggleBookmark()" title="Fijar jugador" id="btn-bookmark" class="floating-circle-btn">
+              <i class="fa-regular fa-bookmark text-xs"></i>
+            </button>
+          </div>
+
+          <!-- RENDERIZADO 3D COMPLETO DEL PERSONAJE CON PEDESTAL -->
+          <div class="pedestal-glow flex flex-col items-center justify-center pt-10 pb-4">
+            <div class="relative w-56 h-72 flex items-center justify-center transition-all duration-300 transform" id="skin-container">
+              <img id="player-full-skin" src="https://visage.surgeplay.com/full/512/f4aa6afad90c4dd297b2ed453b8c99fe?tilt=0&yaw=20" alt="Skin 3D" class="max-h-full object-contain filter drop-shadow-[0_20px_25px_rgba(0,0,0,0.8)]">
+            </div>
+
+            <!-- Título y Clasificación del Jugador -->
+            <div class="text-center mt-3">
+              <h3 id="showcase-name" class="text-2xl sm:text-3xl font-black text-white tracking-tight">Kylaz</h3>
+              <div class="flex items-center justify-center gap-2 mt-1">
+                <span id="showcase-rank" class="text-xs font-mono font-bold text-app-muted">#1 Global The Towers</span>
+                <span class="text-app-muted">•</span>
+                <span id="showcase-tier" class="text-xs font-mono font-bold text-amber-300">TIER HT1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PÍLDORAS INFERIORES DE ALTO IMPACTO (COMO EN EL MOCK) -->
+          <div class="flex items-center justify-between gap-3 mt-4 pt-4 border-t border-app-border/80">
+            <!-- Píldora de Goles -->
+            <div class="flex-1 bg-white/10 border border-white/15 rounded-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-bold text-white shadow">
+              <i class="fa-solid fa-bullseye text-amber-400"></i>
+              <span id="showcase-goals-pill">142 Goles</span>
+            </div>
+
+            <!-- Píldora de Rating ELO -->
+            <div class="flex-1 bg-gradient-to-r from-amber-700/60 to-amber-600/60 border border-amber-500/30 rounded-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-extrabold text-amber-100 shadow">
+              <i class="fa-solid fa-bolt"></i>
+              <span id="showcase-elo-pill">2,450 ELO</span>
+            </div>
+          </div>
+
+          <!-- ======================================================== -->
+          <!-- DESGLOSE EXHAUSTIVO DE TELEMETRÍA (REQUERIDO POR EL USER) -->
+          <!-- ======================================================== -->
+          <div class="mt-6 bg-app-window/90 border border-app-border/70 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-app-border/60">
+              <span class="text-xs font-mono font-bold text-white uppercase tracking-wider">Telemetría Completa</span>
+              <span class="text-[11px] font-mono text-app-muted">Temporada 2026</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs font-mono">
+              
+              <!-- Métrica 1: Goles -->
+              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
+                <div class="text-app-muted text-[10px] uppercase">Goles a la Torre</div>
+                <div id="stat-goals" class="text-base font-bold text-white mt-0.5">142</div>
+                <div class="text-[10px] text-emerald-400">1.10 goles / partida</div>
+              </div>
+
+              <!-- Métrica 2: Roturas de Jaula -->
+              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
+                <div class="text-app-muted text-[10px] uppercase">Roturas de Jaula</div>
+                <div id="stat-cages" class="text-base font-bold text-white mt-0.5">89</div>
+                <div class="text-[10px] text-zinc-400">62.6% penetración</div>
+              </div>
+
+              <!-- Métrica 3: Kills & Deaths -->
+              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
+                <div class="text-app-muted text-[10px] uppercase">Kills / Deaths</div>
+                <div id="stat-kd" class="text-base font-bold text-white mt-0.5">618 / 204</div>
+                <div class="text-[10px] text-amber-300 font-bold" id="stat-kd-ratio">K/D: 3.03</div>
+              </div>
+
+              <!-- Métrica 4: Asistencias -->
+              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
+                <div class="text-app-muted text-[10px] uppercase">Asistencias</div>
+                <div id="stat-assists" class="text-base font-bold text-white mt-0.5">345</div>
+                <div class="text-[10px] text-zinc-400">2.69 por partida</div>
+              </div>
+
+              <!-- Métrica 5: Daño Infligido -->
+              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
+                <div class="text-app-muted text-[10px] uppercase">Daño Infligido</div>
+                <div id="stat-damage-dealt" class="text-base font-bold text-red-400 mt-0.5">24,850 ❤</div>
+                <div class="text-[10px] text-zinc-400">194.1 ❤ / partida</div>
+              </div>
+
+              <!-- Métrica 6: Daño Recibido -->
+              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
+                <div class="text-app-muted text-[10px] uppercase">Daño Recibido</div>
+                <div id="stat-damage-taken" class="text-base font-bold text-zinc-300 mt-0.5">11,200 ❤</div>
+                <div class="text-[10px] text-zinc-400">87.5 ❤ / partida</div>
+              </div>
+
+              <!-- Métrica 7: Puntería Arco -->
+              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
+                <div class="text-app-muted text-[10px] uppercase">Precisión de Arco</div>
+                <div id="stat-bow-acc" class="text-base font-bold text-white mt-0.5">68.4%</div>
+                <div class="text-[10px] text-zinc-400">842 / 1,231 flechas</div>
+              </div>
+
+              <!-- Métrica 8: Bloques -->
+              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
+                <div class="text-app-muted text-[10px] uppercase">Bloques Puestos/Rotos</div>
+                <div id="stat-blocks" class="text-base font-bold text-white mt-0.5">18.9k / 14.2k</div>
+                <div class="text-[10px] text-zinc-400">Puentes & Defensas</div>
+              </div>
+
+              <!-- Métrica 9: Racha de Victorias -->
+              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
+                <div class="text-app-muted text-[10px] uppercase">Mejor Racha</div>
+                <div id="stat-streak" class="text-base font-bold text-emerald-400 mt-0.5">14 Victorias</div>
+                <div class="text-[10px] text-zinc-400">Racha Actual: 6</div>
+              </div>
+
+              <!-- Métrica 10: Tiempo Jugado -->
+              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
+                <div class="text-app-muted text-[10px] uppercase">Tiempo en Partida</div>
+                <div id="stat-playtime" class="text-base font-bold text-white mt-0.5">48h 35m</div>
+                <div class="text-[10px] text-zinc-400">128 partidas totales</div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </aside>
+
+    </main>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- LÓGICA DE INTERACCIÓN, BASE DE DATOS DE TELEMETRÍA Y CONTROL -->
+  <!-- ============================================================ -->
+  <script>
+    // Base de datos exhaustiva de jugadores
+    const PLAYERS_DATABASE = {
+      kylaz: {
+        id: 'kylaz',
+        nick: 'Kylaz',
+        uuid: 'f4aa6afad90c4dd297b2ed453b8c99fe',
+        rank: '#1 Global The Towers',
+        tier: 'TIER HT1',
+        elo: '2,450',
+        goals: '142',
+        cages: '89',
+        kills: '618',
+        deaths: '204',
+        kd: '3.03',
+        assists: '345',
+        damageDealt: '24,850 ❤',
+        damageTaken: '11,200 ❤',
+        bowAcc: '68.4%',
+        blocks: '18.9k / 14.2k',
+        streak: '14 Victorias',
+        playtime: '48h 35m'
+      },
+      elglower: {
+        id: 'elglower',
+        nick: 'ElGlower',
+        uuid: '853c80ef3c3749fdaa49938b674acd16',
+        rank: '#4 Global The Towers',
+        tier: 'TIER HT2',
+        elo: '2,210',
+        goals: '118',
+        cages: '74',
+        kills: '492',
+        deaths: '180',
+        kd: '2.73',
+        assists: '280',
+        damageDealt: '19,400 ❤',
+        damageTaken: '9,850 ❤',
+        bowAcc: '64.1%',
+        blocks: '14.5k / 11.2k',
+        streak: '9 Victorias',
+        playtime: '39h 12m'
+      },
+      gpminer17: {
+        id: 'gpminer17',
+        nick: 'Gpminer17',
+        uuid: '06af403561ab422faedd1edabc8d71c7',
+        rank: '#2 Global The Towers',
+        tier: 'TIER LT1',
+        elo: '2,390',
+        goals: '135',
+        cages: '82',
+        kills: '540',
+        deaths: '195',
+        kd: '2.76',
+        assists: '310',
+        damageDealt: '21,600 ❤',
+        damageTaken: '10,400 ❤',
+        bowAcc: '66.8%',
+        blocks: '16.2k / 12.8k',
+        streak: '11 Victorias',
+        playtime: '44h 20m'
+      },
+      crozzor: {
+        id: 'crozzor',
+        nick: 'Crozzor',
+        uuid: '3d50b9cde587408eb401a6afcab79d2c',
+        rank: '#3 Global The Towers',
+        tier: 'TIER HT2',
+        elo: '2,280',
+        goals: '124',
+        cages: '78',
+        kills: '510',
+        deaths: '210',
+        kd: '2.42',
+        assists: '295',
+        damageDealt: '20,100 ❤',
+        damageTaken: '11,100 ❤',
+        bowAcc: '61.5%',
+        blocks: '15.1k / 13.4k',
+        streak: '8 Victorias',
+        playtime: '41h 05m'
+      },
+      aximity: {
+        id: 'aximity',
+        nick: 'AXIMITY',
+        uuid: '37bba5ee9e644d5e975cffe1f139b24e',
+        rank: '#5 Global The Towers',
+        tier: 'TIER MT2',
+        elo: '2,140',
+        goals: '95',
+        cages: '61',
+        kills: '430',
+        deaths: '175',
+        kd: '2.45',
+        assists: '240',
+        damageDealt: '17,200 ❤',
+        damageTaken: '8,900 ❤',
+        bowAcc: '59.2%',
+        blocks: '12.8k / 9.6k',
+        streak: '7 Victorias',
+        playtime: '34h 50m'
+      },
+      blvckwlf: {
+        id: 'blvckwlf',
+        nick: 'BlvckWlf',
+        uuid: '653bb064799a4bc7983583cce16ddd83',
+        rank: '#7 Global The Towers',
+        tier: 'TIER MT2',
+        elo: '2,080',
+        goals: '82',
+        cages: '54',
+        kills: '390',
+        deaths: '160',
+        kd: '2.43',
+        assists: '215',
+        damageDealt: '15,800 ❤',
+        damageTaken: '8,100 ❤',
+        bowAcc: '63.0%',
+        blocks: '11.4k / 8.9k',
+        streak: '6 Victorias',
+        playtime: '31h 15m'
+      },
+      coldified: {
+        id: 'coldified',
+        nick: 'coldified',
+        uuid: '7e8a77cadaf14224ae1d2df8bab1eccb',
+        rank: '#6 Global The Towers',
+        tier: 'TIER MT2',
+        elo: '2,110',
+        goals: '88',
+        cages: '58',
+        kills: '415',
+        deaths: '170',
+        kd: '2.44',
+        assists: '230',
+        damageDealt: '16,500 ❤',
+        damageTaken: '8,600 ❤',
+        bowAcc: '58.7%',
+        blocks: '13.1k / 10.2k',
+        streak: '7 Victorias',
+        playtime: '33h 40m'
+      },
+      itzrealme: {
+        id: 'itzrealme',
+        nick: 'ItzRealMe',
+        uuid: '06ec3577329945fabbdf613b1f86c8ab',
+        rank: '#8 Global The Towers',
+        tier: 'TIER LT2',
+        elo: '2,040',
+        goals: '76',
+        cages: '49',
+        kills: '360',
+        deaths: '155',
+        kd: '2.32',
+        assists: '195',
+        damageDealt: '14,200 ❤',
+        damageTaken: '7,800 ❤',
+        bowAcc: '60.4%',
+        blocks: '10.5k / 8.2k',
+        streak: '5 Victorias',
+        playtime: '29h 10m'
+      }
+    };
+
+    // Generador dinámico de más de 100 partidas competitivas del año 2026
+    const MAP_NAMES = ['Ruinas Celestiales', 'Templo de Obsidiana', 'Bastión Abisal', 'Cúspide Polar', 'Fortaleza Aérea'];
+    const MATCHES_DATABASE = [];
+    const PLAYERS_LIST = Object.values(PLAYERS_DATABASE);
+
+    for (let i = 105; i >= 1; i--) {
+      const matchId = `#DT-2026-${String(i).padStart(3, '0')}`;
+      const isRedWinner = (i * 7 + 3) % 2 === 0;
+      const redScore = isRedWinner ? 10 : Math.floor(Math.random() * 6) + 3;
+      const blueScore = isRedWinner ? Math.floor(Math.random() * 6) + 3 : 10;
+      const durationMin = 12 + (i % 15);
+      const durationSec = (i * 17) % 60;
+      const mvp = PLAYERS_LIST[i % PLAYERS_LIST.length];
+      const map = MAP_NAMES[i % MAP_NAMES.length];
+      
+      const day = (i % 28) + 1;
+      const month = ((i % 8) + 1).toString().padStart(2, '0');
+      const dateStr = `2026-${month}-${String(day).padStart(2, '0')}`;
+
+      MATCHES_DATABASE.push({
+        id: matchId,
+        date: dateStr,
+        map: map,
+        winner: isRedWinner ? 'RED' : 'BLUE',
+        score: `${redScore} - ${blueScore}`,
+        duration: `${durationMin}m ${String(durationSec).padStart(2, '0')}s`,
+        mvp: mvp.nick,
+        mvpUuid: mvp.uuid
+      });
+    }
+
+    // Estado local de paginación y filtro
+    let currentTab = 'towers';
+    let currentHistoryFilter = 'ALL';
+    let currentHistoryPage = 1;
+    const MATCHES_PER_PAGE = 10;
+    let isTilted = false;
+
+    // Conmutador de Pestañas
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
+      const targetView = document.getElementById(`view-${tabId}`);
+      if (targetView) targetView.classList.add('active');
+
+      // Actualizar estilo de píldoras en la barra superior
+      const tabs = ['towers', 'podium', 'history', 'members'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`nav-btn-${t}`);
+        if (btn) {
+          if (t === tabId) {
+            btn.className = 'px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 bg-white text-black shadow-md flex items-center gap-2 whitespace-nowrap';
+          } else {
+            btn.className = 'px-5 py-2.5 rounded-full text-sm font-medium text-app-muted hover:text-white transition-all duration-200 flex items-center gap-2 whitespace-nowrap';
+          }
+        }
+      });
+    }
+
+    // Actualización de la Notch Showcase Card al seleccionar cualquier jugador
+    function selectPlayer(playerId) {
+      const p = PLAYERS_DATABASE[playerId.toLowerCase()];
+      if (!p) return;
+
+      // Actualizar notch superior
+      document.getElementById('notch-avatar').src = `https://visage.surgeplay.com/face/40/${p.uuid}`;
+      document.getElementById('notch-nick').textContent = p.nick;
+
+      // Actualizar skin 3D completa
+      document.getElementById('player-full-skin').src = `https://visage.surgeplay.com/full/512/${p.uuid}?tilt=${isTilted ? 15 : 0}&yaw=20`;
+
+      // Actualizar títulos
+      document.getElementById('showcase-name').textContent = p.nick;
+      document.getElementById('showcase-rank').textContent = p.rank;
+      document.getElementById('showcase-tier').textContent = p.tier;
+
+      // Actualizar píldoras inferiores
+      document.getElementById('showcase-goals-pill').textContent = `${p.goals} Goles`;
+      document.getElementById('showcase-elo-pill').textContent = `${p.elo} ELO`;
+
+      // Actualizar métricas completas
+      document.getElementById('stat-goals').textContent = p.goals;
+      document.getElementById('stat-cages').textContent = p.cages;
+      document.getElementById('stat-kd').textContent = `${p.kills} / ${p.deaths}`;
+      document.getElementById('stat-kd-ratio').textContent = `K/D: ${p.kd}`;
+      document.getElementById('stat-assists').textContent = p.assists;
+      document.getElementById('stat-damage-dealt').textContent = p.damageDealt;
+      document.getElementById('stat-damage-taken').textContent = p.damageTaken;
+      document.getElementById('stat-bow-acc').textContent = p.bowAcc;
+      document.getElementById('stat-blocks').textContent = p.blocks;
+      document.getElementById('stat-streak').textContent = p.streak;
+      document.getElementById('stat-playtime').textContent = p.playtime;
+    }
+
+    // Renderizador de Tabla de Historial (Paginado & Filtrado)
+    function renderHistoryTable() {
+      const tbody = document.getElementById('matches-table-body');
+      if (!tbody) return;
+
+      let filtered = MATCHES_DATABASE;
+      if (currentHistoryFilter !== 'ALL') {
+        filtered = filtered.filter(m => m.winner === currentHistoryFilter);
+      }
+
+      const totalPages = Math.ceil(filtered.length / MATCHES_PER_PAGE);
+      if (currentHistoryPage > totalPages) currentHistoryPage = totalPages || 1;
+      if (currentHistoryPage < 1) currentHistoryPage = 1;
+
+      const startIndex = (currentHistoryPage - 1) * MATCHES_PER_PAGE;
+      const paginated = filtered.slice(startIndex, startIndex + MATCHES_PER_PAGE);
+
+      tbody.innerHTML = paginated.map(m => `
+        <tr class="hover:bg-white/5 transition-colors">
+          <td class="py-3 px-3 font-bold text-white">${m.id}</td>
+          <td class="py-3 px-3 text-app-muted">${m.date}</td>
+          <td class="py-3 px-3 text-zinc-200">${m.map}</td>
+          <td class="py-3 px-3">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+              m.winner === 'RED' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+            }">
+              ${m.winner === 'RED' ? 'VICTORIA ROJA' : 'VICTORIA AZUL'}
+            </span>
+          </td>
+          <td class="py-3 px-3 font-bold text-white">${m.score}</td>
+          <td class="py-3 px-3 text-app-muted">${m.duration}</td>
+          <td class="py-3 px-3">
+            <div class="flex items-center gap-1.5 cursor-pointer" onclick="findAndSelectPlayer('${m.mvp}')">
+              <img src="https://visage.surgeplay.com/face/20/${m.mvpUuid}" alt="${m.mvp}" class="w-4 h-4 rounded">
+              <span class="hover:text-amber-300 transition-colors font-bold">${m.mvp}</span>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      document.getElementById('history-pagination-info').textContent = 
+        `Página ${currentHistoryPage} de ${totalPages} (${filtered.length} partidas registradas)`;
+    }
+
+    function changeHistoryPage(delta) {
+      currentHistoryPage += delta;
+      renderHistoryTable();
+    }
+
+    function filterMatches(team) {
+      currentHistoryFilter = team;
+      currentHistoryPage = 1;
+      
+      const btnAll = document.getElementById('filter-all');
+      const btnRed = document.getElementById('filter-red');
+      const btnBlue = document.getElementById('filter-blue');
+
+      [btnAll, btnRed, btnBlue].forEach(b => {
+        b.className = 'px-3 py-1 rounded-full text-app-muted hover:text-white';
+      });
+
+      if (team === 'ALL') btnAll.className = 'px-3 py-1 rounded-full font-semibold bg-white text-black';
+      if (team === 'RED') btnRed.className = 'px-3 py-1 rounded-full font-semibold bg-red-500 text-white';
+      if (team === 'BLUE') btnBlue.className = 'px-3 py-1 rounded-full font-semibold bg-blue-500 text-white';
+
+      renderHistoryTable();
+    }
+
+    function findAndSelectPlayer(nick) {
+      const match = Object.values(PLAYERS_DATABASE).find(p => p.nick.toLowerCase() === nick.toLowerCase());
+      if (match) selectPlayer(match.id);
+    }
+
+    // Buscador global en tiempo real
+    function handleGlobalSearch(query) {
+      if (!query) return;
+      const q = query.trim().toLowerCase();
+      
+      // Buscar en jugadores
+      const match = Object.values(PLAYERS_DATABASE).find(p => p.nick.toLowerCase().includes(q) || p.id.includes(q));
+      if (match) {
+        selectPlayer(match.id);
+        return;
+      }
+
+      // Si la consulta parece una partida o búsqueda de historial, conmutar a historial
+      if (q.startsWith('#dt') || q.includes('ruinas') || q.includes('templo')) {
+        switchTab('history');
+      }
+    }
+
+    // Funciones adicionales de interacción
+    function toggle3DSkinTilt() {
+      isTilted = !isTilted;
+      const skinImg = document.getElementById('player-full-skin');
+      const currentSrc = skinImg.src;
+      const base = currentSrc.split('?')[0];
+      skinImg.src = `${base}?tilt=${isTilted ? 20 : 0}&yaw=${isTilted ? -20 : 20}`;
+    }
+
+    function toggleBookmark() {
+      const btn = document.getElementById('btn-bookmark');
+      const icon = btn.querySelector('i');
+      if (icon.classList.contains('fa-regular')) {
+        icon.classList.remove('fa-regular');
+        icon.classList.add('fa-solid');
+        icon.style.color = '#f59e0b';
+      } else {
+        icon.classList.remove('fa-solid');
+        icon.classList.add('fa-regular');
+        icon.style.color = '#f2f0f7';
+      }
+    }
+
+    function shareStats() {
+      const currentNick = document.getElementById('notch-nick').textContent;
+      navigator.clipboard.writeText(window.location.href);
+      alert(`Enlace de telemetría de ${currentNick} copiado al portapapeles.`);
+    }
+
+    // Inicialización automática
+    window.addEventListener('DOMContentLoaded', () => {
+      renderHistoryTable();
+      selectPlayer('kylaz');
+    });
+  </script>
+
+</body>
+</html>
