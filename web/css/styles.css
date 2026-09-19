@@ -1,6 +1,6 @@
 /* ==========================================================================
    DESTINY OWNERS - Hoja de Estilos Principal (styles.css)
-   Paleta Pastel Artística, Glassmorphism y Transiciones Fluidas
+   Modo Día (Pastel Cozy) y Modo Noche (Twilight Dimmed)
    ========================================================================== */
 
 * {
@@ -18,55 +18,84 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-h1, h2, h3, h4, .font-heading {
+h1, h2, h3, h4, .font-display {
   font-family: 'Outfit', sans-serif;
 }
 
 /* ==========================================================================
-   1. ILUSTRACIÓN DE FONDO COMPLETA (Fiel a la Referencia)
+   1. ILUSTRACIÓN DE FONDO EN LAS ESQUINAS (Gatos en esquina inferior derecha)
    ========================================================================== */
-.bg-illustration-full {
+.bg-illustration-corner-br {
   position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
+  bottom: 0;
+  right: 0;
+  width: 580px;
+  max-width: 52vw;
+  height: 440px;
   pointer-events: none;
   z-index: 0;
-  overflow: hidden;
+  transition: opacity 0.4s ease;
+}
+
+.bg-illustration-corner-tl {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 650px;
+  max-width: 55vw;
+  height: 380px;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.4s ease;
+}
+
+.bg-illustration-moon {
+  position: fixed;
+  top: 90px;
+  right: 6%;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background-color: #806E83;
+  box-shadow: 0 0 35px rgba(128, 110, 131, 0.22);
+  transition: background-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 /* ==========================================================================
    2. CRISTALERÍA PASTEL (FROSTED GLASSMORPHISM)
    ========================================================================== */
 .pastel-glass-card {
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.88);
   border: 1.5px solid rgba(255, 255, 255, 0.95);
   border-radius: 40px;
   box-shadow: 0 20px 45px rgba(105, 130, 181, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(32px);
   -webkit-backdrop-filter: blur(32px);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .notch-container {
   position: relative;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.88);
   border-radius: 40px;
   border: 1.5px solid rgba(255, 255, 255, 0.95);
   box-shadow: 0 20px 45px rgba(105, 130, 181, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(32px);
   -webkit-backdrop-filter: blur(32px);
   overflow: hidden;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .notch-cutout {
   position: absolute;
   top: 0;
   left: 32px;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.96);
   padding: 7px 22px 11px 22px;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
@@ -75,6 +104,7 @@ h1, h2, h3, h4, .font-heading {
   border-bottom: 1px solid rgba(193, 207, 230, 0.55);
   box-shadow: 0 4px 12px rgba(105, 130, 181, 0.08);
   z-index: 20;
+  transition: background-color 0.4s ease, border-color 0.4s ease;
 }
 
 /* Pedestal con iluminación ambiental para la skin 3D */
@@ -84,30 +114,31 @@ h1, h2, h3, h4, .font-heading {
 .pedestal-glow::after {
   content: '';
   position: absolute;
-  bottom: 10px;
+  bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
-  width: 240px;
-  height: 45px;
+  width: 250px;
+  height: 50px;
   background: radial-gradient(ellipse at center, rgba(248, 225, 225, 0.95) 0%, rgba(193, 207, 230, 0.7) 55%, transparent 80%);
   border-radius: 50%;
   filter: blur(14px);
   pointer-events: none;
   z-index: 1;
+  transition: background 0.4s ease;
 }
 
 /* ==========================================================================
    3. VISOR 3D REAL (CANVAS INTERACTIVO WEBGL)
    ========================================================================== */
 #skin-canvas {
-  width: 320px;
+  width: 310px;
   height: 420px;
   max-width: 100%;
   display: block;
   margin: 0 auto;
   cursor: grab;
   outline: none;
-  filter: drop-shadow(0 20px 30px rgba(105, 130, 181, 0.22));
+  filter: drop-shadow(0 20px 30px rgba(105, 130, 181, 0.25));
   position: relative;
   z-index: 5;
   transition: filter 0.2s ease;
@@ -203,4 +234,154 @@ h1, h2, h3, h4, .font-heading {
   transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
+}
+
+/* ==========================================================================
+   7. MODO NOCHE (TWILIGHT / APAGADITO COMBINADO)
+   ========================================================================== */
+body.dark-mode {
+  background-color: #141721;
+  color: #CBD5E1;
+}
+
+body.dark-mode header {
+  background: rgba(18, 22, 33, 0.85);
+  border-color: rgba(105, 130, 181, 0.22);
+}
+
+body.dark-mode footer {
+  background: rgba(18, 22, 33, 0.85);
+  border-color: rgba(105, 130, 181, 0.22);
+  color: #94A3B8;
+}
+
+body.dark-mode nav {
+  background: rgba(25, 30, 46, 0.90);
+  border-color: rgba(105, 130, 181, 0.30);
+}
+
+body.dark-mode .pastel-glass-card {
+  background: rgba(24, 29, 43, 0.84);
+  border: 1.5px solid rgba(105, 130, 181, 0.32);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #E2E8F0;
+}
+
+body.dark-mode .notch-container {
+  background: rgba(24, 29, 43, 0.84);
+  border: 1.5px solid rgba(105, 130, 181, 0.32);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .notch-cutout {
+  background: rgba(30, 36, 54, 0.96);
+  border-color: rgba(105, 130, 181, 0.30);
+  color: #E2E8F0;
+}
+
+body.dark-mode .bg-illustration-moon {
+  background-color: #E3D9E9;
+  box-shadow: 0 0 45px rgba(227, 217, 233, 0.40);
+}
+
+body.dark-mode .pedestal-glow::after {
+  background: radial-gradient(ellipse at center, rgba(105, 130, 181, 0.55) 0%, rgba(128, 110, 131, 0.35) 55%, transparent 80%);
+}
+
+body.dark-mode .floating-circle-btn {
+  background: rgba(30, 36, 54, 0.95);
+  border-color: rgba(105, 130, 181, 0.35);
+  color: #C1CFE6;
+}
+body.dark-mode .floating-circle-btn:hover {
+  background: #3B4B6E;
+  color: #FFFFFF;
+}
+
+body.dark-mode .title-destiny {
+  color: #EDE8F5 !important;
+}
+
+body.dark-mode .title-owners {
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-image: linear-gradient(to right, #99B4DA, #C1CFE6, #EDE8F5);
+}
+
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode .title-destiny {
+  color: #EDE8F5 !important;
+}
+
+body.dark-mode p {
+  color: #94A3B8 !important;
+}
+
+/* Modalidad en Modo Noche */
+body.dark-mode .team-card-red {
+  background: linear-gradient(180deg, rgba(48, 26, 36, 0.85) 0%, rgba(30, 20, 28, 0.90) 100%) !important;
+  border-color: rgba(231, 151, 150, 0.30) !important;
+}
+body.dark-mode .slot-card-red {
+  background: rgba(42, 22, 32, 0.75) !important;
+  border-color: rgba(231, 151, 150, 0.35) !important;
+  color: #F8E1E1 !important;
+}
+body.dark-mode .slot-card-red:hover {
+  background: rgba(55, 28, 40, 0.90) !important;
+}
+
+body.dark-mode .team-card-blue {
+  background: linear-gradient(180deg, rgba(22, 32, 54, 0.85) 0%, rgba(18, 24, 42, 0.90) 100%) !important;
+  border-color: rgba(105, 130, 181, 0.30) !important;
+}
+body.dark-mode .slot-card-blue {
+  background: rgba(24, 34, 56, 0.75) !important;
+  border-color: rgba(105, 130, 181, 0.35) !important;
+  color: #C1CFE6 !important;
+}
+body.dark-mode .slot-card-blue:hover {
+  background: rgba(30, 44, 72, 0.90) !important;
+}
+
+/* Miembros en Modo Noche */
+body.dark-mode .member-slot-card {
+  background: rgba(24, 29, 46, 0.85) !important;
+  border-color: rgba(105, 130, 181, 0.28) !important;
+}
+body.dark-mode .member-slot-card:hover {
+  background: rgba(32, 40, 64, 0.95) !important;
+  border-color: #6982B5 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35) !important;
+}
+body.dark-mode .member-slot-icon {
+  background: rgba(38, 48, 76, 0.75) !important;
+  border-color: rgba(105, 130, 181, 0.35) !important;
+  color: #99B4DA !important;
+}
+body.dark-mode .member-slot-name {
+  color: #F1F5F9 !important;
+}
+body.dark-mode .member-slot-badge {
+  background: rgba(55, 30, 40, 0.85) !important;
+  border-color: rgba(231, 151, 150, 0.35) !important;
+  color: #F8E1E1 !important;
+}
+body.dark-mode .member-slot-id {
+  color: #99B4DA !important;
+}
+
+body.dark-mode .cat-svg-dark-back {
+  fill: #1E283C;
+}
+body.dark-mode .cat-svg-dark-front {
+  fill: #2B3852;
+}
+body.dark-mode .cat-svg-dark-fore {
+  fill: #344464;
+}
+body.dark-mode .dune-svg-dark {
+  fill: #221D28;
 }

@@ -1,9 +1,10 @@
 /**
  * DESTINY OWNERS - Lógica de Navegación y UI (main.js)
- * Conmutador fluido de pestañas, notificaciones y copiado al portapapeles.
+ * Conmutador fluido de pestañas, Modo Noche / Día, notificaciones y copiado al portapapeles.
  */
 
 let currentTab = 'inicio';
+let isDarkMode = false;
 
 /**
  * Cambia fluidamente entre las pestañas (Inicio, Modalidad, Miembros)
@@ -23,17 +24,7 @@ function switchTab(tabId) {
   }
 
   // 2. Actualizar estados visuales de los botones de la píldora de navegación
-  const tabs = ['inicio', 'modalidad', 'miembros'];
-  tabs.forEach(t => {
-    const btn = document.getElementById(`nav-btn-${t}`);
-    if (btn) {
-      if (t === tabId) {
-        btn.className = 'px-7 py-2 rounded-full text-sm font-semibold transition-all duration-200 bg-pastel-denim text-white shadow-md flex items-center gap-2';
-      } else {
-        btn.className = 'px-7 py-2 rounded-full text-sm font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2';
-      }
-    }
-  });
+  updateNavButtonsTheme();
 
   // 3. Controlar la visibilidad condicional del panel lateral 3D
   const leftCol = document.getElementById('left-content-area');
@@ -61,6 +52,40 @@ function switchTab(tabId) {
   const url = new URL(window.location);
   url.searchParams.set('tab', tabId);
   window.history.replaceState({}, '', url);
+}
+
+/**
+ * Conmutador de Modo Noche / Modo Día (apagadito y acogedor)
+ */
+function toggleDarkMode() {
+  setDarkMode(!isDarkMode);
+}
+
+function setDarkMode(enable) {
+  isDarkMode = enable;
+  const icon = document.getElementById('theme-toggle-icon');
+
+  if (isDarkMode) {
+    document.body.classList.add('dark-mode');
+    if (icon) {
+      icon.className = 'fa-solid fa-sun text-sm text-[#FDE68A]';
+    }
+    localStorage.setItem('destiny_theme', 'dark');
+  } else {
+    document.body.classList.remove('dark-mode');
+    if (icon) {
+      icon.className = 'fa-solid fa-moon text-sm text-pastel-plum';
+    }
+    localStorage.setItem('destiny_theme', 'light');
+  }
+
+  // Actualizar estilos de los botones sin resetear la pestaña
+  updateNavButtonsTheme();
+
+  // Informar al visor 3D para calibrar la luz ambiental
+  if (window.updateSkinViewerLighting) {
+    window.updateSkinViewerLighting(isDarkMode);
+  }
 }
 
 /**
@@ -112,16 +137,49 @@ function fallbackCopyText(text) {
   document.body.removeChild(textArea);
 }
 
-// Inicialización de la navegación al cargar el documento
+/**
+ * Actualiza los estilos visuales de los botones de navegación según la pestaña y tema activo
+ */
+function updateNavButtonsTheme() {
+  const tabs = ['inicio', 'modalidad', 'miembros'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`nav-btn-${t}`);
+    if (btn) {
+      if (t === currentTab) {
+        btn.className = 'px-7 py-2 rounded-full text-sm font-semibold transition-all duration-200 bg-pastel-denim text-white shadow-md flex items-center gap-2';
+      } else {
+        btn.className = isDarkMode 
+          ? 'px-7 py-2 rounded-full text-sm font-medium text-slate-300 hover:text-white transition-all duration-200 flex items-center gap-2'
+          : 'px-7 py-2 rounded-full text-sm font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2';
+      }
+    }
+  });
+}
+
+// Inicialización de la navegación y el tema al cargar el documento
 window.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
+
+  // 1. Cargar preferencia de tema guardada (por defecto modo pastel día, o dark si está guardado o solicitado)
+  const themeParam = urlParams.get('theme');
+  const savedTheme = localStorage.getItem('destiny_theme');
+  if (themeParam === 'dark' || (!themeParam && savedTheme === 'dark')) {
+    setDarkMode(true);
+  } else {
+    setDarkMode(false);
+  }
+
+  // 2. Comprobar parámetro URL para pestañas
   const tabParam = urlParams.get('tab');
   if (tabParam && ['inicio', 'modalidad', 'miembros'].includes(tabParam)) {
     switchTab(tabParam);
+  } else {
+    switchTab('inicio');
   }
 });
 
 // Exportar globalmente
 window.switchTab = switchTab;
+window.toggleDarkMode = toggleDarkMode;
 window.copyServerIP = copyServerIP;
 window.showToast = showToast;

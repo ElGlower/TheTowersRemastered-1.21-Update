@@ -49,32 +49,25 @@
 <body class="w-full min-h-screen flex flex-col justify-between relative selection:bg-pastel-cornflower selection:text-white">
 
   <!-- ============================================================ -->
-  <!-- ILUSTRACIÓN DE FONDO: ABARCA TODA LA PÁGINA (ESTILO EXACTO)  -->
+  <!-- ILUSTRACIÓN DE FONDO EN LAS ESQUINAS (GATOS Y LUNA COZY)     -->
   <!-- ============================================================ -->
-  <div class="bg-illustration-full">
-    <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMax slice" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Cielo Base Cálido -->
-      <rect width="1600" height="1000" fill="#FAF8F8"/>
+  <!-- Sol/Luna en cielo superior derecho -->
+  <div class="bg-illustration-moon"></div>
 
-      <!-- Sol/Luna Malva (#806E83) en el cielo superior derecho -->
-      <circle cx="1280" cy="170" r="42" fill="#806E83"/>
+  <!-- Esquina Superior Izquierda: Duna Ondulada Rosa Pastel -->
+  <svg class="bg-illustration-corner-tl" viewBox="0 0 650 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 0 L0 260 C 180 220, 360 280, 520 200 C 580 170, 620 120, 650 60 L 650 0 Z" fill="#F8E1E1" class="dune-svg-dark" fill-opacity="0.85"/>
+  </svg>
 
-      <!-- Duna / Cielo Ondulado Rosa Pastel (#F8E1E1) -->
-      <path d="M0 240 C 350 160, 700 280, 1100 280 C 1350 280, 1480 340, 1600 400 V 1000 H 0 Z" fill="#F8E1E1" fill-opacity="0.90"/>
-
-      <!-- Silueta Gato Fondo - Azul Denim (#6982B5) -->
-      <path d="M-60 1000 L -60 620 C 30 570, 70 510, 110 470 C 120 440, 140 430, 150 460 C 180 500, 240 500, 280 470 C 290 440, 310 430, 325 460 C 380 530, 480 640, 560 780 C 620 890, 680 960, 720 1000 Z" fill="#6982B5" fill-opacity="0.9"/>
-
-      <!-- Colina Periwinkle Intermedia (#C1CFE6) -->
-      <path d="M 0 760 C 350 660, 700 640, 1100 700 C 1350 740, 1500 800, 1600 840 V 1000 H 0 Z" fill="#C1CFE6" fill-opacity="0.75"/>
-
-      <!-- Silueta Gato Primer Plano - Azul Cornflower (#99B4DA) -->
-      <path d="M 460 1000 C 500 860, 580 720, 700 620 C 720 570, 750 560, 770 600 C 840 600, 920 600, 980 600 C 1020 540, 1060 540, 1080 600 C 1220 690, 1360 810, 1460 920 C 1510 970, 1550 990, 1600 1000 Z" fill="#99B4DA" fill-opacity="0.88"/>
-
-      <!-- Curva frontal suave Periwinkle (#C1CFE6) en la base inferior derecha -->
-      <path d="M 680 1000 C 820 870, 1080 780, 1380 820 C 1490 840, 1560 880, 1640 940 V 1000 H 680 Z" fill="#C1CFE6" fill-opacity="0.85"/>
-    </svg>
-  </div>
+  <!-- Esquina Inferior Derecha: Siluetas de Gatos Fieles a la Referencia -->
+  <svg class="bg-illustration-corner-br" viewBox="0 0 580 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Gato Azul Denim Fondo con orejas -->
+    <path d="M60 440 C 60 330, 110 220, 220 220 C 240 170, 275 165, 295 210 C 340 210, 375 165, 395 210 C 445 220, 490 310, 530 440 Z" fill="#6982B5" class="cat-svg-dark-back" fill-opacity="0.88"/>
+    <!-- Gato Azul Cornflower Frente con orejas -->
+    <path d="M160 440 C 160 320, 250 250, 370 250 C 385 200, 415 195, 430 240 C 470 240, 500 200, 515 240 C 550 260, 570 330, 580 440 Z" fill="#99B4DA" class="cat-svg-dark-front" fill-opacity="0.92"/>
+    <!-- Curva Periwinkle frontal suave -->
+    <path d="M260 440 C 310 370, 420 330, 530 350 C 560 355, 575 370, 580 390 V 440 Z" fill="#C1CFE6" class="cat-svg-dark-fore" fill-opacity="0.85"/>
+  </svg>
 
   <!-- ============================================================ -->
   <!-- BARRA SUPERIOR: EN TODA LA PÁGINA (DESTINY OWNERS | PÍLDORA) -->
@@ -88,7 +81,7 @@
           DO
         </div>
         <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-pastel-plum uppercase leading-none font-display">
-          DESTINY <span class="text-pastel-denim">OWNERS</span>
+          <span class="title-destiny">DESTINY</span> <span class="title-owners text-pastel-denim">OWNERS</span>
         </h1>
       </div>
 
@@ -105,8 +98,13 @@
         </button>
       </nav>
 
-      <!-- Lado Derecho: Copiar IP & Estado del Servidor -->
+      <!-- Lado Derecho: Copiar IP, Estado del Servidor & Modo Noche -->
       <div class="flex items-center gap-3">
+        <!-- Botón Conmutador de Modo Noche / Día -->
+        <button id="theme-toggle-btn" onclick="toggleDarkMode()" title="Alternar Modo Noche / Día" class="w-10 h-10 rounded-full bg-white/85 hover:bg-pastel-blush/40 border border-pastel-cardBorder flex items-center justify-center transition-all shadow-sm cursor-pointer">
+          <i id="theme-toggle-icon" class="fa-solid fa-moon text-sm text-pastel-plum"></i>
+        </button>
+
         <button onclick="copyServerIP()" class="flex items-center gap-2.5 bg-white/85 hover:bg-pastel-blush/40 border border-pastel-cardBorder px-4 py-2 rounded-full text-xs font-semibold transition-all text-pastel-plum shadow-sm">
           <i class="fa-regular fa-copy text-pastel-denim text-xs"></i>
           <span>play.destinyowners.com</span>
@@ -141,21 +139,9 @@
             
             <!-- DESTINY OWNERS EN GRANDE (Paleta Malva & Denim Pastel) -->
             <h2 class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[115px] 2xl:text-[130px] font-black tracking-tighter text-pastel-plum uppercase select-none leading-[0.88] font-display text-center drop-shadow-[0_8px_20px_rgba(105,130,181,0.15)]">
-              DESTINY<br>
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-pastel-denim via-pastel-cornflower to-pastel-plum">OWNERS</span>
+              <span class="title-destiny">DESTINY</span><br>
+              <span class="title-owners text-transparent bg-clip-text bg-gradient-to-r from-pastel-denim via-pastel-cornflower to-pastel-plum">OWNERS</span>
             </h2>
-
-            <!-- Paleta de Color de Referencia (5 Swatches Fieles a la Ilustración) -->
-            <div class="flex items-center gap-3 pt-2">
-              <div class="flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-pastel-cardBorder shadow-sm">
-                <span class="w-3.5 h-3.5 rounded-lg bg-[#F8E1E1] border border-black/5" title="#F8E1E1"></span>
-                <span class="w-3.5 h-3.5 rounded-lg bg-[#806E83] border border-black/5" title="#806E83"></span>
-                <span class="w-3.5 h-3.5 rounded-lg bg-[#C1CFE6] border border-black/5" title="#C1CFE6"></span>
-                <span class="w-3.5 h-3.5 rounded-lg bg-[#99B4DA] border border-black/5" title="#99B4DA"></span>
-                <span class="w-3.5 h-3.5 rounded-lg bg-[#6982B5] border border-black/5" title="#6982B5"></span>
-                <span class="text-[11px] font-bold text-pastel-plum/70 tracking-wider ml-1 uppercase">Destiny Palette</span>
-              </div>
-            </div>
 
           </div>
 
@@ -188,7 +174,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
             
             <!-- Columna Equipo Rojo (Paleta Blush/Rosa Pastel) -->
-            <div class="p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-pastel-blush/60 to-white/95 border border-pastel-blush shadow-sm flex flex-col justify-between gap-5 backdrop-blur-xl">
+            <div class="team-card-red p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-pastel-blush/60 to-white/95 border border-pastel-blush shadow-sm flex flex-col justify-between gap-5 backdrop-blur-xl">
               <div>
                 <div class="flex items-center justify-between text-pastel-plum font-bold pb-4 border-b border-pastel-blush">
                   <span class="flex items-center gap-2 text-sm">
@@ -200,36 +186,36 @@
 
                 <!-- 4 Ranuras Disponibles -->
                 <div class="space-y-3 mt-4">
-                  <div class="p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum">
+                  <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
                     <span class="flex items-center gap-2.5">
                       <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
                       <span class="font-medium">Ranura disponible</span>
                     </span>
-                    <span class="text-[11px] text-pastel-plum/60 font-medium">Esperando jugador</span>
+                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
                   </div>
 
-                  <div class="p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum">
+                  <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
                     <span class="flex items-center gap-2.5">
                       <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
                       <span class="font-medium">Ranura disponible</span>
                     </span>
-                    <span class="text-[11px] text-pastel-plum/60 font-medium">Esperando jugador</span>
+                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
                   </div>
 
-                  <div class="p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum">
+                  <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
                     <span class="flex items-center gap-2.5">
                       <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
                       <span class="font-medium">Ranura disponible</span>
                     </span>
-                    <span class="text-[11px] text-pastel-plum/60 font-medium">Esperando jugador</span>
+                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
                   </div>
 
-                  <div class="p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum">
+                  <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
                     <span class="flex items-center gap-2.5">
                       <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
                       <span class="font-medium">Ranura disponible</span>
                     </span>
-                    <span class="text-[11px] text-pastel-plum/60 font-medium">Esperando jugador</span>
+                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
                   </div>
                 </div>
               </div>
@@ -241,7 +227,7 @@
             </div>
 
             <!-- Columna Equipo Azul (Paleta Periwinkle/Denim Pastel) -->
-            <div class="p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-pastel-periwinkle/50 to-white/95 border border-pastel-periwinkle shadow-sm flex flex-col justify-between gap-5 backdrop-blur-xl">
+            <div class="team-card-blue p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-pastel-periwinkle/50 to-white/95 border border-pastel-periwinkle shadow-sm flex flex-col justify-between gap-5 backdrop-blur-xl">
               <div>
                 <div class="flex items-center justify-between text-pastel-denim font-bold pb-4 border-b border-pastel-periwinkle">
                   <span class="flex items-center gap-2 text-sm">
@@ -253,36 +239,36 @@
 
                 <!-- 4 Ranuras Disponibles -->
                 <div class="space-y-3 mt-4">
-                  <div class="p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum">
+                  <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
                     <span class="flex items-center gap-2.5">
                       <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
                       <span class="font-medium">Ranura disponible</span>
                     </span>
-                    <span class="text-[11px] text-pastel-plum/60 font-medium">Esperando jugador</span>
+                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
                   </div>
 
-                  <div class="p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum">
+                  <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
                     <span class="flex items-center gap-2.5">
                       <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
                       <span class="font-medium">Ranura disponible</span>
                     </span>
-                    <span class="text-[11px] text-pastel-plum/60 font-medium">Esperando jugador</span>
+                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
                   </div>
 
-                  <div class="p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum">
+                  <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
                     <span class="flex items-center gap-2.5">
                       <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
                       <span class="font-medium">Ranura disponible</span>
                     </span>
-                    <span class="text-[11px] text-pastel-plum/60 font-medium">Esperando jugador</span>
+                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
                   </div>
 
-                  <div class="p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum">
+                  <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
                     <span class="flex items-center gap-2.5">
                       <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
                       <span class="font-medium">Ranura disponible</span>
                     </span>
-                    <span class="text-[11px] text-pastel-plum/60 font-medium">Esperando jugador</span>
+                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
                   </div>
                 </div>
               </div>
@@ -317,98 +303,98 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 flex-1">
             
             <!-- Slot 1 -->
-            <div class="p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
+            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
+              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
                 <i class="fa-solid fa-user-secret"></i>
               </div>
               <div>
-                <h4 class="text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-01</div>
+                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
+                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
+                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-01</div>
               </div>
             </div>
 
             <!-- Slot 2 -->
-            <div class="p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
+            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
+              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
                 <i class="fa-solid fa-user-secret"></i>
               </div>
               <div>
-                <h4 class="text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-02</div>
+                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
+                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
+                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-02</div>
               </div>
             </div>
 
             <!-- Slot 3 -->
-            <div class="p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
+            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
+              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
                 <i class="fa-solid fa-user-secret"></i>
               </div>
               <div>
-                <h4 class="text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-03</div>
+                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
+                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
+                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-03</div>
               </div>
             </div>
 
             <!-- Slot 4 -->
-            <div class="p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
+            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
+              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
                 <i class="fa-solid fa-user-secret"></i>
               </div>
               <div>
-                <h4 class="text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-04</div>
+                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
+                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
+                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-04</div>
               </div>
             </div>
 
             <!-- Slot 5 -->
-            <div class="p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
+            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
+              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
                 <i class="fa-solid fa-user-secret"></i>
               </div>
               <div>
-                <h4 class="text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-05</div>
+                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
+                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
+                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-05</div>
               </div>
             </div>
 
             <!-- Slot 6 -->
-            <div class="p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
+            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
+              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
                 <i class="fa-solid fa-user-secret"></i>
               </div>
               <div>
-                <h4 class="text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-06</div>
+                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
+                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
+                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-06</div>
               </div>
             </div>
 
             <!-- Slot 7 -->
-            <div class="p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
+            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
+              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
                 <i class="fa-solid fa-user-secret"></i>
               </div>
               <div>
-                <h4 class="text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-07</div>
+                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
+                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
+                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-07</div>
               </div>
             </div>
 
             <!-- Slot 8 -->
-            <div class="p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
+            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
+              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
                 <i class="fa-solid fa-user-secret"></i>
               </div>
               <div>
-                <h4 class="text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-08</div>
+                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
+                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
+                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-08</div>
               </div>
             </div>
 
@@ -447,23 +433,13 @@
           </div>
 
           <!-- PRESENTACIÓN VISUAL EN PEDESTAL CON MOTOR 3D WEBGL REAL -->
-          <div class="pedestal-glow flex flex-col items-center justify-center pt-8 pb-4 my-auto w-full">
+          <div class="pedestal-glow flex flex-col items-center justify-center pt-8 pb-6 my-auto w-full relative">
             
             <!-- Canvas 3D Real (skinview3d / WebGL) -->
             <canvas id="skin-canvas" class="cursor-grab active:cursor-grabbing"></canvas>
 
-            <!-- Controles de Giro Suaves en Paleta Pastel -->
-            <div class="flex items-center gap-3 mt-4 text-xs font-semibold text-pastel-plum z-10">
-              <button onclick="rotateSkinStep(-30)" class="px-3.5 py-1.5 rounded-full bg-white hover:bg-pastel-periwinkle/50 border border-pastel-cardBorder text-pastel-plum text-[11px] transition-all shadow-sm">
-                <i class="fa-solid fa-chevron-left mr-1"></i> -30°
-              </button>
-              <span class="text-[11px] tracking-wide text-pastel-plum select-none flex items-center gap-1.5 font-medium">
-                <i class="fa-solid fa-cube text-[10px] text-pastel-denim"></i> 3D Interactivo
-              </span>
-              <button onclick="rotateSkinStep(30)" class="px-3.5 py-1.5 rounded-full bg-white hover:bg-pastel-periwinkle/50 border border-pastel-cardBorder text-pastel-plum text-[11px] transition-all shadow-sm">
-                +30° <i class="fa-solid fa-chevron-right ml-1"></i>
-              </button>
-            </div>
+            <!-- Fallback visual de alta definición si WebGL está deshabilitado en el navegador -->
+            <img id="skin-fallback-img" src="https://visage.surgeplay.com/full/512/f4aa6afad90c4dd297b2ed453b8c99fe?tilt=0&yaw=20" alt="Destiny Owners Skin" class="hidden max-h-[380px] object-contain drop-shadow-[0_20px_30px_rgba(105,130,181,0.25)] pointer-events-none">
 
           </div>
 

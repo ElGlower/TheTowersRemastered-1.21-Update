@@ -38,9 +38,10 @@ function initSkinViewer() {
     skinViewer.playerObject.position.y = -2;
     skinViewer.playerObject.rotation.y = 0.45; // Ángulo elegante 3/4 hacia el frente
 
-    // Iluminación radiante para colores pastel nítidos
-    if (skinViewer.globalLight) skinViewer.globalLight.intensity = 3.8;
-    if (skinViewer.cameraLight) skinViewer.cameraLight.intensity = 1.2;
+    // Iluminación radiante equilibrada para colores nítidos y sin sobreexposición
+    const isDark = document.body.classList.contains('dark-mode');
+    if (skinViewer.globalLight) skinViewer.globalLight.intensity = isDark ? 2.5 : 3.2;
+    if (skinViewer.cameraLight) skinViewer.cameraLight.intensity = isDark ? 0.9 : 1.1;
 
     // Controles orbitales nativos para rotar libremente arrastrando con el ratón
     const controls = skinview3d.createOrbitControls(skinViewer);
@@ -59,8 +60,25 @@ function initSkinViewer() {
 
     console.log("Visor 3D WebGL de Destiny Owners inicializado correctamente.");
   } catch (err) {
-    console.error("Error al inicializar el visor 3D:", err);
+    console.error("Error al inicializar el visor 3D, activando fallback visual:", err);
+    activateSkinFallback();
   }
+}
+
+function activateSkinFallback() {
+  const canvas = document.getElementById("skin-canvas");
+  const fallback = document.getElementById("skin-fallback-img");
+  if (canvas) canvas.style.display = "none";
+  if (fallback) fallback.classList.remove("hidden");
+}
+
+/**
+ * Actualiza la intensidad de iluminación al alternar Modo Noche / Día
+ */
+function updateSkinViewerLighting(isDark) {
+  if (!skinViewer) return;
+  if (skinViewer.globalLight) skinViewer.globalLight.intensity = isDark ? 2.5 : 3.2;
+  if (skinViewer.cameraLight) skinViewer.cameraLight.intensity = isDark ? 0.9 : 1.1;
 }
 
 /**
@@ -96,6 +114,7 @@ function toggleAutoRotate() {
 window.initSkinViewer = initSkinViewer;
 window.rotateSkinStep = rotateSkinStep;
 window.toggleAutoRotate = toggleAutoRotate;
+window.updateSkinViewerLighting = updateSkinViewerLighting;
 
 // Inicializar cuando el DOM esté listo
 if (document.readyState === "loading") {
