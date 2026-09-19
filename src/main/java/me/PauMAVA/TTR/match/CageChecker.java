@@ -77,16 +77,41 @@ public class CageChecker {
         TTRCore.getInstance().getScoreboard().refreshScoreboard();
         TTRCore.getInstance().getCurrentMatch().updateBossBar();
 
+        int maxPoints = TTRCore.getInstance().getCurrentMatch().getMaxPointsToWin();
+        me.PauMAVA.TTR.web.WebStatsManager.getInstance().recordGoal(player, playersTeam, playersTeam.getPoints(), maxPoints);
+
         String msg = TTRPrefix.TTR_GAME + " " + playersTeam.getColor() + ChatColor.BOLD + player.getName() + 
                      ChatColor.YELLOW + TextUtil.toTiny(" ha anotado un punto para el equipo ") + 
                      playersTeam.getColor() + TextUtil.toTiny(playersTeam.getIdentifier()) + "!";
         Bukkit.broadcastMessage(msg);
 
         for (Player p : Bukkit.getOnlinePlayers()) {
+            p.playSound(p.getLocation(), Sound.ENTITY_BREEZE_WIND_BURST, 1f, 1.2f);
+            p.playSound(p.getLocation(), Sound.BLOCK_BELL_RESONATE, 1f, 1.0f);
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 2f);
+
+            String title = playersTeam.getColor() + "¡GOL DE " + playersTeam.getIdentifier().toUpperCase() + "!";
+            String sub = ChatColor.WHITE + player.getName() + " anotó (" + playersTeam.getPoints() + "/" + maxPoints + ")";
+            p.sendTitle(title, sub, 5, 45, 10);
         }
 
-        if (playersTeam.getPoints() >= TTRCore.getInstance().getCurrentMatch().getMaxPointsToWin()) {
+        // Fuegos artificiales de estrella en la ubicación de anotación
+        try {
+            if (spawn != null && spawn.getWorld() != null) {
+                org.bukkit.entity.Firework fw = spawn.getWorld().spawn(spawn.clone().add(0, 1.5, 0), org.bukkit.entity.Firework.class);
+                org.bukkit.inventory.meta.FireworkMeta fwm = fw.getFireworkMeta();
+                fwm.addEffect(FireworkEffect.builder()
+                        .with(FireworkEffect.Type.STAR)
+                        .withColor(playersTeam.getIdentifier().equalsIgnoreCase("Red") ? Color.RED : Color.BLUE)
+                        .withFade(Color.WHITE)
+                        .flicker(true)
+                        .build());
+                fwm.setPower(1);
+                fw.setFireworkMeta(fwm);
+            }
+        } catch (Throwable ignored) {}
+
+        if (playersTeam.getPoints() >= maxPoints) {
             TTRCore.getInstance().getCurrentMatch().endMatch(playersTeam);
         }
     }

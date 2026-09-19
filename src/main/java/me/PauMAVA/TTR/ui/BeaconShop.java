@@ -72,9 +72,11 @@ public class BeaconShop {
         gui.setItem(22, createItem(Material.SHIELD, 1, ChatColor.YELLOW + TextUtil.toTiny("Escudo Táctico"), 10, Material.EMERALD, 
                 ChatColor.GRAY + TextUtil.toTiny("Se rompe con facilidad.")));
 
-        // Arcos
+        // Arcos y Armas Especiales
         gui.setItem(23, createItem(Material.BOW, 1, ChatColor.GREEN + TextUtil.toTiny("Arco"), 12, Material.EMERALD));
         gui.setItem(24, createItem(Material.ARROW, 8, ChatColor.YELLOW + TextUtil.toTiny("Flechas (x8)"), 2, Material.EMERALD));
+        gui.setItem(25, createItem(Material.MACE, 1, ChatColor.GOLD + TextUtil.toTiny("Maza de Guerra (1.21)"), 30, Material.COAL,
+                ChatColor.GRAY + TextUtil.toTiny("Impacto demoledor en caída libre desde las torres.")));
 
         // Herramientas
         gui.setItem(28, createItem(Material.SHEARS, 1, ChatColor.WHITE + TextUtil.toTiny("Tijeras"), 5, Material.EMERALD));

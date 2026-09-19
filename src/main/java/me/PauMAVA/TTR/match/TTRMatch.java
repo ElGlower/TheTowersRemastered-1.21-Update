@@ -172,10 +172,12 @@ public class TTRMatch {
             p.sendActionBar(net.kyori.adventure.text.Component.text(ab));
 
             if (prepRemaining <= 5 && prepRemaining > 0) {
-                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, (prepRemaining <= 2) ? 2.0f : 1.4f);
-                String title = TextUtil.color("&#FF2E2E§l" + prepRemaining);
-                String sub = TextUtil.color("&#FFFF55" + TextUtil.toTiny("¡A luchar por las torres!"));
-                p.sendTitle(title, sub, 0, 22, 3);
+                float pitch = 1.0f + (5 - prepRemaining) * 0.25f;
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, pitch);
+                String color = (prepRemaining > 3) ? "&#FFFF55§l" : ((prepRemaining > 1) ? "&#FFAA00§l" : "&#FF2E2E§l");
+                String title = TextUtil.color(color + prepRemaining);
+                String sub = TextUtil.color("&#FFFFFF" + TextUtil.toTiny("¡Prepárense para combatir!"));
+                p.sendTitle(title, sub, 0, 22, 4);
             } else if (prepRemaining == 10 || prepRemaining == prepTotalSeconds) {
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1.0f, 1.0f);
             }
@@ -313,7 +315,14 @@ public class TTRMatch {
 
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             joinPlayerToMatch(player);
+            player.playSound(player.getLocation(), Sound.EVENT_RAID_HORN, 1f, 1f);
+            player.playSound(player.getLocation(), Sound.ENTITY_BREEZE_WIND_BURST, 1f, 1.2f);
+            player.sendTitle(TextUtil.color("&#55FF55§l¡A LUCHAR!"), TextUtil.color("&#FFFFFF" + TextUtil.toTiny("¡Anota 10 puntos en la jaula rival!")), 5, 50, 15);
         }
+
+        try {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gamerule locator_bar true");
+        } catch (Throwable ignored) {}
     }
 
     public void joinPlayerToMatch(Player player) {
@@ -380,10 +389,29 @@ public class TTRMatch {
                 if (protLevel > 0) {
                     meta.addEnchant(Enchantment.PROTECTION, protLevel, true);
                 }
+
+                // Armor Trim nativo por equipo (Paper 26.3)
+                try {
+                    boolean isRed = (chatColor == ChatColor.RED);
+                    org.bukkit.inventory.meta.trim.TrimMaterial trimMat = (team != null && team.isLeader(player.getUniqueId())) ?
+                            org.bukkit.inventory.meta.trim.TrimMaterial.GOLD :
+                            (isRed ? org.bukkit.inventory.meta.trim.TrimMaterial.REDSTONE : org.bukkit.inventory.meta.trim.TrimMaterial.LAPIS);
+                    org.bukkit.inventory.meta.trim.TrimPattern trimPattern = isRed ?
+                            org.bukkit.inventory.meta.trim.TrimPattern.SNOUT :
+                            org.bukkit.inventory.meta.trim.TrimPattern.VEX;
+                    if (meta instanceof org.bukkit.inventory.meta.ArmorMeta armorMeta) {
+                        armorMeta.setTrim(new org.bukkit.inventory.meta.trim.ArmorTrim(trimMat, trimPattern));
+                    }
+                } catch (Throwable ignored) {}
+
                 item.setItemMeta(meta);
             }
         }
         player.getInventory().setArmorContents(armor);
+
+        try {
+            player.setGlowing(true);
+        } catch (Throwable ignored) {}
 
         player.getInventory().addItem(new ItemStack(Material.STONE_SWORD));
         player.getInventory().addItem(new ItemStack(glassMaterial, 32));
@@ -517,6 +545,14 @@ public class TTRMatch {
         }
 
         TTRCore.getInstance().getTeamHandler().clearTeams();
+
+        // Registrar telemetría web
+        int duration = (TTRCore.getInstance().getConfigManager().getMatchDuration() - remainingTime);
+        me.PauMAVA.TTR.web.WebStatsManager.getInstance().recordMatchEnd(team, duration);
+
+        try {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gamerule locator_bar false");
+        } catch (Throwable ignored) {}
 
         ChatColor teamColor = (team != null) ? TTRCore.getInstance().getConfigManager().getTeamColor(team.getIdentifier()) : ChatColor.WHITE;
         String teamName = (team != null) ? team.getIdentifier() : "Empate";

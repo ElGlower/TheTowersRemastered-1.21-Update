@@ -4,10 +4,14 @@ import me.PauMAVA.TTR.TTRCore;
 import me.PauMAVA.TTR.match.MatchStatus;
 import me.PauMAVA.TTR.teams.TTRTeam;
 import me.PauMAVA.TTR.util.TextUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 public class TTRCustomTab extends BukkitRunnable {
 
@@ -37,10 +41,7 @@ public class TTRCustomTab extends BukkitRunnable {
                 ChatColor.DARK_GRAY + "§m                             \n" +
                 getMatchStatus() + "\n";
 
-        int playingCount = 0;
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (!TTRCore.isAdmin(p)) playingCount++;
-        }
+        int playingCount = Bukkit.getOnlinePlayers().size();
         int ping = player.getPing();
 
         String footer = "\n" +
@@ -50,11 +51,12 @@ public class TTRCustomTab extends BukkitRunnable {
                 animatedFooter + "\n";
 
         player.setPlayerListHeaderFooter(header, footer);
-        updatePlayerName(player);
+        updatePlayerNameAndSorting(player);
     }
 
-    private void updatePlayerName(Player player) {
-        TTRTeam team = plugin.getTeamHandler().getPlayerTeam(player);
+    private void updatePlayerNameAndSorting(Player player) {
+        TTRTeam team = plugin.getTeamHandler() != null ? plugin.getTeamHandler().getPlayerTeam(player) : null;
+        boolean isStaff = TTRCore.isAdmin(player);
         String formattedName;
 
         String killsInfo = "";
@@ -63,33 +65,76 @@ public class TTRCustomTab extends BukkitRunnable {
             killsInfo = ChatColor.DARK_GRAY + " [" + ChatColor.YELLOW + TextUtil.toTiny(String.valueOf(kills)) + ChatColor.DARK_GRAY + "]";
         }
 
-        boolean isStaff = TTRCore.isAdmin(player);
-
-        if (team != null) {
+        // Determinar prefijo y equipo de scoreboard para ordenamiento estricto
+        String teamKey;
+        if (isStaff && (team == null || plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME)) {
+            teamKey = "00_admin";
+            formattedName = TextUtil.color("&#FF5555§l[ADMIN] ") + ChatColor.WHITE + player.getName();
+        } else if (team != null) {
             boolean isLeader = team.isLeader(player.getUniqueId());
-            String leaderBadge = isLeader ? ChatColor.GOLD + "★" + TextUtil.toTiny("Líder ") : "";
-            String teamPrefix = TextUtil.toTiny(team.getIdentifier().substring(0, 1).toUpperCase());
             ChatColor color = team.getColor();
-            String staffBadge = isStaff ? DestinyTheme.DESTINY_ROLE_BADGE + " " : "";
-            formattedName = color + " ▪ " + staffBadge + leaderBadge + color + "" + ChatColor.BOLD + teamPrefix + ChatColor.DARK_GRAY + " | " + color + player.getName() + killsInfo;
-        } else {
-            if (isStaff) {
-                formattedName = TextUtil.color("&#888888▪ ") + DestinyTheme.DESTINY_ROLE_BADGE + ChatColor.DARK_GRAY + " | " + ChatColor.WHITE + player.getName();
+            boolean isRed = team.getIdentifier().equalsIgnoreCase("Red");
+
+            if (isRed) {
+                teamKey = isLeader ? "10_red_l" : "11_red";
             } else {
-                formattedName = ChatColor.GRAY + " ▪ " + ChatColor.WHITE + player.getName();
+                teamKey = isLeader ? "20_blue_l" : "21_blue";
             }
+
+            String leaderStar = isLeader ? ChatColor.GOLD + "★ " : "";
+            String teamTag = color + "[" + TextUtil.toTiny(team.getIdentifier().toUpperCase()) + "] ";
+            formattedName = leaderStar + teamTag + color + player.getName() + killsInfo;
+        } else {
+            teamKey = "90_spec";
+            formattedName = ChatColor.GRAY + "[ESPEC] " + player.getName();
         }
 
         player.setPlayerListName(formattedName);
+
+        // Asignar al equipo del Scoreboard para forzar el ordenamiento nativo en Tab
+        Scoreboard board = player.getScoreboard();
+        if (board != null) {
+            assignToScoreboardTeam(board, player, teamKey);
+        }
+    }
+
+    private void assignToScoreboardTeam(Scoreboard board, Player p, String teamKey) {
+        try {
+            Team tabTeam = board.getTeam(teamKey);
+            if (tabTeam == null) {
+                tabTeam = board.registerNewTeam(teamKey);
+                if (teamKey.startsWith("10") || teamKey.startsWith("11")) {
+                    tabTeam.color(NamedTextColor.RED);
+                } else if (teamKey.startsWith("20") || teamKey.startsWith("21")) {
+                    tabTeam.color(NamedTextColor.BLUE);
+                } else if (teamKey.startsWith("00")) {
+                    tabTeam.color(NamedTextColor.GOLD);
+                } else {
+                    tabTeam.color(NamedTextColor.GRAY);
+                }
+            }
+            if (!tabTeam.hasEntry(p.getName())) {
+                // Remover de otros equipos antes de reasignar
+                for (Team t : board.getTeams()) {
+                    if (t.getName().matches("\\d{2}_.*") && t.hasEntry(p.getName())) {
+                        t.removeEntry(p.getName());
+                    }
+                }
+                tabTeam.addEntry(p.getName());
+            }
+        } catch (Throwable ignored) {}
     }
 
     private String getMatchStatus() {
-        if (plugin.getCurrentMatch() == null) return ChatColor.RED + TextUtil.toTiny("Offline");
+        if (plugin.getCurrentMatch() == null) return ChatColor.GRAY + TextUtil.toTiny("Esperando...");
 
         MatchStatus status = plugin.getCurrentMatch().getStatus();
         if (status == MatchStatus.INGAME) {
             String time = plugin.getCurrentMatch().getFormattedTime();
             return ChatColor.GREEN + TextUtil.toTiny("En Partida ") + ChatColor.DARK_GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny(time);
+        } else if (status == MatchStatus.PREPARATION) {
+            int rem = plugin.getCurrentMatch().getPrepRemaining();
+            return ChatColor.AQUA + TextUtil.toTiny("Preparación en Bases ") + ChatColor.DARK_GRAY + "» " + ChatColor.YELLOW + TextUtil.toTiny(rem + "s");
         } else if (status == MatchStatus.LOBBY) {
             return ChatColor.YELLOW + TextUtil.toTiny("Esperando jugadores...");
         } else if (status == MatchStatus.STARTING) {

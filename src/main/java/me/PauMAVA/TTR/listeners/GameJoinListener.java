@@ -33,6 +33,13 @@ public class GameJoinListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
+        // Enlace nativo al Discord oficial en el menú de pausa (Esc)
+        try {
+            org.bukkit.ServerLinks links = org.bukkit.Bukkit.getServer().getServerLinks().copy();
+            links.addLink(org.bukkit.ServerLinks.Type.COMMUNITY, java.net.URI.create("https://discord.gg/destinyowners"));
+            player.sendLinks(links);
+        } catch (Throwable ignored) {}
+
         new BukkitRunnable() {
             @Override
             public void run() {

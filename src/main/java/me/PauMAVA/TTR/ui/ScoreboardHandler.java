@@ -127,14 +127,14 @@ public class ScoreboardHandler {
         } else {
             newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Estado: ") + getMatchState(status));
 
-            int playingCount = 0;
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (!TTRCore.isAdmin(p)) playingCount++;
-            }
+            int playingCount = Bukkit.getOnlinePlayers().size();
             int required = plugin.getConfig().getInt("autostart.count", 4);
             newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Jugadores: ") + ChatColor.AQUA + TextUtil.toTiny(String.valueOf(playingCount)) + ChatColor.DARK_GRAY + "/" + ChatColor.GRAY + TextUtil.toTiny(String.valueOf(required)));
 
-            if (plugin.getAutoStarter() != null && plugin.isCounting()) {
+            if (status == MatchStatus.PREPARATION) {
+                int prepRem = plugin.getCurrentMatch() != null ? plugin.getCurrentMatch().getPrepRemaining() : 0;
+                newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Combate en: ") + ChatColor.YELLOW + TextUtil.toTiny(prepRem + "s"));
+            } else if (plugin.getAutoStarter() != null && plugin.isCounting()) {
                 int cd = plugin.getAutoStarter().getCountdown();
                 newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Iniciando: ") + ChatColor.YELLOW + TextUtil.toTiny(cd + "s"));
             }
@@ -184,9 +184,10 @@ public class ScoreboardHandler {
         switch (status) {
             case LOBBY: return ChatColor.YELLOW + TextUtil.toTiny("Esperando...");
             case STARTING: return ChatColor.GOLD + TextUtil.toTiny("Iniciando...");
+            case PREPARATION: return ChatColor.AQUA + TextUtil.toTiny("Preparación en Bases");
             case INGAME: return ChatColor.GREEN + TextUtil.toTiny("En Curso");
             case ENDED: return ChatColor.RED + TextUtil.toTiny("Terminado");
-            default: return ChatColor.RED + TextUtil.toTiny("Offline");
+            default: return ChatColor.GRAY + TextUtil.toTiny("En Espera");
         }
     }
 

@@ -12,6 +12,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -38,6 +39,14 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.TextDisplay;
+import org.bukkit.Color;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.entity.Arrow;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.event.EventPriority;
+import me.PauMAVA.TTR.web.WebStatsManager;
 
 public class EventListener implements Listener {
 
@@ -52,6 +61,12 @@ public class EventListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         if (!plugin.enabled()) return;
         Player p = event.getPlayer();
+
+        // Evitar romper bloques accidentalmente con la varita en modo creativo
+        if (p.getInventory().getItemInMainHand() != null && ZoneWandManager.getInstance().isWand(p.getInventory().getItemInMainHand())) {
+            event.setCancelled(true);
+            return;
+        }
 
         if (event.getBlock().getType() == Material.BEACON) {
             if (plugin.isBeaconShopEnabled()) {
@@ -134,6 +149,7 @@ public class EventListener implements Listener {
         if (isCageZone(event.getBlock().getLocation()) || isCageZone(event.getBlockPlaced().getLocation())) {
             if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
                 event.setCancelled(true);
+                showGhostProtection(p, event.getBlockPlaced().getLocation());
                 p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡Zona de puntuación protegida! No puedes construir aquí."));
                 return;
             }
@@ -142,9 +158,23 @@ public class EventListener implements Listener {
         if (isSpawnZone(event.getBlock().getLocation()) || isSpawnZone(event.getBlockPlaced().getLocation())) {
             if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
                 event.setCancelled(true);
+                showGhostProtection(p, event.getBlockPlaced().getLocation());
                 p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡No puedes construir en la zona de Spawn!"));
             }
         }
+    }
+
+    private void showGhostProtection(Player p, Location loc) {
+        p.sendBlockChange(loc, Material.RED_STAINED_GLASS.createBlockData());
+        p.playSound(loc, Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.6f);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (p.isOnline()) {
+                    p.sendBlockChange(loc, loc.getBlock().getBlockData());
+                }
+            }
+        }.runTaskLater(plugin, 10L);
     }
 
     @EventHandler
@@ -456,6 +486,7 @@ public class EventListener implements Listener {
                 } else {
                     event.setDeathMessage(ChatColor.DARK_GRAY + "☠ " + vName + ChatColor.GRAY + TextUtil.toTiny(" fue asesinado por ") + kName + ChatColor.GRAY + ".");
                 }
+                killer.playSound(killer.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.6f, 1.5f);
             } else {
                 if (victim.getLastDamageCause() != null && victim.getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.VOID) {
                     event.setDeathMessage(ChatColor.DARK_GRAY + "☠ " + vName + ChatColor.GRAY + TextUtil.toTiny(" cayó al vacío."));
@@ -463,7 +494,71 @@ public class EventListener implements Listener {
                     event.setDeathMessage(ChatColor.DARK_GRAY + "☠ " + vName + ChatColor.GRAY + TextUtil.toTiny(" ha muerto."));
                 }
             }
+
+            // Registro asíncrono para la web en tiempo real
+            double dist = (killer != null) ? killer.getLocation().distance(victim.getLocation()) : 0.0;
+            String cause = (victim.getLastDamageCause() != null && victim.getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.VOID) ? "VACÍO" : "COMBATE";
+            WebStatsManager.getInstance().recordKill(killer, victim, cause, dist);
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (!plugin.enabled()) return;
+        if (event.getEntity() instanceof Player victim) {
+            double damage = event.getFinalDamage();
+            if (damage <= 0.1) return;
+
+            boolean isCrit = false;
+            Player attacker = null;
+            if (event.getDamager() instanceof Player p) {
+                attacker = p;
+                isCrit = p.getFallDistance() > 0.0f && !p.isOnGround() && !p.hasPotionEffect(PotionEffectType.BLINDNESS);
+            } else if (event.getDamager() instanceof Arrow arrow && arrow.getShooter() instanceof Player p) {
+                attacker = p;
+                isCrit = arrow.isCritical();
+            }
+
+            spawnDamageIndicator(victim.getLocation(), damage, isCrit);
+
+            if (attacker != null) {
+                attacker.playSound(attacker.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 0.6f, isCrit ? 1.8f : 1.2f);
+            }
+        }
+    }
+
+    private void spawnDamageIndicator(Location loc, double damage, boolean isCrit) {
+        World world = loc.getWorld();
+        if (world == null) return;
+
+        Location spawnLoc = loc.clone().add((Math.random() - 0.5) * 0.8, 1.2 + Math.random() * 0.4, (Math.random() - 0.5) * 0.8);
+        String text = isCrit ? 
+                String.format("§e§l⚡ -%.1f", damage) : 
+                String.format("§c-%.1f ❤", damage);
+
+        try {
+            TextDisplay display = world.spawn(spawnLoc, TextDisplay.class, entity -> {
+                entity.text(net.kyori.adventure.text.Component.text(text));
+                entity.setBillboard(Display.Billboard.CENTER);
+                entity.setDefaultBackground(false);
+                entity.setBackgroundColor(Color.fromARGB(120, 0, 0, 0));
+                entity.setBrightness(new Display.Brightness(15, 15));
+            });
+
+            new BukkitRunnable() {
+                int ticks = 0;
+                @Override
+                public void run() {
+                    ticks++;
+                    if (!display.isValid() || ticks > 16) {
+                        display.remove();
+                        this.cancel();
+                        return;
+                    }
+                    display.teleport(display.getLocation().add(0, 0.04, 0));
+                }
+            }.runTaskTimer(plugin, 1L, 1L);
+        } catch (Throwable ignored) {}
     }
 
     @EventHandler
