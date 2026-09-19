@@ -24,14 +24,13 @@
             display: ['"Outfit"', 'sans-serif']
           },
           colors: {
-            // Paleta de referencia de la ilustración
             pastel: {
-              blush: '#F8E1E1',       // Rosa pastel suave
-              plum: '#806E83',        // Malva/ciruela elegante (texto y luna)
-              periwinkle: '#C1CFE6',  // Celeste suave intermedio
-              cornflower: '#99B4DA',  // Azul cielo medio
-              denim: '#6982B5',       // Azul denim principal
-              canvas: '#FAF8F8',      // Fondo base luminoso
+              blush: '#F8E1E1',
+              plum: '#806E83',
+              periwinkle: '#C1CFE6',
+              cornflower: '#99B4DA',
+              denim: '#6982B5',
+              canvas: '#FAF8F8',
               card: 'rgba(255, 255, 255, 0.74)',
               cardBorder: 'rgba(193, 207, 230, 0.55)',
               borderStrong: 'rgba(105, 130, 181, 0.25)'
@@ -51,7 +50,6 @@
   <!-- ============================================================ -->
   <!-- ILUSTRACIÓN DE FONDO EN LAS ESQUINAS (GATOS Y LUNA COZY)     -->
   <!-- ============================================================ -->
-  <!-- Sol/Luna en cielo superior derecho -->
   <div class="bg-illustration-moon"></div>
 
   <!-- Esquina Superior Izquierda: Duna Ondulada Rosa Pastel -->
@@ -59,13 +57,10 @@
     <path d="M0 0 L0 260 C 180 220, 360 280, 520 200 C 580 170, 620 120, 650 60 L 650 0 Z" fill="#F8E1E1" class="dune-svg-dark" fill-opacity="0.85"/>
   </svg>
 
-  <!-- Esquina Inferior Derecha: Siluetas de Gatos Fieles a la Referencia -->
+  <!-- Esquina Inferior Derecha: Siluetas de Gatos en la Esquina -->
   <svg class="bg-illustration-corner-br" viewBox="0 0 580 440" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Gato Azul Denim Fondo con orejas -->
     <path d="M60 440 C 60 330, 110 220, 220 220 C 240 170, 275 165, 295 210 C 340 210, 375 165, 395 210 C 445 220, 490 310, 530 440 Z" fill="#6982B5" class="cat-svg-dark-back" fill-opacity="0.88"/>
-    <!-- Gato Azul Cornflower Frente con orejas -->
     <path d="M160 440 C 160 320, 250 250, 370 250 C 385 200, 415 195, 430 240 C 470 240, 500 200, 515 240 C 550 260, 570 330, 580 440 Z" fill="#99B4DA" class="cat-svg-dark-front" fill-opacity="0.92"/>
-    <!-- Curva Periwinkle frontal suave -->
     <path d="M260 440 C 310 370, 420 330, 530 350 C 560 355, 575 370, 580 390 V 440 Z" fill="#C1CFE6" class="cat-svg-dark-fore" fill-opacity="0.85"/>
   </svg>
 
@@ -75,7 +70,7 @@
   <header class="w-full relative z-20 px-6 sm:px-10 lg:px-16 py-4 border-b border-pastel-cardBorder/60 backdrop-blur-xl bg-white/60">
     <div class="max-w-[1720px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
       
-      <!-- Lado Izquierdo: DESTINY OWNERS en grande -->
+      <!-- Lado Izquierdo: DESTINY OWNERS -->
       <div class="flex items-center gap-3.5 cursor-pointer group" onclick="switchTab('inicio')">
         <div class="w-11 h-11 rounded-2xl bg-pastel-denim text-white flex items-center justify-center font-black text-xl tracking-tighter shadow-md group-hover:scale-105 transition-transform">
           DO
@@ -100,7 +95,6 @@
 
       <!-- Lado Derecho: Copiar IP, Estado del Servidor & Modo Noche -->
       <div class="flex items-center gap-3">
-        <!-- Botón Conmutador de Modo Noche / Día -->
         <button id="theme-toggle-btn" onclick="toggleDarkMode()" title="Alternar Modo Noche / Día" class="w-10 h-10 rounded-full bg-white/85 hover:bg-pastel-blush/40 border border-pastel-cardBorder flex items-center justify-center transition-all shadow-sm cursor-pointer">
           <i id="theme-toggle-icon" class="fa-solid fa-moon text-sm text-pastel-plum"></i>
         </button>
@@ -120,7 +114,7 @@
   </header>
 
   <!-- ============================================================ -->
-  <!-- CONTENIDO PRINCIPAL: ABARCA TODA LA PÁGINA                   -->
+  <!-- CONTENIDO PRINCIPAL: FLUIDO Y ADAPTADO A TODA LA PÁGINA      -->
   <!-- ============================================================ -->
   <main class="w-full relative z-10 flex-1 px-6 sm:px-10 lg:px-16 py-8 sm:py-12 max-w-[1720px] mx-auto flex flex-col justify-center">
 
@@ -130,37 +124,61 @@
       <div id="left-content-area" class="lg:col-span-7 flex flex-col justify-stretch">
 
         <!-- ======================================================== -->
-        <!-- VISTA 1: INICIO (DESTINY OWNERS EN GRANDE)               -->
+        <!-- VISTA 1: INICIO (HERO STAGE CINEMATOGRÁFICO SIN CAJAS)   -->
         <!-- ======================================================== -->
         <section id="view-inicio" class="tab-view active h-full flex flex-col">
           
-          <!-- CONTENEDOR HERO: DESTINY OWNERS PERFECTAMENTE CENTRADO -->
-          <div class="pastel-glass-card p-8 sm:p-14 relative overflow-hidden flex flex-col items-center justify-center min-h-[540px] text-center gap-6">
-            
-            <!-- DESTINY OWNERS EN GRANDE (Paleta Malva & Denim Pastel) -->
-            <h2 class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[115px] 2xl:text-[130px] font-black tracking-tighter text-pastel-plum uppercase select-none leading-[0.88] font-display text-center drop-shadow-[0_8px_20px_rgba(105,130,181,0.15)]">
-              <span class="title-destiny">DESTINY</span><br>
-              <span class="title-owners text-transparent bg-clip-text bg-gradient-to-r from-pastel-denim via-pastel-cornflower to-pastel-plum">OWNERS</span>
-            </h2>
+          <div class="hero-stage">
+            <div class="hero-ambient-glow"></div>
+
+            <div class="relative z-10 flex flex-col items-center gap-6 max-w-2xl">
+              <!-- DESTINY OWNERS LIBRE DE MARCOS RÍGIDOS -->
+              <h2 class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[110px] 2xl:text-[125px] font-black tracking-tighter text-pastel-plum uppercase select-none leading-[0.88] font-display text-center drop-shadow-[0_8px_20px_rgba(105,130,181,0.15)]">
+                <span class="title-destiny">DESTINY</span><br>
+                <span class="title-owners text-transparent bg-clip-text bg-gradient-to-r from-pastel-denim via-pastel-cornflower to-pastel-plum">OWNERS</span>
+              </h2>
+
+              <!-- Badge contextual oficial -->
+              <div class="flex flex-wrap items-center justify-center gap-3">
+                <span class="px-4 py-1.5 rounded-full bg-white/80 border border-pastel-cardBorder text-xs font-bold text-pastel-plum shadow-sm">
+                  <i class="fa-solid fa-gamepad text-pastel-denim mr-1.5"></i>
+                  The Towers 1.21+ • Paper MC
+                </span>
+                <span class="px-4 py-1.5 rounded-full bg-pastel-periwinkle/30 border border-pastel-cardBorder text-xs font-semibold text-pastel-plum shadow-sm">
+                  <i class="fa-solid fa-signal text-[#48BB78] mr-1.5"></i>
+                  IP Oficial: play.destinyowners.com
+                </span>
+              </div>
+
+              <!-- Acciones rápidas fluidas -->
+              <div class="flex items-center gap-4 mt-2">
+                <button onclick="switchTab('modalidad')" class="px-7 py-3 rounded-full bg-pastel-denim hover:bg-pastel-denim/90 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                  <span>Explorar Modalidades</span>
+                  <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+                <button onclick="copyServerIP()" class="px-6 py-3 rounded-full bg-white/80 hover:bg-white text-pastel-plum font-semibold text-sm border border-pastel-cardBorder shadow-sm transition-all flex items-center gap-2">
+                  <i class="fa-regular fa-copy text-pastel-denim text-xs"></i>
+                  <span>Copiar IP</span>
+                </button>
+              </div>
+            </div>
 
           </div>
 
         </section>
 
         <!-- ======================================================== -->
-        <!-- VISTA 2: MODALIDAD (SELECTOR DE MODALIDADES & DETALLE)    -->
+        <!-- VISTA 2: MODALIDAD (SELECTOR DEL BOCETO & DETALLE)        -->
         <!-- ======================================================== -->
         <section id="view-modalidad" class="tab-view h-full flex flex-col gap-6">
           
-          <!-- ====================================================== -->
-          <!-- A. SELECTOR DE MODALIDADES (CARDS LADO A LADO BOCETO)   -->
-          <!-- ====================================================== -->
+          <!-- A. SELECTOR DE MODALIDADES (CARDS LADO A LADO BOCETO) -->
           <div id="modalidad-selector" class="flex flex-col gap-6 w-full">
             
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-6 sm:p-7 rounded-3xl pastel-glass-card shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-pastel-cardBorder/60">
               <div>
                 <h3 class="text-2xl sm:text-3xl font-bold text-pastel-plum tracking-tight font-display">Modalidades de Juego</h3>
-                <p class="text-xs sm:text-sm text-pastel-plum/75 font-normal mt-1">Selecciona una modalidad para ver la partida en vivo o la clasificación oficial.</p>
+                <p class="text-xs sm:text-sm text-pastel-plum/75 font-normal mt-1">Selecciona una modalidad para ver la arena de partida o la clasificación oficial.</p>
               </div>
               <div class="flex items-center gap-2 bg-pastel-periwinkle/30 border border-pastel-cardBorder px-4 py-2 rounded-full text-xs text-pastel-plum font-semibold self-start sm:self-auto">
                 <i class="fa-solid fa-gamepad text-pastel-denim"></i>
@@ -168,10 +186,10 @@
               </div>
             </div>
 
-            <!-- CUADRÍCULA DE MODALIDADES (2 CARDS EXACTAS DEL BOCETO) -->
+            <!-- CUADRÍCULA DE MODALIDADES (2 CARDS LADO A LADO) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
               
-              <!-- CARD 1: THE TOWERS (ACTIVA) -->
+              <!-- CARD 1: THE TOWERS -->
               <div onclick="openModalityDetail('the-towers')" class="modality-card group flex flex-col justify-between gap-6">
                 <!-- Ribete Zigzag Ornamental -->
                 <svg class="zigzag-border-trim" viewBox="0 0 140 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -179,7 +197,7 @@
                 </svg>
 
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                  <!-- Emblema Circular con efecto espiral y anillo rotatorio (como en el boceto) -->
+                  <!-- Emblema Circular con aro espiral animado -->
                   <div class="modality-emblem">
                     <i class="fa-solid fa-chess-rook text-3xl text-pastel-denim drop-shadow-sm group-hover:scale-110 transition-transform"></i>
                   </div>
@@ -209,7 +227,7 @@
                 </div>
               </div>
 
-              <!-- CARD 2: PRÓXIMA MODALIDAD (SLOT COMUNIDAD) -->
+              <!-- CARD 2: PRÓXIMA MODALIDAD -->
               <div class="modality-card modality-card-coming group flex flex-col justify-between gap-6 cursor-default">
                 <!-- Ribete Zigzag Ornamental -->
                 <svg class="zigzag-border-trim" viewBox="0 0 140 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -217,7 +235,7 @@
                 </svg>
 
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                  <!-- Emblema Circular con efecto espiral -->
+                  <!-- Emblema Circular -->
                   <div class="modality-emblem opacity-80">
                     <i class="fa-solid fa-wand-magic-sparkles text-3xl text-pastel-plum drop-shadow-sm"></i>
                   </div>
@@ -248,17 +266,15 @@
 
           </div>
 
-          <!-- ====================================================== -->
-          <!-- B. VISTA DETALLADA DE LA MODALIDAD (THE TOWERS)         -->
-          <!-- ====================================================== -->
+          <!-- B. VISTA DETALLADA DE LA MODALIDAD (THE TOWERS) -->
           <div id="modalidad-detail" class="hidden flex-col gap-6 w-full">
             
-            <!-- BARRA DE NAVEGACIÓN Y SUB-PESTAÑAS DE THE TOWERS -->
-            <div class="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6 rounded-3xl pastel-glass-card shadow-sm">
+            <!-- Barra de navegación y sub-pestañas -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-pastel-cardBorder/60">
               <div class="flex items-center gap-4">
-                <button onclick="closeModalityDetail()" class="px-4 py-2 rounded-full bg-pastel-periwinkle/40 hover:bg-pastel-periwinkle/70 text-pastel-plum text-xs font-bold transition-all flex items-center gap-2 border border-pastel-cardBorder shadow-sm">
+                <button onclick="closeModalityDetail()" class="px-4 py-2 rounded-full bg-white/80 hover:bg-white text-pastel-plum text-xs font-bold transition-all flex items-center gap-2 border border-pastel-cardBorder shadow-sm">
                   <i class="fa-solid fa-arrow-left"></i>
-                  <span>Volver</span>
+                  <span>Volver a Modalidades</span>
                 </button>
                 <div>
                   <h3 class="text-xl sm:text-2xl font-extrabold text-pastel-plum tracking-tight font-display">The Towers</h3>
@@ -266,7 +282,7 @@
                 </div>
               </div>
 
-              <!-- PÍLDORA CONMUTADORA: PARTIDA EN VIVO VS LEADERBOARD -->
+              <!-- Píldora subpestañas: Partida vs Leaderboard -->
               <div class="flex items-center p-1.5 rounded-full bg-white/70 border border-pastel-cardBorder shadow-inner">
                 <button id="subtab-btn-partida" onclick="switchModalitySubTab('partida')" class="px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 bg-pastel-denim text-white shadow-sm flex items-center gap-2">
                   <i class="fa-solid fa-gamepad text-xs"></i>
@@ -279,224 +295,94 @@
               </div>
             </div>
 
-            <!-- SUB-VISTA 1: PARTIDA EN VIVO (RED TEAM VS BLUE TEAM) -->
-            <div id="subview-partida" class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
+            <!-- SUB-VISTA 1: ARENA MATCHBOARD (PARTIDA EN VIVO FLUIDA) -->
+            <div id="subview-partida" class="arena-matchboard p-8 flex flex-col gap-6 w-full">
               
-              <!-- Columna Equipo Rojo -->
-              <div class="team-card-red p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-pastel-blush/60 to-white/95 border border-pastel-blush shadow-sm flex flex-col justify-between gap-5 backdrop-blur-xl">
-                <div>
-                  <div class="flex items-center justify-between text-pastel-plum font-bold pb-4 border-b border-pastel-blush">
-                    <span class="flex items-center gap-2 text-sm">
-                      <i class="fa-solid fa-shield-halved text-[#E79796]"></i>
-                      <span class="tracking-wide">RED TEAM</span>
-                    </span>
-                    <span class="px-3 py-1 rounded-full bg-pastel-blush text-pastel-plum text-xs font-semibold border border-[#E79796]/30">0 / 4 Jugadores</span>
-                  </div>
-
-                  <div class="space-y-3 mt-4">
-                    <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                      <span class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
-                        <span class="font-medium">Ranura disponible</span>
-                      </span>
-                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
-                    </div>
-
-                    <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                      <span class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
-                        <span class="font-medium">Ranura disponible</span>
-                      </span>
-                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
-                    </div>
-
-                    <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                      <span class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
-                        <span class="font-medium">Ranura disponible</span>
-                      </span>
-                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
-                    </div>
-
-                    <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                      <span class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
-                        <span class="font-medium">Ranura disponible</span>
-                      </span>
-                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
-                    </div>
-                  </div>
+              <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-pastel-cardBorder/60">
+                <div class="flex items-center gap-3">
+                  <span class="w-3 h-3 rounded-full bg-[#48BB78] animate-pulse"></span>
+                  <span class="text-sm font-bold text-pastel-plum">Lobby Oficial The Towers</span>
+                  <span class="text-xs px-3 py-0.5 rounded-full bg-pastel-periwinkle/30 border border-pastel-cardBorder text-pastel-plum font-semibold">Paper 1.21+</span>
                 </div>
-
-                <div class="pt-3 border-t border-pastel-blush text-[11px] text-pastel-plum/80 flex items-center justify-between font-medium">
-                  <span>Base Roja • Torre 1 & 2</span>
-                  <span class="font-bold text-[#E79796]">Listo</span>
+                <div class="text-xs text-pastel-plum/80 font-medium">
+                  Conexión directa: <strong class="text-pastel-denim font-bold cursor-pointer" onclick="copyServerIP()">play.destinyowners.com</strong>
                 </div>
               </div>
 
-              <!-- Columna Equipo Azul -->
-              <div class="team-card-blue p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-pastel-periwinkle/50 to-white/95 border border-pastel-periwinkle shadow-sm flex flex-col justify-between gap-5 backdrop-blur-xl">
-                <div>
-                  <div class="flex items-center justify-between text-pastel-denim font-bold pb-4 border-b border-pastel-periwinkle">
-                    <span class="flex items-center gap-2 text-sm">
-                      <i class="fa-solid fa-shield-halved text-pastel-denim"></i>
-                      <span class="tracking-wide">BLUE TEAM</span>
+              <!-- Tablero dividido Red vs Blue sin cards anidadas -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch relative">
+                
+                <!-- Lado Rojo -->
+                <div class="arena-team-red p-6 rounded-3xl flex flex-col justify-between gap-5 border border-[#E79796]/30">
+                  <div class="flex items-center justify-between pb-3 border-b border-[#E79796]/30 text-pastel-plum font-bold">
+                    <span class="flex items-center gap-2 text-sm tracking-wide">
+                      <i class="fa-solid fa-shield-halved text-[#E79796]"></i>
+                      <span>RED TEAM</span>
                     </span>
-                    <span class="px-3 py-1 rounded-full bg-pastel-periwinkle/60 text-pastel-denim text-xs font-semibold border border-pastel-cornflower/40">0 / 4 Jugadores</span>
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-pastel-blush/60 border border-[#E79796]/30">0 / 4 Jugadores</span>
                   </div>
 
-                  <div class="space-y-3 mt-4">
-                    <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                      <span class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
-                        <span class="font-medium">Ranura disponible</span>
-                      </span>
-                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
-                    </div>
+                  <div class="py-6 flex flex-col items-center justify-center text-center gap-2">
+                    <i class="fa-solid fa-users text-2xl text-[#E79796]/60"></i>
+                    <p class="text-xs font-semibold text-pastel-plum/80">Lobby Abierto para el Equipo Rojo</p>
+                    <p class="text-[11px] text-pastel-plum/60 max-w-xs">Ingresa al servidor de Minecraft y elige la Estrella del Nether en tu inventario para unirte a este equipo.</p>
+                  </div>
 
-                    <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                      <span class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
-                        <span class="font-medium">Ranura disponible</span>
-                      </span>
-                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
-                    </div>
-
-                    <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                      <span class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
-                        <span class="font-medium">Ranura disponible</span>
-                      </span>
-                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
-                    </div>
-
-                    <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                      <span class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
-                        <span class="font-medium">Ranura disponible</span>
-                      </span>
-                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
-                    </div>
+                  <div class="pt-3 border-t border-[#E79796]/30 text-[11px] text-pastel-plum/70 flex justify-between font-medium">
+                    <span>Base Roja • Torre 1 & 2</span>
+                    <span class="font-bold text-[#E79796]">Listo para Iniciar</span>
                   </div>
                 </div>
 
-                <div class="pt-3 border-t border-pastel-periwinkle text-[11px] text-pastel-denim flex items-center justify-between font-medium">
-                  <span>Base Azul • Torre 1 & 2</span>
-                  <span class="font-bold">Listo</span>
+                <!-- Lado Azul -->
+                <div class="arena-team-blue p-6 rounded-3xl flex flex-col justify-between gap-5 border border-pastel-cornflower/40">
+                  <div class="flex items-center justify-between pb-3 border-b border-pastel-cornflower/30 text-pastel-denim font-bold">
+                    <span class="flex items-center gap-2 text-sm tracking-wide">
+                      <i class="fa-solid fa-shield-halved text-pastel-denim"></i>
+                      <span>BLUE TEAM</span>
+                    </span>
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-pastel-periwinkle/50 border border-pastel-cornflower/30">0 / 4 Jugadores</span>
+                  </div>
+
+                  <div class="py-6 flex flex-col items-center justify-center text-center gap-2">
+                    <i class="fa-solid fa-users text-2xl text-pastel-denim/60"></i>
+                    <p class="text-xs font-semibold text-pastel-plum/80">Lobby Abierto para el Equipo Azul</p>
+                    <p class="text-[11px] text-pastel-plum/60 max-w-xs">Ingresa al servidor de Minecraft y elige la Estrella del Nether en tu inventario para unirte a este equipo.</p>
+                  </div>
+
+                  <div class="pt-3 border-t border-pastel-cornflower/30 text-[11px] text-pastel-denim flex justify-between font-medium">
+                    <span>Base Azul • Torre 1 & 2</span>
+                    <span class="font-bold text-pastel-denim">Listo para Iniciar</span>
+                  </div>
                 </div>
+
               </div>
 
             </div>
 
-            <!-- SUB-VISTA 2: LEADERBOARD (TABLA DE CLASIFICACIÓN CON PERFILES) -->
+            <!-- SUB-VISTA 2: LEADERBOARD OFICIAL (TABLA CLASIFICATORIA) -->
             <div id="subview-leaderboard" class="hidden flex-col gap-4 flex-1">
               
-              <div class="p-6 sm:p-7 rounded-3xl pastel-glass-card shadow-sm flex flex-col gap-4">
+              <div class="leaderboard-deck p-6 sm:p-7 flex flex-col gap-4">
                 <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-pastel-cardBorder/80">
                   <div>
-                    <h4 class="text-xl font-bold text-pastel-plum font-display">Tabla de Clasificación Oficial</h4>
-                    <p class="text-xs text-pastel-plum/70 mt-0.5">Haz clic en cualquier perfil para inspeccionar su skin 3D interactiva.</p>
+                    <h4 class="text-xl font-bold text-pastel-plum font-display">Clasificación Oficial de Destiny Towers</h4>
+                    <p class="text-xs text-pastel-plum/70 mt-0.5">Haz clic en cualquier perfil para inspeccionar su modelo e información.</p>
                   </div>
                   <span class="text-xs font-bold px-3 py-1 rounded-full bg-pastel-periwinkle/40 text-pastel-plum border border-pastel-cardBorder">
-                    Temporada 1
+                    Pre-Temporada 1
                   </span>
                 </div>
 
-                <!-- Lista de Jugadores Clasificados -->
-                <div class="space-y-2.5">
-                  
-                  <!-- Jugador #1 -->
-                  <div onclick="selectLeaderboardPlayer('Destiny_Leader', 'Rank #1 • Campeón', 148, 412, 3.85, this)" class="leaderboard-row active-player p-4 rounded-2xl bg-white/60 border border-pastel-cardBorder flex items-center justify-between gap-3 cursor-pointer shadow-sm">
-                    <div class="flex items-center gap-3.5">
-                      <span class="w-8 h-8 rounded-full bg-[#FEF3C7] text-[#D97706] border border-[#FDE68A] flex items-center justify-center text-sm font-black shadow-sm">
-                        <i class="fa-solid fa-crown text-xs"></i>
-                      </span>
-                      <div>
-                        <div class="text-sm font-bold text-pastel-plum flex items-center gap-2">
-                          <span>Destiny_Leader</span>
-                          <span class="text-[10px] px-2 py-0.5 rounded-full bg-pastel-denim text-white font-semibold">Oficial</span>
-                        </div>
-                        <div class="text-[11px] text-pastel-plum/60 font-medium">148 Victorias • 412 Torres</div>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                      <span class="text-xs font-extrabold text-pastel-denim">3,240 pts</span>
-                      <span class="text-[11px] text-pastel-plum/70 font-semibold px-2.5 py-1 rounded-xl bg-pastel-periwinkle/30 border border-pastel-cardBorder hidden sm:inline-block">Ver 3D</span>
-                    </div>
-                  </div>
+                <!-- Cabecera de Columnas -->
+                <div class="px-4 py-2 flex items-center justify-between text-[11px] font-bold text-pastel-plum/60 uppercase tracking-wider">
+                  <span>Posición & Jugador</span>
+                  <span>Puntuación Oficial</span>
+                </div>
 
-                  <!-- Jugador #2 -->
-                  <div onclick="selectLeaderboardPlayer('Valkyrie_99', 'Rank #2 • Subcampeón', 125, 350, 3.10, this)" class="leaderboard-row p-4 rounded-2xl bg-white/60 border border-pastel-cardBorder flex items-center justify-between gap-3 cursor-pointer shadow-sm">
-                    <div class="flex items-center gap-3.5">
-                      <span class="w-8 h-8 rounded-full bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0] flex items-center justify-center text-xs font-black shadow-sm">
-                        #2
-                      </span>
-                      <div>
-                        <div class="text-sm font-bold text-pastel-plum flex items-center gap-2">
-                          <span>Valkyrie_99</span>
-                        </div>
-                        <div class="text-[11px] text-pastel-plum/60 font-medium">125 Victorias • 350 Torres</div>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                      <span class="text-xs font-extrabold text-pastel-denim">2,810 pts</span>
-                      <span class="text-[11px] text-pastel-plum/70 font-semibold px-2.5 py-1 rounded-xl bg-pastel-periwinkle/30 border border-pastel-cardBorder hidden sm:inline-block">Ver 3D</span>
-                    </div>
-                  </div>
-
-                  <!-- Jugador #3 -->
-                  <div onclick="selectLeaderboardPlayer('ShadowRider', 'Rank #3 • Veterano', 108, 290, 2.75, this)" class="leaderboard-row p-4 rounded-2xl bg-white/60 border border-pastel-cardBorder flex items-center justify-between gap-3 cursor-pointer shadow-sm">
-                    <div class="flex items-center gap-3.5">
-                      <span class="w-8 h-8 rounded-full bg-[#FFEDD5] text-[#C2410C] border border-[#FED7AA] flex items-center justify-center text-xs font-black shadow-sm">
-                        #3
-                      </span>
-                      <div>
-                        <div class="text-sm font-bold text-pastel-plum flex items-center gap-2">
-                          <span>ShadowRider</span>
-                        </div>
-                        <div class="text-[11px] text-pastel-plum/60 font-medium">108 Victorias • 290 Torres</div>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                      <span class="text-xs font-extrabold text-pastel-denim">2,450 pts</span>
-                      <span class="text-[11px] text-pastel-plum/70 font-semibold px-2.5 py-1 rounded-xl bg-pastel-periwinkle/30 border border-pastel-cardBorder hidden sm:inline-block">Ver 3D</span>
-                    </div>
-                  </div>
-
-                  <!-- Jugador #4 -->
-                  <div onclick="selectLeaderboardPlayer('Aether_Soul', 'Rank #4 • Maestro', 89, 230, 2.40, this)" class="leaderboard-row p-4 rounded-2xl bg-white/60 border border-pastel-cardBorder flex items-center justify-between gap-3 cursor-pointer shadow-sm">
-                    <div class="flex items-center gap-3.5">
-                      <span class="w-8 h-8 rounded-full bg-pastel-periwinkle/30 text-pastel-plum border border-pastel-cardBorder flex items-center justify-center text-xs font-bold">
-                        #4
-                      </span>
-                      <div>
-                        <div class="text-sm font-bold text-pastel-plum">Aether_Soul</div>
-                        <div class="text-[11px] text-pastel-plum/60 font-medium">89 Victorias • 230 Torres</div>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                      <span class="text-xs font-extrabold text-pastel-denim">2,120 pts</span>
-                      <span class="text-[11px] text-pastel-plum/70 font-semibold px-2.5 py-1 rounded-xl bg-pastel-periwinkle/30 border border-pastel-cardBorder hidden sm:inline-block">Ver 3D</span>
-                    </div>
-                  </div>
-
-                  <!-- Jugador #5 -->
-                  <div onclick="selectLeaderboardPlayer('Luna_Kitten', 'Rank #5 • Estratega', 76, 195, 2.15, this)" class="leaderboard-row p-4 rounded-2xl bg-white/60 border border-pastel-cardBorder flex items-center justify-between gap-3 cursor-pointer shadow-sm">
-                    <div class="flex items-center gap-3.5">
-                      <span class="w-8 h-8 rounded-full bg-pastel-periwinkle/30 text-pastel-plum border border-pastel-cardBorder flex items-center justify-center text-xs font-bold">
-                        #5
-                      </span>
-                      <div>
-                        <div class="text-sm font-bold text-pastel-plum">Luna_Kitten</div>
-                        <div class="text-[11px] text-pastel-plum/60 font-medium">76 Victorias • 195 Torres</div>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                      <span class="text-xs font-extrabold text-pastel-denim">1,890 pts</span>
-                      <span class="text-[11px] text-pastel-plum/70 font-semibold px-2.5 py-1 rounded-xl bg-pastel-periwinkle/30 border border-pastel-cardBorder hidden sm:inline-block">Ver 3D</span>
-                    </div>
-                  </div>
-
+                <!-- Contenedor dinámico del Leaderboard poblado por TypeScript (sin 'Ver 3D' ni datos ficticios) -->
+                <div id="leaderboard-list-container" class="space-y-2">
+                  <!-- Inyectado por TypeScript -->
                 </div>
 
               </div>
@@ -508,120 +394,24 @@
         </section>
 
         <!-- ======================================================== -->
-        <!-- VISTA 3: MIEMBROS (UNKNOWN MEMBER SLOTS)                  -->
+        <!-- VISTA 3: MIEMBROS (EQUIPO OFICIAL DESTINY OWNERS)         -->
         <!-- ======================================================== -->
         <section id="view-miembros" class="tab-view h-full flex flex-col gap-6">
           
-          <div class="p-6 sm:p-7 rounded-3xl pastel-glass-card shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-pastel-cardBorder/60">
             <div>
-              <h2 class="text-2xl sm:text-3xl font-bold text-pastel-plum tracking-tight">Miembros de Destiny Owners</h2>
-              <p class="text-xs sm:text-sm text-pastel-plum/75 mt-1 font-normal">Espacios reservados de plantilla. Pendiente de asignación oficial.</p>
+              <h2 class="text-2xl sm:text-3xl font-bold text-pastel-plum tracking-tight font-display">Equipo & Desarrolladores</h2>
+              <p class="text-xs sm:text-sm text-pastel-plum/75 mt-1 font-normal">Conoce a los creadores, arquitectos y contribuidores oficiales de Destiny Towers.</p>
             </div>
-            <div class="flex items-center gap-2 bg-pastel-periwinkle/30 border border-pastel-cardBorder px-4 py-2 rounded-full text-xs text-pastel-plum font-semibold">
-              <i class="fa-solid fa-lock text-xs text-pastel-denim"></i>
-              <span>Slots Oficiales</span>
+            <div class="flex items-center gap-2 bg-pastel-periwinkle/30 border border-pastel-cardBorder px-4 py-2 rounded-full text-xs text-pastel-plum font-semibold self-start sm:self-auto">
+              <i class="fa-solid fa-code-commit text-pastel-denim"></i>
+              <span>Destiny Owners Core</span>
             </div>
           </div>
 
-          <!-- CUADRÍCULA DE SLOTS RESERVADOS (UNKNOWN MEMBER) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 flex-1">
-            
-            <!-- Slot 1 -->
-            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
-                <i class="fa-solid fa-user-secret"></i>
-              </div>
-              <div>
-                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-01</div>
-              </div>
-            </div>
-
-            <!-- Slot 2 -->
-            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
-                <i class="fa-solid fa-user-secret"></i>
-              </div>
-              <div>
-                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-02</div>
-              </div>
-            </div>
-
-            <!-- Slot 3 -->
-            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
-                <i class="fa-solid fa-user-secret"></i>
-              </div>
-              <div>
-                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-03</div>
-              </div>
-            </div>
-
-            <!-- Slot 4 -->
-            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
-                <i class="fa-solid fa-user-secret"></i>
-              </div>
-              <div>
-                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-04</div>
-              </div>
-            </div>
-
-            <!-- Slot 5 -->
-            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
-                <i class="fa-solid fa-user-secret"></i>
-              </div>
-              <div>
-                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-05</div>
-              </div>
-            </div>
-
-            <!-- Slot 6 -->
-            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
-                <i class="fa-solid fa-user-secret"></i>
-              </div>
-              <div>
-                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-06</div>
-              </div>
-            </div>
-
-            <!-- Slot 7 -->
-            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
-                <i class="fa-solid fa-user-secret"></i>
-              </div>
-              <div>
-                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-07</div>
-              </div>
-            </div>
-
-            <!-- Slot 8 -->
-            <div class="member-slot-card p-5 rounded-3xl bg-white/80 hover:bg-white border border-pastel-cardBorder hover:border-pastel-cornflower transition-all flex items-center gap-4 shadow-sm hover:shadow-md">
-              <div class="member-slot-icon w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-lg shadow-inner">
-                <i class="fa-solid fa-user-secret"></i>
-              </div>
-              <div>
-                <h4 class="member-slot-name text-sm font-bold text-pastel-plum">Unknown Member</h4>
-                <span class="member-slot-badge text-[10px] px-2 py-0.5 rounded-full bg-pastel-blush text-pastel-plum font-semibold border border-[#E79796]/30">Slot Reservado</span>
-                <div class="member-slot-id text-[11px] text-pastel-denim font-medium mt-1">#DESTINY-08</div>
-              </div>
-            </div>
-
+          <!-- Contenedor dinámico del Roster poblado por TypeScript con ElGlower, StartCes, Ripkyng1, PauMAVA -->
+          <div id="team-roster-container" class="space-y-3.5">
+            <!-- Inyectado por TypeScript -->
           </div>
 
         </section>
@@ -629,13 +419,13 @@
       </div>
 
       <!-- ============================================================ -->
-      <!-- COLUMNA DERECHA: NOTCH SHOWCASE CARD CON SKIN REAL 3D WEBGL  -->
+      <!-- COLUMNA DERECHA: PLINTH SHOWCASE CON MOTOR 3D WEBGL          -->
       <!-- ============================================================ -->
       <aside id="right-showcase-panel" class="lg:col-span-5 flex flex-col justify-stretch">
         
         <div class="notch-container p-8 shadow-xl flex flex-col justify-center items-center h-full min-h-[540px] relative backdrop-blur-xl">
           
-          <!-- Notch Cutout Cóncavo Superior -->
+          <!-- Notch Cutout Cóncavo Superior Dinámico -->
           <div class="notch-cutout flex items-center gap-2.5">
             <div id="notch-avatar-badge" class="w-6 h-6 rounded-full bg-pastel-denim text-white flex items-center justify-center text-[10px] font-bold">
               DO
@@ -648,7 +438,7 @@
 
           <!-- Botones de Acción Circulares Flotantes -->
           <div class="absolute top-6 right-6 flex flex-col gap-3 z-20">
-            <button onclick="toggleAutoRotate()" title="Activar/Detener giro automático" id="btn-autorotate" class="floating-circle-btn">
+            <button onclick="toggleAutoRotate()" title="Activar/Detener giro continuo" id="btn-autorotate" class="floating-circle-btn">
               <i class="fa-solid fa-rotate text-xs"></i>
             </button>
             <button onclick="copyServerIP()" title="Copiar IP del Servidor" class="floating-circle-btn">
@@ -656,13 +446,13 @@
             </button>
           </div>
 
-          <!-- PRESENTACIÓN VISUAL EN PEDESTAL CON MOTOR 3D WEBGL REAL -->
+          <!-- PRESENTACIÓN VISUAL EN PEDESTAL HOLOGRÁFICO -->
           <div class="pedestal-glow flex flex-col items-center justify-center pt-8 pb-6 my-auto w-full relative">
             
             <!-- Canvas 3D Real (skinview3d / WebGL) -->
             <canvas id="skin-canvas" class="cursor-grab active:cursor-grabbing"></canvas>
 
-            <!-- Fallback visual de alta definición si WebGL está deshabilitado en el navegador -->
+            <!-- Fallback visual de alta definición -->
             <img id="skin-fallback-img" src="https://visage.surgeplay.com/full/512/f4aa6afad90c4dd297b2ed453b8c99fe?tilt=0&yaw=20" alt="Destiny Owners Skin" class="hidden max-h-[380px] object-contain drop-shadow-[0_20px_30px_rgba(105,130,181,0.25)] pointer-events-none">
 
           </div>
@@ -678,20 +468,14 @@
   <!-- Toast Notification Flotante -->
   <div id="toast-notification" class="fixed bottom-8 right-8 z-50 flex items-center gap-3 bg-pastel-denim text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-white/40 backdrop-blur-xl text-sm font-semibold">
     <i class="fa-solid fa-circle-check text-base text-pastel-blush"></i>
-    <span id="toast-message">IP copiada al portapapeles: play.destinyowners.com</span>
+    <span id="toast-message">¡IP copiada al portapapeles!</span>
   </div>
 
-  <!-- ============================================================ -->
-  <!-- SCRIPTS EXTERNOS MODULARES                                   -->
-  <!-- ============================================================ -->
-  <!-- Motor WebGL 3D para Skins de Minecraft (skinview3d local bundle de alta velocidad) -->
+  <!-- Dependencias Externas WebGL -->
   <script src="js/skinview3d.bundle.js"></script>
 
-  <!-- Lógica de Navegación y UI -->
-  <script src="js/main.js"></script>
-
-  <!-- Controlador del Visor 3D -->
-  <script src="js/skin-viewer.js"></script>
+  <!-- Entrada Modular Moderna TypeScript (Vite 2026) -->
+  <script type="module" src="/src/main.ts"></script>
 
 </body>
 </html>
