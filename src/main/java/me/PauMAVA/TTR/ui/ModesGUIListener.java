@@ -90,7 +90,7 @@ public class ModesGUIListener implements Listener {
                     }
                     case "admin_cancel_draft" -> {
                         plugin.getAuctionDraftManager().cancelDraft();
-                        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.RED + TextUtil.toTiny("Subasta cancelada por la administración."));
+                        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.RED + TextUtil.toTiny("Subasta cancelada por Destiny."));
                     }
                 }
                 player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.4f);

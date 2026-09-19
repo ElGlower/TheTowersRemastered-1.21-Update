@@ -68,8 +68,8 @@ public class TTRCustomTab extends BukkitRunnable {
         // Determinar prefijo y equipo de scoreboard para ordenamiento estricto
         String teamKey;
         if (isStaff && (team == null || plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME)) {
-            teamKey = "00_admin";
-            formattedName = TextUtil.color("&#FF5555§l[ADMIN] ") + ChatColor.WHITE + player.getName();
+            teamKey = "00_destiny";
+            formattedName = DestinyTheme.DESTINY_ROLE_BADGE + " " + ChatColor.WHITE + player.getName();
         } else if (team != null) {
             boolean isLeader = team.isLeader(player.getUniqueId());
             ChatColor color = team.getColor();
@@ -81,12 +81,14 @@ public class TTRCustomTab extends BukkitRunnable {
                 teamKey = isLeader ? "20_blue_l" : "21_blue";
             }
 
+            String staffPrefix = isStaff ? DestinyTheme.DESTINY_ROLE_BADGE + " " : "";
             String leaderStar = isLeader ? ChatColor.GOLD + "★ " : "";
             String teamTag = color + "[" + TextUtil.toTiny(team.getIdentifier().toUpperCase()) + "] ";
-            formattedName = leaderStar + teamTag + color + player.getName() + killsInfo;
+            formattedName = staffPrefix + leaderStar + teamTag + color + player.getName() + killsInfo;
         } else {
-            teamKey = "90_spec";
-            formattedName = ChatColor.GRAY + "[ESPEC] " + player.getName();
+            teamKey = isStaff ? "00_destiny" : "90_spec";
+            String prefix = isStaff ? DestinyTheme.DESTINY_ROLE_BADGE + " " : ChatColor.GRAY + "[" + TextUtil.toTiny("Espec") + "] ";
+            formattedName = prefix + ChatColor.WHITE + player.getName();
         }
 
         player.setPlayerListName(formattedName);
@@ -108,7 +110,7 @@ public class TTRCustomTab extends BukkitRunnable {
                 } else if (teamKey.startsWith("20") || teamKey.startsWith("21")) {
                     tabTeam.color(NamedTextColor.BLUE);
                 } else if (teamKey.startsWith("00")) {
-                    tabTeam.color(NamedTextColor.GOLD);
+                    tabTeam.color(NamedTextColor.WHITE);
                 } else {
                     tabTeam.color(NamedTextColor.GRAY);
                 }

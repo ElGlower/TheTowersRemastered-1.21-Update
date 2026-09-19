@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public class TextUtil {
 
     private static final String NORMAL_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZáéíóúñÁÉÍÓÚÑ0123456789";
-    private static final String TINY_CHARS   = "ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢᴀᴇɪᴏᴜɴᴀᴇɪᴏᴜɴ₀₁₂₃₄₅₆₇₈₉";
+    private static final String TINY_CHARS   = "ᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢᴀʙᴄᴅᴇғɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢᴀᴇɪᴏᴜɴᴀᴇɪᴏᴜɴ₀₁₂₃₄₅₆₇₈₉";
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
 
     /**

@@ -42,7 +42,7 @@ public class StopCommand implements CommandExecutor {
 
         Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
         Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.RED + "" + ChatColor.BOLD +
-                me.PauMAVA.TTR.util.TextUtil.toTiny("¡Partida / Fase cancelada y restablecida por la administración!"));
+                me.PauMAVA.TTR.util.TextUtil.toTiny("¡Partida / Fase cancelada y restablecida por Destiny!"));
         Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 
         sender.sendMessage(TTRPrefix.TTR_SUCCESS + me.PauMAVA.TTR.util.TextUtil.toTiny("Partida y estados reseteados completamente al lobby."));

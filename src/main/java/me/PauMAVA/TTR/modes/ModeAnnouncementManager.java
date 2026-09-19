@@ -81,7 +81,7 @@ public class ModeAnnouncementManager {
                 // Action bar countdown
                 String ab = TextUtil.color("&#FFFFFF⏱ " + TextUtil.toTiny("Tiempo para leer reglas: ") +
                         "&#FF2E2E§l" + secondsRemaining + "s" +
-                        " &#888888[" + TextUtil.toTiny("Admin puede forzar inicio") + "]");
+                        " &#888888[" + TextUtil.toTiny("Destiny puede forzar inicio") + "]");
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     p.sendActionBar(net.kyori.adventure.text.Component.text(ab));
                 }

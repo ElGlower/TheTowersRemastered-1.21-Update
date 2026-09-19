@@ -402,7 +402,7 @@ public class LeaderVoteManager {
 
     public void forceNextRound() {
         if (!active) return;
-        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("¡Ronda de votación acelerada por la administración!"));
+        Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("¡Ronda de votación acelerada por Destiny!"));
         processRounds();
     }
 
