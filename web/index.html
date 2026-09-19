@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DESTINYOWNERS — Telemetría Competitiva & The Towers</title>
+  <title>DESTINY — Telemetría Competitiva & The Towers</title>
   
   <!-- Tipografías de alta gama (Instrument Sans de McPvP + JetBrains Mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   
   <!-- Iconografía FontAwesome 6.7.2 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -25,20 +25,19 @@
             mono: ['"JetBrains Mono"', 'monospace']
           },
           colors: {
-            app: {
-              canvas: '#13111a',
-              window: '#1b1824',
-              surface: '#242030',
-              hover: '#2d293d',
-              border: '#363148',
-              muted: '#8b849e',
-              text: '#f2f0f7',
-              red: '#e53e3e',
-              redDark: '#9b2c2c',
-              blue: '#3182ce',
-              blueDark: '#2b6cb0',
-              gold: '#d69e2e',
-              notch: '#15131d'
+            destiny: {
+              canvas: '#090a0f',
+              window: '#11141d',
+              surface: '#181c28',
+              surfaceHover: '#202637',
+              cardInner: '#141722',
+              border: '#252b3d',
+              muted: '#8e99b0',
+              text: '#f8fafc',
+              red: '#f43f5e',
+              blue: '#38bdf8',
+              gold: '#fbbf24',
+              emerald: '#34d399'
             }
           }
         }
@@ -52,8 +51,8 @@
       -webkit-font-smoothing: antialiased;
     }
     body {
-      background-color: #110f17;
-      color: #f2f0f7;
+      background-color: #090a0f;
+      color: #f8fafc;
       font-family: 'Instrument Sans', sans-serif;
       overflow-x: hidden;
     }
@@ -64,36 +63,36 @@
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #181521;
+      background: #0f121a;
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb {
-      background: #342e47;
+      background: #252b3d;
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #494163;
+      background: #38425d;
     }
 
     /* Notch inverso y curvatura suave basada en la referencia visual */
     .notch-container {
       position: relative;
-      background: #1e1b29;
+      background: #151823;
       border-radius: 32px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.09);
       overflow: hidden;
     }
     .notch-cutout {
       position: absolute;
       top: 0;
       left: 32px;
-      background: #1b1824;
+      background: #11141d;
       padding: 6px 20px 10px 20px;
       border-bottom-left-radius: 20px;
       border-bottom-right-radius: 20px;
-      border-left: 1px solid rgba(255, 255, 255, 0.06);
-      border-right: 1px solid rgba(255, 255, 255, 0.06);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       z-index: 20;
     }
 
@@ -107,17 +106,17 @@
       bottom: 25px;
       left: 50%;
       transform: translateX(-50%);
-      width: 190px;
+      width: 200px;
       height: 40px;
-      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.25) 0%, rgba(139, 132, 158, 0.1) 60%, transparent 80%);
+      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.3) 0%, rgba(56, 189, 248, 0.15) 50%, transparent 80%);
       border-radius: 50%;
-      filter: blur(8px);
+      filter: blur(10px);
       pointer-events: none;
     }
 
     /* Partículas sutiles de fondo para el podio estilo McPvP */
     .podium-ambience {
-      background: radial-gradient(circle at 50% 30%, rgba(214, 158, 46, 0.12) 0%, transparent 65%);
+      background: radial-gradient(circle at 50% 30%, rgba(251, 191, 36, 0.12) 0%, transparent 65%);
     }
 
     /* Transición suave entre pestañas */
@@ -144,13 +143,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #f2f0f7;
+      color: #f8fafc;
       transition: all 0.2s ease;
     }
     .floating-circle-btn:hover {
       background: rgba(255, 255, 255, 0.2);
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
     }
   </style>
 </head>
@@ -160,50 +159,43 @@
   <!-- ============================================================ -->
   <!-- CONTENEDOR MAESTRO (VENTANA REDONDEADA ESTILO MOCK)           -->
   <!-- ============================================================ -->
-  <div class="w-full max-w-[1680px] bg-app-window border border-app-border/80 rounded-[36px] p-5 sm:p-7 md:p-9 shadow-2xl flex flex-col gap-6 backdrop-blur-xl">
+  <div class="w-full max-w-[1680px] bg-destiny-window border border-destiny-border rounded-[36px] p-5 sm:p-7 md:p-9 shadow-2xl flex flex-col gap-6 backdrop-blur-xl">
 
     <!-- ============================================================ -->
     <!-- BARRA DE NAVEGACIÓN SUPERIOR (ARRIBA - SIN BARRAS LATERALES) -->
     <!-- ============================================================ -->
-    <header class="w-full flex flex-col lg:flex-row items-center justify-between gap-4 pb-5 border-b border-app-border/60">
+    <header class="w-full flex flex-col lg:flex-row items-center justify-between gap-4 pb-5 border-b border-destiny-border/80">
       
-      <!-- Lado Izquierdo: DESTINYOWNERS en grande -->
+      <!-- Lado Izquierdo: DESTINY en grande (Sin subtítulo) -->
       <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
-        <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('towers')">
-          <div class="w-12 h-12 rounded-2xl bg-white text-[#110f17] flex items-center justify-center font-extrabold text-2xl tracking-tighter shadow-lg shadow-white/10">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('inicio')">
+          <div class="w-12 h-12 rounded-2xl bg-white text-black flex items-center justify-center font-black text-2xl tracking-tighter shadow-lg shadow-white/10">
             DO
           </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white uppercase leading-none">DESTINYOWNERS</h1>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-white/10 text-white border border-white/15">26.3</span>
-            </div>
-            <p class="text-xs text-app-muted font-medium mt-1">Plataforma Competitiva Oficial The Towers</p>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-none">DESTINY</h1>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-white/10 text-slate-300 border border-white/15">26.3</span>
           </div>
         </div>
 
         <!-- Indicador Móvil de Servidor -->
-        <div class="lg:hidden flex items-center gap-2 bg-app-surface border border-app-border px-3 py-1.5 rounded-full text-xs font-mono">
+        <div class="lg:hidden flex items-center gap-2 bg-destiny-surface border border-destiny-border px-3 py-1.5 rounded-full text-xs font-mono">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span class="text-white">Online</span>
         </div>
       </div>
 
-      <!-- Centro: Segmented Control en Píldora (Navegación Superior) -->
-      <nav class="flex items-center bg-app-surface p-1.5 rounded-full border border-app-border shadow-inner max-w-full overflow-x-auto">
-        <button id="nav-btn-towers" onclick="switchTab('towers')" class="px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 bg-white text-black shadow-md flex items-center gap-2 whitespace-nowrap">
+      <!-- Centro: Segmented Control en Píldora (INICIO - MODALIDAD - MIEMBROS) -->
+      <nav class="flex items-center bg-destiny-surface p-1.5 rounded-full border border-destiny-border shadow-inner max-w-full overflow-x-auto">
+        <button id="nav-btn-inicio" onclick="switchTab('inicio')" class="px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 bg-white text-black shadow-md flex items-center gap-2 whitespace-nowrap">
+          <i class="fa-solid fa-house text-xs"></i>
+          <span>Inicio</span>
+        </button>
+        <button id="nav-btn-modalidad" onclick="switchTab('modalidad')" class="px-6 py-2.5 rounded-full text-sm font-medium text-destiny-muted hover:text-white transition-all duration-200 flex items-center gap-2 whitespace-nowrap">
           <i class="fa-solid fa-gamepad text-xs"></i>
-          <span>The Towers</span>
+          <span>Modalidad</span>
         </button>
-        <button id="nav-btn-podium" onclick="switchTab('podium')" class="px-5 py-2.5 rounded-full text-sm font-medium text-app-muted hover:text-white transition-all duration-200 flex items-center gap-2 whitespace-nowrap">
-          <i class="fa-solid fa-crown text-xs"></i>
-          <span>Top Players & Tiers</span>
-        </button>
-        <button id="nav-btn-history" onclick="switchTab('history')" class="px-5 py-2.5 rounded-full text-sm font-medium text-app-muted hover:text-white transition-all duration-200 flex items-center gap-2 whitespace-nowrap">
-          <i class="fa-solid fa-clock-rotate-left text-xs"></i>
-          <span>Historial (100+)</span>
-        </button>
-        <button id="nav-btn-members" onclick="switchTab('members')" class="px-5 py-2.5 rounded-full text-sm font-medium text-app-muted hover:text-white transition-all duration-200 flex items-center gap-2 whitespace-nowrap">
+        <button id="nav-btn-miembros" onclick="switchTab('miembros')" class="px-6 py-2.5 rounded-full text-sm font-medium text-destiny-muted hover:text-white transition-all duration-200 flex items-center gap-2 whitespace-nowrap">
           <i class="fa-solid fa-users text-xs"></i>
           <span>Miembros</span>
         </button>
@@ -213,15 +205,15 @@
       <div class="flex items-center gap-3 w-full lg:w-auto justify-end">
         <!-- Input de Búsqueda estilo píldora -->
         <div class="relative w-full sm:w-64">
-          <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-app-muted text-xs"></i>
-          <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)" placeholder="Buscar jugador o ID..." class="w-full bg-app-surface border border-app-border rounded-full pl-10 pr-4 py-2 text-xs text-white placeholder-app-muted focus:outline-none focus:border-white transition-all shadow-inner">
+          <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-destiny-muted text-xs"></i>
+          <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)" placeholder="Buscar jugador o ID..." class="w-full bg-destiny-surface border border-destiny-border rounded-full pl-10 pr-4 py-2 text-xs text-white placeholder-destiny-muted focus:outline-none focus:border-white transition-all shadow-inner">
         </div>
 
         <!-- Estado HolyHosting en Línea -->
-        <div class="hidden lg:flex items-center gap-2.5 bg-app-surface border border-app-border px-4 py-2 rounded-full text-xs font-mono">
+        <div class="hidden lg:flex items-center gap-2.5 bg-destiny-surface border border-destiny-border px-4 py-2 rounded-full text-xs font-mono">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
           <span class="text-white font-semibold">8 En Línea</span>
-          <span class="text-app-muted text-[10px]">19ms</span>
+          <span class="text-destiny-muted text-[10px]">19ms</span>
         </div>
       </div>
     </header>
@@ -235,22 +227,173 @@
       <div class="lg:col-span-7 flex flex-col gap-6">
 
         <!-- ======================================================== -->
-        <!-- VISTA 1: MODALIDAD THE TOWERS (CENTRO DE JUEGO EN VIVO)  -->
+        <!-- VISTA 1: INICIO (DESTINY EN GRANDE + HERO + TOP PODIUM)  -->
         <!-- ======================================================== -->
-        <section id="view-towers" class="tab-view active flex flex-col gap-6">
+        <section id="view-inicio" class="tab-view active flex flex-col gap-6">
           
-          <!-- TARJETA CENTRADA DE MODALIDAD CON ESTADO EN VIVO -->
-          <div class="bg-app-surface border border-app-border rounded-[28px] p-6 sm:p-7 shadow-xl relative overflow-hidden">
+          <!-- SECCIÓN HERO: DESTINY EN GRANDE -->
+          <div class="bg-destiny-surface border border-destiny-border rounded-[32px] p-7 sm:p-10 shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+            <div class="absolute -right-8 -bottom-10 opacity-5 pointer-events-none select-none font-black text-[180px] leading-none text-white font-mono">
+              DO
+            </div>
+
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-xs font-mono font-semibold text-emerald-400 uppercase tracking-widest">Servidor Activo • Paper 26.3</span>
+              </div>
+              <!-- TÍTULO GIGANTE DESTINY SOLICITADO -->
+              <h2 class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter text-white uppercase select-none leading-none">
+                DESTINY
+              </h2>
+            </div>
+
+            <!-- Accesos rápidos inferiores -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-6 mt-4 border-t border-destiny-border/80">
+              <div class="flex items-center gap-6 text-xs font-mono">
+                <div>
+                  <span class="text-destiny-muted block text-[10px]">MODALIDAD</span>
+                  <span class="text-white font-bold text-sm">The Towers Remastered</span>
+                </div>
+                <div class="h-6 w-px bg-destiny-border"></div>
+                <div>
+                  <span class="text-destiny-muted block text-[10px]">PARTIDAS 2026</span>
+                  <span class="text-white font-bold text-sm">105 Registradas</span>
+                </div>
+                <div class="h-6 w-px bg-destiny-border"></div>
+                <div>
+                  <span class="text-destiny-muted block text-[10px]">LÍDER ELO</span>
+                  <span class="text-amber-300 font-bold text-sm">Kylaz (2,450)</span>
+                </div>
+              </div>
+
+              <button onclick="switchTab('modalidad')" class="px-5 py-2.5 rounded-full bg-white hover:bg-slate-100 text-black text-xs font-bold transition-all shadow-md flex items-center gap-2">
+                <span>Ver Modalidad en Vivo</span>
+                <i class="fa-solid fa-arrow-right text-[11px]"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- PODIO DE TOP PLAYERS (ESTILO MCPVP EN INICIO) -->
+          <div class="bg-destiny-surface border border-destiny-border rounded-[28px] p-6 sm:p-7 shadow-xl podium-ambience relative overflow-hidden">
+            <div class="flex items-center justify-between mb-6 pb-3 border-b border-destiny-border/70">
+              <div>
+                <h3 class="text-lg font-bold text-white tracking-tight">Top Players Competitivos</h3>
+                <p class="text-xs text-destiny-muted font-mono">Clasificación oficial por ELO y goles a la torre</p>
+              </div>
+              <span class="text-[11px] font-mono px-3 py-1 rounded-full bg-white/10 text-amber-300 border border-amber-300/20 font-bold">
+                TEMPORADA 2026
+              </span>
+            </div>
+
+            <!-- ESTRUCTURA DEL PODIO (2do - 1ro - 3ro) -->
+            <div class="grid grid-cols-3 gap-3 sm:gap-5 items-end max-w-2xl mx-auto pb-4">
+              
+              <!-- 2DO LUGAR (Izquierda) -->
+              <div onclick="selectPlayer('gpminer17')" class="group flex flex-col items-center cursor-pointer transition-transform hover:-translate-y-1">
+                <span class="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">Gpminer17</span>
+                <span class="text-[10px] font-mono font-bold text-slate-400 mt-0.5">TIER LT1</span>
+                
+                <div class="relative mt-2">
+                  <img src="https://visage.surgeplay.com/bust/160/06af403561ab422faedd1edabc8d71c7" alt="Gpminer17" class="w-20 sm:w-28 drop-shadow-2xl">
+                </div>
+
+                <!-- Pedestal 2 -->
+                <div class="w-full bg-gradient-to-t from-slate-900 to-slate-800 border border-destiny-border rounded-2xl h-28 flex flex-col items-center justify-center p-3 shadow-lg">
+                  <div class="w-8 h-8 rounded-full bg-slate-300 text-black font-extrabold flex items-center justify-center text-sm shadow">
+                    2
+                  </div>
+                  <span class="text-xs font-mono font-bold text-white mt-2">295 Pts</span>
+                  <span class="text-[10px] text-destiny-muted">74.2% WR</span>
+                </div>
+              </div>
+
+              <!-- 1ER LUGAR (Centro - Elevado) -->
+              <div onclick="selectPlayer('kylaz')" class="group flex flex-col items-center cursor-pointer transition-transform hover:-translate-y-1.5">
+                <i class="fa-solid fa-crown text-amber-400 text-lg mb-1 animate-bounce"></i>
+                <span class="text-sm font-extrabold text-amber-300 group-hover:text-white transition-colors">Kylaz</span>
+                <span class="text-[10px] font-mono font-bold text-amber-400 mt-0.5">TIER HT1</span>
+                
+                <div class="relative mt-2">
+                  <img src="https://visage.surgeplay.com/bust/180/f4aa6afad90c4dd297b2ed453b8c99fe" alt="Kylaz" class="w-24 sm:w-36 drop-shadow-2xl">
+                </div>
+
+                <!-- Pedestal 1 -->
+                <div class="w-full bg-gradient-to-t from-amber-950/60 to-amber-900/60 border border-amber-500/40 rounded-2xl h-36 flex flex-col items-center justify-center p-3 shadow-xl">
+                  <div class="w-9 h-9 rounded-full bg-amber-400 text-black font-black flex items-center justify-center text-base shadow-lg shadow-amber-500/50">
+                    1
+                  </div>
+                  <span class="text-sm font-mono font-extrabold text-amber-200 mt-2">340 Pts</span>
+                  <span class="text-[11px] text-amber-300/80 font-mono">142 Goles</span>
+                </div>
+              </div>
+
+              <!-- 3ER LUGAR (Derecha) -->
+              <div onclick="selectPlayer('crozzor')" class="group flex flex-col items-center cursor-pointer transition-transform hover:-translate-y-1">
+                <span class="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">Crozzor</span>
+                <span class="text-[10px] font-mono font-bold text-slate-400 mt-0.5">TIER HT2</span>
+                
+                <div class="relative mt-2">
+                  <img src="https://visage.surgeplay.com/bust/160/3d50b9cde587408eb401a6afcab79d2c" alt="Crozzor" class="w-20 sm:w-28 drop-shadow-2xl">
+                </div>
+
+                <!-- Pedestal 3 -->
+                <div class="w-full bg-gradient-to-t from-slate-900 to-slate-800 border border-destiny-border rounded-2xl h-24 flex flex-col items-center justify-center p-3 shadow-lg">
+                  <div class="w-7 h-7 rounded-full bg-amber-700 text-white font-extrabold flex items-center justify-center text-xs shadow">
+                    3
+                  </div>
+                  <span class="text-xs font-mono font-bold text-white mt-2">275 Pts</span>
+                  <span class="text-[10px] text-destiny-muted">69.1% WR</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Mini Lista de Ranks 4 y 5 -->
+            <div class="mt-4 pt-4 border-t border-destiny-border/70 flex flex-col gap-2">
+              <div onclick="selectPlayer('elglower')" class="flex items-center justify-between p-2.5 rounded-2xl bg-destiny-window hover:bg-destiny-surfaceHover border border-destiny-border cursor-pointer transition-all">
+                <div class="flex items-center gap-3">
+                  <span class="w-6 font-mono font-bold text-slate-400 text-center text-xs">4</span>
+                  <img src="https://visage.surgeplay.com/face/40/853c80ef3c3749fdaa49938b674acd16" alt="ElGlower" class="w-7 h-7 rounded-lg">
+                  <span class="text-xs font-bold text-white">ElGlower</span>
+                </div>
+                <div class="flex items-center gap-4 font-mono text-xs">
+                  <span class="px-2 py-0.5 rounded bg-white/10 text-slate-300 font-bold text-[10px]">HT2</span>
+                  <span class="text-white font-bold">265 Pts</span>
+                </div>
+              </div>
+              <div onclick="selectPlayer('aximity')" class="flex items-center justify-between p-2.5 rounded-2xl bg-destiny-window hover:bg-destiny-surfaceHover border border-destiny-border cursor-pointer transition-all">
+                <div class="flex items-center gap-3">
+                  <span class="w-6 font-mono font-bold text-slate-400 text-center text-xs">5</span>
+                  <img src="https://visage.surgeplay.com/face/40/37bba5ee9e644d5e975cffe1f139b24e" alt="AXIMITY" class="w-7 h-7 rounded-lg">
+                  <span class="text-xs font-bold text-white">AXIMITY</span>
+                </div>
+                <div class="flex items-center gap-4 font-mono text-xs">
+                  <span class="px-2 py-0.5 rounded bg-white/10 text-slate-300 font-bold text-[10px]">MT2</span>
+                  <span class="text-white font-bold">240 Pts</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- VISTA 2: MODALIDAD (THE TOWERS + HISTORIAL 100+)         -->
+        <!-- ======================================================== -->
+        <section id="view-modalidad" class="tab-view flex flex-col gap-6">
+          
+          <!-- TARJETA CENTRADA DE THE TOWERS -->
+          <div class="bg-destiny-surface border border-destiny-border rounded-[28px] p-6 sm:p-7 shadow-xl relative overflow-hidden">
             
             <!-- Encabezado de la Modalidad -->
-            <div class="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-app-border/70">
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-destiny-border/70">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-white text-lg">
                   <i class="fa-solid fa-chess-rook"></i>
                 </div>
                 <div>
                   <h2 class="text-xl font-bold text-white tracking-tight">The Towers Remastered</h2>
-                  <div class="flex items-center gap-2 text-xs text-app-muted mt-0.5">
+                  <div class="flex items-center gap-2 text-xs text-destiny-muted mt-0.5">
                     <span class="font-mono">Partida #DT-2026-092</span>
                     <span>•</span>
                     <span class="text-white">Mapa: Ruinas Celestiales</span>
@@ -266,23 +409,23 @@
             </div>
 
             <!-- Marcador Comparativo en Vivo (Rojo vs Azul) -->
-            <div class="grid grid-cols-3 items-center my-6 bg-app-window/80 border border-app-border/60 rounded-2xl p-4">
+            <div class="grid grid-cols-3 items-center my-6 bg-destiny-window border border-destiny-border rounded-2xl p-4">
               
               <!-- Equipo Rojo -->
               <div class="flex flex-col items-center">
                 <div class="flex items-center gap-2 mb-1">
-                  <span class="w-3 h-3 rounded-full bg-red-500 shadow-md shadow-red-500/50"></span>
-                  <span class="text-sm font-bold tracking-wider text-red-400">EQUIPO ROJO</span>
+                  <span class="w-3 h-3 rounded-full bg-destiny-red shadow-md shadow-rose-500/50"></span>
+                  <span class="text-sm font-bold tracking-wider text-rose-400">EQUIPO ROJO</span>
                 </div>
-                <div class="text-4xl sm:text-5xl font-extrabold text-white font-mono">7 <span class="text-lg text-app-muted font-normal">/ 10</span></div>
-                <div class="text-[11px] text-app-muted mt-1 font-mono">Jaula: 100% Integra</div>
+                <div class="text-4xl sm:text-5xl font-black text-white font-mono">7 <span class="text-lg text-destiny-muted font-normal">/ 10</span></div>
+                <div class="text-[11px] text-destiny-muted mt-1 font-mono">Jaula: 100% Integra</div>
               </div>
 
               <!-- Centro: Tiempo Transcurrido -->
-              <div class="flex flex-col items-center justify-center border-x border-app-border/80 px-2 text-center">
-                <span class="text-[11px] font-mono text-app-muted uppercase tracking-widest">Cronómetro</span>
-                <span class="text-2xl sm:text-3xl font-extrabold font-mono text-white mt-0.5">14:48</span>
-                <div class="mt-2 text-[10px] font-mono bg-white/10 px-2.5 py-0.5 rounded-full text-zinc-300">
+              <div class="flex flex-col items-center justify-center border-x border-destiny-border px-2 text-center">
+                <span class="text-[11px] font-mono text-destiny-muted uppercase tracking-widest">Cronómetro</span>
+                <span class="text-2xl sm:text-3xl font-black font-mono text-white mt-0.5">14:48</span>
+                <div class="mt-2 text-[10px] font-mono bg-white/10 px-2.5 py-0.5 rounded-full text-slate-300">
                   Faro: Nivel II
                 </div>
               </div>
@@ -290,168 +433,168 @@
               <!-- Equipo Azul -->
               <div class="flex flex-col items-center">
                 <div class="flex items-center gap-2 mb-1">
-                  <span class="w-3 h-3 rounded-full bg-blue-500 shadow-md shadow-blue-500/50"></span>
-                  <span class="text-sm font-bold tracking-wider text-blue-400">EQUIPO AZUL</span>
+                  <span class="w-3 h-3 rounded-full bg-destiny-blue shadow-md shadow-sky-500/50"></span>
+                  <span class="text-sm font-bold tracking-wider text-sky-400">EQUIPO AZUL</span>
                 </div>
-                <div class="text-4xl sm:text-5xl font-extrabold text-white font-mono">5 <span class="text-lg text-app-muted font-normal">/ 10</span></div>
-                <div class="text-[11px] text-app-muted mt-1 font-mono">Jaula: 82% Integra</div>
+                <div class="text-4xl sm:text-5xl font-black text-white font-mono">5 <span class="text-lg text-destiny-muted font-normal">/ 10</span></div>
+                <div class="text-[11px] text-destiny-muted mt-1 font-mono">Jaula: 82% Integra</div>
               </div>
             </div>
 
             <!-- ROSTER DE JUGADORES EN PARTIDA (ROJO VS AZUL) -->
             <div>
               <div class="flex items-center justify-between mb-3">
-                <h3 class="text-xs font-mono font-semibold text-app-muted uppercase tracking-wider">Alineación de Jugadores en Partida</h3>
-                <span class="text-xs text-app-muted">Haz clic en cualquier jugador para ver su telemetría completa</span>
+                <h3 class="text-xs font-mono font-semibold text-destiny-muted uppercase tracking-wider">Alineación de Jugadores en Partida</h3>
+                <span class="text-xs text-destiny-muted">Haz clic en cualquier jugador para ver su perfil completo</span>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 
                 <!-- Columna Equipo Rojo -->
                 <div class="flex flex-col gap-2">
-                  <div class="text-xs font-bold text-red-400 flex items-center justify-between px-2 pb-1 border-b border-red-500/20">
+                  <div class="text-xs font-bold text-rose-400 flex items-center justify-between px-2 pb-1 border-b border-rose-500/20">
                     <span>🔴 RED TEAM (4)</span>
-                    <span class="font-mono text-[11px] text-zinc-400">Kills: 18</span>
+                    <span class="font-mono text-[11px] text-slate-400">Kills: 18</span>
                   </div>
 
                   <!-- Jugador Rojo 1 (Kylaz) -->
-                  <div onclick="selectPlayer('kylaz')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-red-500/40 cursor-pointer transition-all">
+                  <div onclick="selectPlayer('kylaz')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-destiny-window hover:bg-destiny-surfaceHover border border-destiny-border hover:border-rose-500/40 cursor-pointer transition-all">
                     <div class="flex items-center gap-2.5">
-                      <img src="https://visage.surgeplay.com/face/48/f4aa6afad90c4dd297b2ed453b8c99fe" alt="Kylaz" class="w-9 h-9 rounded-xl border border-red-500/40">
+                      <img src="https://visage.surgeplay.com/face/48/f4aa6afad90c4dd297b2ed453b8c99fe" alt="Kylaz" class="w-9 h-9 rounded-xl border border-rose-500/40">
                       <div>
                         <div class="flex items-center gap-1.5">
-                          <span class="text-sm font-bold text-white group-hover:text-red-300 transition-colors">Kylaz</span>
+                          <span class="text-sm font-bold text-white group-hover:text-rose-300 transition-colors">Kylaz</span>
                           <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 font-semibold">LÍDER</span>
                         </div>
-                        <div class="flex items-center gap-1 text-[11px] font-mono text-zinc-400">
-                          <span class="text-red-400">❤❤❤❤❤❤❤❤❤❤</span>
+                        <div class="flex items-center gap-1 text-[11px] font-mono text-rose-400">
+                          <span>❤❤❤❤❤❤❤❤❤❤</span>
                         </div>
                       </div>
                     </div>
                     <div class="text-right font-mono text-xs">
                       <div class="text-white font-bold">4 Goles</div>
-                      <div class="text-app-muted text-[11px]">8 Kills • 18ms</div>
+                      <div class="text-destiny-muted text-[11px]">8 Kills • 18ms</div>
                     </div>
                   </div>
 
                   <!-- Jugador Rojo 2 (ElGlower) -->
-                  <div onclick="selectPlayer('elglower')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-red-500/40 cursor-pointer transition-all">
+                  <div onclick="selectPlayer('elglower')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-destiny-window hover:bg-destiny-surfaceHover border border-destiny-border hover:border-rose-500/40 cursor-pointer transition-all">
                     <div class="flex items-center gap-2.5">
-                      <img src="https://visage.surgeplay.com/face/48/853c80ef3c3749fdaa49938b674acd16" alt="ElGlower" class="w-9 h-9 rounded-xl border border-red-500/40">
+                      <img src="https://visage.surgeplay.com/face/48/853c80ef3c3749fdaa49938b674acd16" alt="ElGlower" class="w-9 h-9 rounded-xl border border-rose-500/40">
                       <div>
                         <div class="flex items-center gap-1.5">
-                          <span class="text-sm font-bold text-white group-hover:text-red-300 transition-colors">ElGlower</span>
-                          <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-red-400/20 text-red-300">ASALTANTE</span>
+                          <span class="text-sm font-bold text-white group-hover:text-rose-300 transition-colors">ElGlower</span>
+                          <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-rose-400/20 text-rose-300">ASALTANTE</span>
                         </div>
-                        <div class="flex items-center gap-1 text-[11px] font-mono text-zinc-400">
-                          <span class="text-red-400">❤❤❤❤❤❤❤❤❤🖤</span>
+                        <div class="flex items-center gap-1 text-[11px] font-mono text-rose-400">
+                          <span>❤❤❤❤❤❤❤❤❤🖤</span>
                         </div>
                       </div>
                     </div>
                     <div class="text-right font-mono text-xs">
                       <div class="text-white font-bold">2 Goles</div>
-                      <div class="text-app-muted text-[11px]">5 Kills • 22ms</div>
+                      <div class="text-destiny-muted text-[11px]">5 Kills • 22ms</div>
                     </div>
                   </div>
 
                   <!-- Jugador Rojo 3 (AXIMITY) -->
-                  <div onclick="selectPlayer('aximity')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-red-500/40 cursor-pointer transition-all">
+                  <div onclick="selectPlayer('aximity')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-destiny-window hover:bg-destiny-surfaceHover border border-destiny-border hover:border-rose-500/40 cursor-pointer transition-all">
                     <div class="flex items-center gap-2.5">
-                      <img src="https://visage.surgeplay.com/face/48/37bba5ee9e644d5e975cffe1f139b24e" alt="AXIMITY" class="w-9 h-9 rounded-xl border border-red-500/40">
+                      <img src="https://visage.surgeplay.com/face/48/37bba5ee9e644d5e975cffe1f139b24e" alt="AXIMITY" class="w-9 h-9 rounded-xl border border-rose-500/40">
                       <div>
-                        <span class="text-sm font-bold text-white group-hover:text-red-300 transition-colors">AXIMITY</span>
-                        <div class="text-[11px] font-mono text-red-400">❤❤❤❤❤❤❤❤🖤🖤</div>
+                        <span class="text-sm font-bold text-white group-hover:text-rose-300 transition-colors">AXIMITY</span>
+                        <div class="text-[11px] font-mono text-rose-400">❤❤❤❤❤❤❤❤🖤🖤</div>
                       </div>
                     </div>
                     <div class="text-right font-mono text-xs">
                       <div class="text-white font-bold">1 Gol</div>
-                      <div class="text-app-muted text-[11px]">3 Kills • 15ms</div>
+                      <div class="text-destiny-muted text-[11px]">3 Kills • 15ms</div>
                     </div>
                   </div>
 
                   <!-- Jugador Rojo 4 (BlvckWlf) -->
-                  <div onclick="selectPlayer('blvckwlf')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-red-500/40 cursor-pointer transition-all">
+                  <div onclick="selectPlayer('blvckwlf')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-destiny-window hover:bg-destiny-surfaceHover border border-destiny-border hover:border-rose-500/40 cursor-pointer transition-all">
                     <div class="flex items-center gap-2.5">
-                      <img src="https://visage.surgeplay.com/face/48/653bb064799a4bc7983583cce16ddd83" alt="BlvckWlf" class="w-9 h-9 rounded-xl border border-red-500/40">
+                      <img src="https://visage.surgeplay.com/face/48/653bb064799a4bc7983583cce16ddd83" alt="BlvckWlf" class="w-9 h-9 rounded-xl border border-rose-500/40">
                       <div>
-                        <span class="text-sm font-bold text-white group-hover:text-red-300 transition-colors">BlvckWlf</span>
-                        <div class="text-[11px] font-mono text-red-400">❤❤❤❤❤❤❤❤❤❤</div>
+                        <span class="text-sm font-bold text-white group-hover:text-rose-300 transition-colors">BlvckWlf</span>
+                        <div class="text-[11px] font-mono text-rose-400">❤❤❤❤❤❤❤❤❤❤</div>
                       </div>
                     </div>
                     <div class="text-right font-mono text-xs">
                       <div class="text-white font-bold">0 Goles</div>
-                      <div class="text-app-muted text-[11px]">2 Kills • 24ms</div>
+                      <div class="text-destiny-muted text-[11px]">2 Kills • 24ms</div>
                     </div>
                   </div>
                 </div>
 
                 <!-- Columna Equipo Azul -->
                 <div class="flex flex-col gap-2">
-                  <div class="text-xs font-bold text-blue-400 flex items-center justify-between px-2 pb-1 border-b border-blue-500/20">
+                  <div class="text-xs font-bold text-sky-400 flex items-center justify-between px-2 pb-1 border-b border-sky-500/20">
                     <span>🔵 BLUE TEAM (4)</span>
-                    <span class="font-mono text-[11px] text-zinc-400">Kills: 14</span>
+                    <span class="font-mono text-[11px] text-slate-400">Kills: 14</span>
                   </div>
 
                   <!-- Jugador Azul 1 (Gpminer17) -->
-                  <div onclick="selectPlayer('gpminer17')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-blue-500/40 cursor-pointer transition-all">
+                  <div onclick="selectPlayer('gpminer17')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-destiny-window hover:bg-destiny-surfaceHover border border-destiny-border hover:border-sky-500/40 cursor-pointer transition-all">
                     <div class="flex items-center gap-2.5">
-                      <img src="https://visage.surgeplay.com/face/48/06af403561ab422faedd1edabc8d71c7" alt="Gpminer17" class="w-9 h-9 rounded-xl border border-blue-500/40">
+                      <img src="https://visage.surgeplay.com/face/48/06af403561ab422faedd1edabc8d71c7" alt="Gpminer17" class="w-9 h-9 rounded-xl border border-sky-500/40">
                       <div>
                         <div class="flex items-center gap-1.5">
-                          <span class="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">Gpminer17</span>
+                          <span class="text-sm font-bold text-white group-hover:text-sky-300 transition-colors">Gpminer17</span>
                           <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 font-semibold">LÍDER</span>
                         </div>
-                        <div class="text-[11px] font-mono text-blue-400">❤❤❤❤❤❤❤❤❤❤</div>
+                        <div class="text-[11px] font-mono text-sky-400">❤❤❤❤❤❤❤❤❤❤</div>
                       </div>
                     </div>
                     <div class="text-right font-mono text-xs">
                       <div class="text-white font-bold">3 Goles</div>
-                      <div class="text-app-muted text-[11px]">6 Kills • 21ms</div>
+                      <div class="text-destiny-muted text-[11px]">6 Kills • 21ms</div>
                     </div>
                   </div>
 
                   <!-- Jugador Azul 2 (Crozzor) -->
-                  <div onclick="selectPlayer('crozzor')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-blue-500/40 cursor-pointer transition-all">
+                  <div onclick="selectPlayer('crozzor')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-destiny-window hover:bg-destiny-surfaceHover border border-destiny-border hover:border-sky-500/40 cursor-pointer transition-all">
                     <div class="flex items-center gap-2.5">
-                      <img src="https://visage.surgeplay.com/face/48/3d50b9cde587408eb401a6afcab79d2c" alt="Crozzor" class="w-9 h-9 rounded-xl border border-blue-500/40">
+                      <img src="https://visage.surgeplay.com/face/48/3d50b9cde587408eb401a6afcab79d2c" alt="Crozzor" class="w-9 h-9 rounded-xl border border-sky-500/40">
                       <div>
-                        <span class="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">Crozzor</span>
-                        <div class="text-[11px] font-mono text-blue-400">❤❤❤❤❤❤❤❤🖤🖤</div>
+                        <span class="text-sm font-bold text-white group-hover:text-sky-300 transition-colors">Crozzor</span>
+                        <div class="text-[11px] font-mono text-sky-400">❤❤❤❤❤❤❤❤🖤🖤</div>
                       </div>
                     </div>
                     <div class="text-right font-mono text-xs">
                       <div class="text-white font-bold">2 Goles</div>
-                      <div class="text-app-muted text-[11px]">4 Kills • 20ms</div>
+                      <div class="text-destiny-muted text-[11px]">4 Kills • 20ms</div>
                     </div>
                   </div>
 
                   <!-- Jugador Azul 3 (coldified) -->
-                  <div onclick="selectPlayer('coldified')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-blue-500/40 cursor-pointer transition-all">
+                  <div onclick="selectPlayer('coldified')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-destiny-window hover:bg-destiny-surfaceHover border border-destiny-border hover:border-sky-500/40 cursor-pointer transition-all">
                     <div class="flex items-center gap-2.5">
-                      <img src="https://visage.surgeplay.com/face/48/7e8a77cadaf14224ae1d2df8bab1eccb" alt="coldified" class="w-9 h-9 rounded-xl border border-blue-500/40">
+                      <img src="https://visage.surgeplay.com/face/48/7e8a77cadaf14224ae1d2df8bab1eccb" alt="coldified" class="w-9 h-9 rounded-xl border border-sky-500/40">
                       <div>
-                        <span class="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">coldified</span>
-                        <div class="text-[11px] font-mono text-blue-400">❤❤❤❤❤❤❤🖤🖤🖤</div>
+                        <span class="text-sm font-bold text-white group-hover:text-sky-300 transition-colors">coldified</span>
+                        <div class="text-[11px] font-mono text-sky-400">❤❤❤❤❤❤❤🖤🖤🖤</div>
                       </div>
                     </div>
                     <div class="text-right font-mono text-xs">
                       <div class="text-white font-bold">0 Goles</div>
-                      <div class="text-app-muted text-[11px]">3 Kills • 31ms</div>
+                      <div class="text-destiny-muted text-[11px]">3 Kills • 31ms</div>
                     </div>
                   </div>
 
                   <!-- Jugador Azul 4 (ItzRealMe) -->
-                  <div onclick="selectPlayer('itzrealme')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border hover:border-blue-500/40 cursor-pointer transition-all">
+                  <div onclick="selectPlayer('itzrealme')" class="group flex items-center justify-between p-2.5 rounded-2xl bg-destiny-window hover:bg-destiny-surfaceHover border border-destiny-border hover:border-sky-500/40 cursor-pointer transition-all">
                     <div class="flex items-center gap-2.5">
-                      <img src="https://visage.surgeplay.com/face/48/06ec3577329945fabbdf613b1f86c8ab" alt="ItzRealMe" class="w-9 h-9 rounded-xl border border-blue-500/40">
+                      <img src="https://visage.surgeplay.com/face/48/06ec3577329945fabbdf613b1f86c8ab" alt="ItzRealMe" class="w-9 h-9 rounded-xl border border-sky-500/40">
                       <div>
-                        <span class="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">ItzRealMe</span>
-                        <div class="text-[11px] font-mono text-blue-400">❤❤❤❤❤❤❤❤❤❤</div>
+                        <span class="text-sm font-bold text-white group-hover:text-sky-300 transition-colors">ItzRealMe</span>
+                        <div class="text-[11px] font-mono text-sky-400">❤❤❤❤❤❤❤❤❤❤</div>
                       </div>
                     </div>
                     <div class="text-right font-mono text-xs">
                       <div class="text-white font-bold">0 Goles</div>
-                      <div class="text-app-muted text-[11px]">1 Kill • 19ms</div>
+                      <div class="text-destiny-muted text-[11px]">1 Kill • 19ms</div>
                     </div>
                   </div>
                 </div>
@@ -461,207 +604,27 @@
 
           </div>
 
-          <!-- LOG DE EVENTOS RECIENTES EN VIVO -->
-          <div class="bg-app-surface border border-app-border rounded-[24px] p-5 shadow-lg">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="text-xs font-mono font-semibold text-app-muted uppercase tracking-wider">Telemetría de Eventos en Vivo</h3>
-              <span class="text-xs font-mono text-emerald-400">En tiempo real</span>
-            </div>
-            <div class="space-y-2 text-xs font-mono">
-              <div class="flex items-center justify-between p-2 rounded-xl bg-app-window border border-app-border/40">
-                <div class="flex items-center gap-2">
-                  <span class="text-emerald-400 font-bold">GOL</span>
-                  <span class="text-white font-semibold">Kylaz</span>
-                  <span class="text-app-muted">anotó punto para Equipo Rojo</span>
-                </div>
-                <span class="text-app-muted text-[11px]">14:32</span>
-              </div>
-              <div class="flex items-center justify-between p-2 rounded-xl bg-app-window border border-app-border/40">
-                <div class="flex items-center gap-2">
-                  <span class="text-red-400 font-bold">BAJA</span>
-                  <span class="text-white font-semibold">ElGlower</span>
-                  <span class="text-app-muted">eliminó a</span>
-                  <span class="text-zinc-300 font-semibold">Crozzor</span>
-                </div>
-                <span class="text-app-muted text-[11px]">13:58</span>
-              </div>
-              <div class="flex items-center justify-between p-2 rounded-xl bg-app-window border border-app-border/40">
-                <div class="flex items-center gap-2">
-                  <span class="text-blue-400 font-bold">JAULA</span>
-                  <span class="text-white font-semibold">Gpminer17</span>
-                  <span class="text-app-muted">penetró el perímetro base roja</span>
-                </div>
-                <span class="text-app-muted text-[11px]">12:44</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- ======================================================== -->
-        <!-- VISTA 2: PODIO & TIERS (ESTILO MCPVP)                    -->
-        <!-- ======================================================== -->
-        <section id="view-podium" class="tab-view flex flex-col gap-6">
-          <div class="bg-app-surface border border-app-border rounded-[28px] p-6 sm:p-8 shadow-xl podium-ambience relative overflow-hidden">
-            
-            <div class="text-center mb-8">
-              <span class="px-3 py-1 rounded-full text-[11px] font-mono font-semibold bg-white/10 text-amber-300 border border-amber-300/20 uppercase tracking-widest">
-                Temporada 2026 • Leaderboard Oficial
-              </span>
-              <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-2 tracking-tight">Top Players Competitivos</h2>
-              <p class="text-xs text-app-muted mt-1">Clasificación basada en victorias, goles a la torre y ELO ponderado</p>
-            </div>
-
-            <!-- ESTRUCTURA DEL PODIO (2do - 1ro - 3ro) -->
-            <div class="grid grid-cols-3 gap-3 sm:gap-5 items-end max-w-2xl mx-auto pb-4">
-              
-              <!-- 2DO LUGAR (Izquierda) -->
-              <div onclick="selectPlayer('gpminer17')" class="group flex flex-col items-center cursor-pointer transition-transform hover:-translate-y-1">
-                <span class="text-xs font-bold text-zinc-300 group-hover:text-white transition-colors">Gpminer17</span>
-                <span class="text-[10px] font-mono font-bold text-zinc-400 mt-0.5">TIER LT1</span>
-                
-                <div class="relative mt-2">
-                  <img src="https://visage.surgeplay.com/bust/160/06af403561ab422faedd1edabc8d71c7" alt="Gpminer17" class="w-20 sm:w-28 drop-shadow-2xl">
-                </div>
-
-                <!-- Pedestal 2 -->
-                <div class="w-full bg-gradient-to-t from-[#201d2a] to-[#2e293d] border border-app-border rounded-2xl h-28 flex flex-col items-center justify-center p-3 shadow-lg">
-                  <div class="w-8 h-8 rounded-full bg-zinc-300 text-black font-extrabold flex items-center justify-center text-sm shadow">
-                    2
-                  </div>
-                  <span class="text-xs font-mono font-bold text-white mt-2">295 Pts</span>
-                  <span class="text-[10px] text-app-muted">74.2% WR</span>
-                </div>
-              </div>
-
-              <!-- 1ER LUGAR (Centro - Elevado) -->
-              <div onclick="selectPlayer('kylaz')" class="group flex flex-col items-center cursor-pointer transition-transform hover:-translate-y-1.5">
-                <i class="fa-solid fa-crown text-amber-400 text-lg mb-1 animate-bounce"></i>
-                <span class="text-sm font-extrabold text-amber-300 group-hover:text-white transition-colors">Kylaz</span>
-                <span class="text-[10px] font-mono font-bold text-amber-400 mt-0.5">TIER HT1</span>
-                
-                <div class="relative mt-2">
-                  <img src="https://visage.surgeplay.com/bust/180/f4aa6afad90c4dd297b2ed453b8c99fe" alt="Kylaz" class="w-24 sm:w-36 drop-shadow-2xl">
-                </div>
-
-                <!-- Pedestal 1 -->
-                <div class="w-full bg-gradient-to-t from-[#251f15] to-[#3a301d] border border-amber-500/40 rounded-2xl h-36 flex flex-col items-center justify-center p-3 shadow-xl">
-                  <div class="w-9 h-9 rounded-full bg-amber-400 text-black font-black flex items-center justify-center text-base shadow-lg shadow-amber-500/50">
-                    1
-                  </div>
-                  <span class="text-sm font-mono font-extrabold text-amber-200 mt-2">340 Pts</span>
-                  <span class="text-[11px] text-amber-300/80 font-mono">142 Goles</span>
-                </div>
-              </div>
-
-              <!-- 3ER LUGAR (Derecha) -->
-              <div onclick="selectPlayer('crozzor')" class="group flex flex-col items-center cursor-pointer transition-transform hover:-translate-y-1">
-                <span class="text-xs font-bold text-zinc-300 group-hover:text-white transition-colors">Crozzor</span>
-                <span class="text-[10px] font-mono font-bold text-zinc-400 mt-0.5">TIER HT2</span>
-                
-                <div class="relative mt-2">
-                  <img src="https://visage.surgeplay.com/bust/160/3d50b9cde587408eb401a6afcab79d2c" alt="Crozzor" class="w-20 sm:w-28 drop-shadow-2xl">
-                </div>
-
-                <!-- Pedestal 3 -->
-                <div class="w-full bg-gradient-to-t from-[#201d2a] to-[#2b2533] border border-app-border rounded-2xl h-24 flex flex-col items-center justify-center p-3 shadow-lg">
-                  <div class="w-7 h-7 rounded-full bg-amber-700 text-white font-extrabold flex items-center justify-center text-xs shadow">
-                    3
-                  </div>
-                  <span class="text-xs font-mono font-bold text-white mt-2">275 Pts</span>
-                  <span class="text-[10px] text-app-muted">69.1% WR</span>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- TABLA DE JUGADORES #4 A #10 -->
-            <div class="mt-6 border-t border-app-border/80 pt-5 space-y-2">
-              <div class="text-xs font-mono text-app-muted uppercase tracking-wider px-3 mb-2 flex justify-between">
-                <span>Posición & Jugador</span>
-                <div class="flex gap-8">
-                  <span>Tier</span>
-                  <span>Puntos</span>
-                </div>
-              </div>
-
-              <!-- Item #4 -->
-              <div onclick="selectPlayer('elglower')" class="flex items-center justify-between p-3 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border cursor-pointer transition-all">
-                <div class="flex items-center gap-3">
-                  <span class="w-6 font-mono font-bold text-zinc-400 text-center">4</span>
-                  <img src="https://visage.surgeplay.com/face/40/853c80ef3c3749fdaa49938b674acd16" alt="ElGlower" class="w-8 h-8 rounded-lg">
-                  <div>
-                    <div class="text-sm font-bold text-white">ElGlower</div>
-                    <div class="text-[10px] text-app-muted font-mono">92 Partidas • 118 Goles</div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-8 font-mono text-xs">
-                  <span class="px-2 py-0.5 rounded bg-white/10 text-zinc-300 font-bold">HT2</span>
-                  <span class="text-white font-bold">265 Pts</span>
-                </div>
-              </div>
-
-              <!-- Item #5 -->
-              <div onclick="selectPlayer('aximity')" class="flex items-center justify-between p-3 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border cursor-pointer transition-all">
-                <div class="flex items-center gap-3">
-                  <span class="w-6 font-mono font-bold text-zinc-400 text-center">5</span>
-                  <img src="https://visage.surgeplay.com/face/40/37bba5ee9e644d5e975cffe1f139b24e" alt="AXIMITY" class="w-8 h-8 rounded-lg">
-                  <div>
-                    <div class="text-sm font-bold text-white">AXIMITY</div>
-                    <div class="text-[10px] text-app-muted font-mono">84 Partidas • 95 Goles</div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-8 font-mono text-xs">
-                  <span class="px-2 py-0.5 rounded bg-white/10 text-zinc-300 font-bold">MT2</span>
-                  <span class="text-white font-bold">240 Pts</span>
-                </div>
-              </div>
-
-              <!-- Item #6 -->
-              <div onclick="selectPlayer('coldified')" class="flex items-center justify-between p-3 rounded-2xl bg-app-window hover:bg-app-hover border border-app-border cursor-pointer transition-all">
-                <div class="flex items-center gap-3">
-                  <span class="w-6 font-mono font-bold text-zinc-400 text-center">6</span>
-                  <img src="https://visage.surgeplay.com/face/40/7e8a77cadaf14224ae1d2df8bab1eccb" alt="coldified" class="w-8 h-8 rounded-lg">
-                  <div>
-                    <div class="text-sm font-bold text-white">coldified</div>
-                    <div class="text-[10px] text-app-muted font-mono">79 Partidas • 88 Goles</div>
-                  </div>
-                </div>
-                <div class="flex items-center gap-8 font-mono text-xs">
-                  <span class="px-2 py-0.5 rounded bg-white/10 text-zinc-300 font-bold">MT2</span>
-                  <span class="text-white font-bold">228 Pts</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- ======================================================== -->
-        <!-- VISTA 3: HISTORIAL (100+ PARTIDAS PAGINADAS)             -->
-        <!-- ======================================================== -->
-        <section id="view-history" class="tab-view flex flex-col gap-5">
-          <div class="bg-app-surface border border-app-border rounded-[28px] p-6 sm:p-7 shadow-xl">
-            
-            <!-- Cabecera y Filtros de Partidas -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-app-border/80">
+          <!-- HISTORIAL DE PARTIDAS (100+) DENTRO DE MODALIDAD -->
+          <div class="bg-destiny-surface border border-destiny-border rounded-[28px] p-6 sm:p-7 shadow-xl">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-destiny-border/80">
               <div>
-                <h2 class="text-xl font-bold text-white tracking-tight">Historial Oficial de Partidas</h2>
-                <p class="text-xs text-app-muted mt-0.5 font-mono">Registro histórico de más de 100 encuentros en 2026</p>
+                <h3 class="text-lg font-bold text-white tracking-tight">Historial Oficial de Partidas</h3>
+                <p class="text-xs text-destiny-muted mt-0.5 font-mono">Más de 100 encuentros competitivos en 2026</p>
               </div>
 
               <!-- Filtros por Equipo Ganador -->
-              <div class="flex items-center gap-1.5 bg-app-window p-1 rounded-full border border-app-border text-xs">
+              <div class="flex items-center gap-1.5 bg-destiny-window p-1 rounded-full border border-destiny-border text-xs">
                 <button onclick="filterMatches('ALL')" id="filter-all" class="px-3 py-1 rounded-full font-semibold bg-white text-black">Todas</button>
-                <button onclick="filterMatches('RED')" id="filter-red" class="px-3 py-1 rounded-full text-app-muted hover:text-white">Rojo</button>
-                <button onclick="filterMatches('BLUE')" id="filter-blue" class="px-3 py-1 rounded-full text-app-muted hover:text-white">Azul</button>
+                <button onclick="filterMatches('RED')" id="filter-red" class="px-3 py-1 rounded-full text-destiny-muted hover:text-white">Rojo</button>
+                <button onclick="filterMatches('BLUE')" id="filter-blue" class="px-3 py-1 rounded-full text-destiny-muted hover:text-white">Azul</button>
               </div>
             </div>
 
-            <!-- TABLA DE PARTIDAS CON RENDERIZADO DINÁMICO -->
+            <!-- TABLA DE PARTIDAS -->
             <div class="overflow-x-auto mt-4">
               <table class="w-full text-left text-xs font-mono">
                 <thead>
-                  <tr class="text-app-muted border-b border-app-border/60 pb-2">
+                  <tr class="text-destiny-muted border-b border-destiny-border/60 pb-2">
                     <th class="py-2.5 px-3">ID</th>
                     <th class="py-2.5 px-3">Fecha</th>
                     <th class="py-2.5 px-3">Mapa</th>
@@ -671,111 +634,110 @@
                     <th class="py-2.5 px-3">MVP</th>
                   </tr>
                 </thead>
-                <tbody id="matches-table-body" class="divide-y divide-app-border/40 text-zinc-300">
-                  <!-- Inyectado vía JavaScript con 100+ registros -->
+                <tbody id="matches-table-body" class="divide-y divide-destiny-border/40 text-slate-300">
+                  <!-- Inyectado vía JavaScript -->
                 </tbody>
               </table>
             </div>
 
-            <!-- Paginación de Historial -->
-            <div class="flex items-center justify-between pt-5 border-t border-app-border/80 text-xs">
-              <span id="history-pagination-info" class="text-app-muted font-mono">Página 1 de 11 (105 partidas registradas)</span>
+            <!-- Paginación -->
+            <div class="flex items-center justify-between pt-5 border-t border-destiny-border/80 text-xs">
+              <span id="history-pagination-info" class="text-destiny-muted font-mono">Página 1 de 11 (105 partidas registradas)</span>
               <div class="flex items-center gap-2">
-                <button onclick="changeHistoryPage(-1)" class="px-3 py-1.5 rounded-full bg-app-window hover:bg-app-hover border border-app-border text-white transition-colors">
+                <button onclick="changeHistoryPage(-1)" class="px-3 py-1.5 rounded-full bg-destiny-window hover:bg-destiny-surfaceHover border border-destiny-border text-white transition-colors">
                   <i class="fa-solid fa-chevron-left mr-1"></i> Anterior
                 </button>
-                <button onclick="changeHistoryPage(1)" class="px-3 py-1.5 rounded-full bg-app-window hover:bg-app-hover border border-app-border text-white transition-colors">
+                <button onclick="changeHistoryPage(1)" class="px-3 py-1.5 rounded-full bg-destiny-window hover:bg-destiny-surfaceHover border border-destiny-border text-white transition-colors">
                   Siguiente <i class="fa-solid fa-chevron-right ml-1"></i>
                 </button>
               </div>
             </div>
-
           </div>
         </section>
 
         <!-- ======================================================== -->
-        <!-- VISTA 4: MIEMBROS DE DESTINY (UNKNOWN MEMBER SLOTS)      -->
+        <!-- VISTA 3: MIEMBROS (UNKNOWN MEMBER SLOTS STRICTLY)        -->
         <!-- ======================================================== -->
-        <section id="view-members" class="tab-view flex flex-col gap-5">
-          <div class="bg-app-surface border border-app-border rounded-[28px] p-6 sm:p-7 shadow-xl">
+        <section id="view-miembros" class="tab-view flex flex-col gap-5">
+          <div class="bg-destiny-surface border border-destiny-border rounded-[28px] p-6 sm:p-7 shadow-xl">
             
-            <div class="pb-5 border-b border-app-border/80">
+            <div class="pb-5 border-b border-destiny-border/80">
               <h2 class="text-xl font-bold text-white tracking-tight">Miembros Oficiales de Destiny</h2>
-              <p class="text-xs text-app-muted mt-0.5">Slots de plantilla registrados. Pendiente de asignación de credenciales.</p>
+              <p class="text-xs text-destiny-muted mt-0.5">Slots de plantilla registrados. Pendiente de asignación de credenciales.</p>
             </div>
 
             <!-- CUADRÍCULA DE TARJETAS RESERVADAS: UNKNOWN MEMBER STRICTLY -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-5">
               
               <!-- Slot 1 -->
-              <div class="p-4 rounded-2xl bg-app-window border border-app-border/80 flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-app-surface border border-app-border flex items-center justify-center text-app-muted text-lg">
+              <div class="p-4 rounded-2xl bg-destiny-window border border-destiny-border flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-destiny-surface border border-destiny-border flex items-center justify-center text-destiny-muted text-lg">
                   <i class="fa-solid fa-user-secret"></i>
                 </div>
                 <div>
                   <h4 class="text-sm font-bold text-white">Unknown Member</h4>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-app-muted border border-white/10">Slot Reservado</span>
-                  <div class="text-[11px] text-zinc-500 font-mono mt-1">ID: #DESTINY-01</div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-destiny-muted border border-white/10">Slot Reservado</span>
+                  <div class="text-[11px] text-slate-500 font-mono mt-1">ID: #DESTINY-01</div>
                 </div>
               </div>
 
               <!-- Slot 2 -->
-              <div class="p-4 rounded-2xl bg-app-window border border-app-border/80 flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-app-surface border border-app-border flex items-center justify-center text-app-muted text-lg">
+              <div class="p-4 rounded-2xl bg-destiny-window border border-destiny-border flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-destiny-surface border border-destiny-border flex items-center justify-center text-destiny-muted text-lg">
                   <i class="fa-solid fa-user-secret"></i>
                 </div>
                 <div>
                   <h4 class="text-sm font-bold text-white">Unknown Member</h4>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-app-muted border border-white/10">Slot Reservado</span>
-                  <div class="text-[11px] text-zinc-500 font-mono mt-1">ID: #DESTINY-02</div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-destiny-muted border border-white/10">Slot Reservado</span>
+                  <div class="text-[11px] text-slate-500 font-mono mt-1">ID: #DESTINY-02</div>
                 </div>
               </div>
 
               <!-- Slot 3 -->
-              <div class="p-4 rounded-2xl bg-app-window border border-app-border/80 flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-app-surface border border-app-border flex items-center justify-center text-app-muted text-lg">
+              <div class="p-4 rounded-2xl bg-destiny-window border border-destiny-border flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-destiny-surface border border-destiny-border flex items-center justify-center text-destiny-muted text-lg">
                   <i class="fa-solid fa-user-secret"></i>
                 </div>
                 <div>
                   <h4 class="text-sm font-bold text-white">Unknown Member</h4>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-app-muted border border-white/10">Slot Reservado</span>
-                  <div class="text-[11px] text-zinc-500 font-mono mt-1">ID: #DESTINY-03</div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-destiny-muted border border-white/10">Slot Reservado</span>
+                  <div class="text-[11px] text-slate-500 font-mono mt-1">ID: #DESTINY-03</div>
                 </div>
               </div>
 
               <!-- Slot 4 -->
-              <div class="p-4 rounded-2xl bg-app-window border border-app-border/80 flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-app-surface border border-app-border flex items-center justify-center text-app-muted text-lg">
+              <div class="p-4 rounded-2xl bg-destiny-window border border-destiny-border flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-destiny-surface border border-destiny-border flex items-center justify-center text-destiny-muted text-lg">
                   <i class="fa-solid fa-user-secret"></i>
                 </div>
                 <div>
                   <h4 class="text-sm font-bold text-white">Unknown Member</h4>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-app-muted border border-white/10">Slot Reservado</span>
-                  <div class="text-[11px] text-zinc-500 font-mono mt-1">ID: #DESTINY-04</div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-destiny-muted border border-white/10">Slot Reservado</span>
+                  <div class="text-[11px] text-slate-500 font-mono mt-1">ID: #DESTINY-04</div>
                 </div>
               </div>
 
               <!-- Slot 5 -->
-              <div class="p-4 rounded-2xl bg-app-window border border-app-border/80 flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-app-surface border border-app-border flex items-center justify-center text-app-muted text-lg">
+              <div class="p-4 rounded-2xl bg-destiny-window border border-destiny-border flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-destiny-surface border border-destiny-border flex items-center justify-center text-destiny-muted text-lg">
                   <i class="fa-solid fa-user-secret"></i>
                 </div>
                 <div>
                   <h4 class="text-sm font-bold text-white">Unknown Member</h4>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-app-muted border border-white/10">Slot Reservado</span>
-                  <div class="text-[11px] text-zinc-500 font-mono mt-1">ID: #DESTINY-05</div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-destiny-muted border border-white/10">Slot Reservado</span>
+                  <div class="text-[11px] text-slate-500 font-mono mt-1">ID: #DESTINY-05</div>
                 </div>
               </div>
 
               <!-- Slot 6 -->
-              <div class="p-4 rounded-2xl bg-app-window border border-app-border/80 flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-app-surface border border-app-border flex items-center justify-center text-app-muted text-lg">
+              <div class="p-4 rounded-2xl bg-destiny-window border border-destiny-border flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-destiny-surface border border-destiny-border flex items-center justify-center text-destiny-muted text-lg">
                   <i class="fa-solid fa-user-secret"></i>
                 </div>
                 <div>
                   <h4 class="text-sm font-bold text-white">Unknown Member</h4>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-app-muted border border-white/10">Slot Reservado</span>
-                  <div class="text-[11px] text-zinc-500 font-mono mt-1">ID: #DESTINY-06</div>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-destiny-muted border border-white/10">Slot Reservado</span>
+                  <div class="text-[11px] text-slate-500 font-mono mt-1">ID: #DESTINY-06</div>
                 </div>
               </div>
 
@@ -819,22 +781,22 @@
           <!-- RENDERIZADO 3D COMPLETO DEL PERSONAJE CON PEDESTAL -->
           <div class="pedestal-glow flex flex-col items-center justify-center pt-10 pb-4">
             <div class="relative w-56 h-72 flex items-center justify-center transition-all duration-300 transform" id="skin-container">
-              <img id="player-full-skin" src="https://visage.surgeplay.com/full/512/f4aa6afad90c4dd297b2ed453b8c99fe?tilt=0&yaw=20" alt="Skin 3D" class="max-h-full object-contain filter drop-shadow-[0_20px_25px_rgba(0,0,0,0.8)]">
+              <img id="player-full-skin" src="https://visage.surgeplay.com/full/512/f4aa6afad90c4dd297b2ed453b8c99fe?tilt=0&yaw=20" alt="Skin 3D" class="max-h-full object-contain filter drop-shadow-[0_20px_25px_rgba(0,0,0,0.85)]">
             </div>
 
             <!-- Título y Clasificación del Jugador -->
             <div class="text-center mt-3">
               <h3 id="showcase-name" class="text-2xl sm:text-3xl font-black text-white tracking-tight">Kylaz</h3>
               <div class="flex items-center justify-center gap-2 mt-1">
-                <span id="showcase-rank" class="text-xs font-mono font-bold text-app-muted">#1 Global The Towers</span>
-                <span class="text-app-muted">•</span>
+                <span id="showcase-rank" class="text-xs font-mono font-bold text-destiny-muted">#1 Global The Towers</span>
+                <span class="text-destiny-muted">•</span>
                 <span id="showcase-tier" class="text-xs font-mono font-bold text-amber-300">TIER HT1</span>
               </div>
             </div>
           </div>
 
           <!-- PÍLDORAS INFERIORES DE ALTO IMPACTO (COMO EN EL MOCK) -->
-          <div class="flex items-center justify-between gap-3 mt-4 pt-4 border-t border-app-border/80">
+          <div class="flex items-center justify-between gap-3 mt-4 pt-4 border-t border-destiny-border">
             <!-- Píldora de Goles -->
             <div class="flex-1 bg-white/10 border border-white/15 rounded-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-bold text-white shadow">
               <i class="fa-solid fa-bullseye text-amber-400"></i>
@@ -842,7 +804,7 @@
             </div>
 
             <!-- Píldora de Rating ELO -->
-            <div class="flex-1 bg-gradient-to-r from-amber-700/60 to-amber-600/60 border border-amber-500/30 rounded-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-extrabold text-amber-100 shadow">
+            <div class="flex-1 bg-gradient-to-r from-amber-600 to-amber-500 border border-amber-400/40 rounded-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-black text-black shadow">
               <i class="fa-solid fa-bolt"></i>
               <span id="showcase-elo-pill">2,450 ELO</span>
             </div>
@@ -851,82 +813,82 @@
           <!-- ======================================================== -->
           <!-- DESGLOSE EXHAUSTIVO DE TELEMETRÍA (REQUERIDO POR EL USER) -->
           <!-- ======================================================== -->
-          <div class="mt-6 bg-app-window/90 border border-app-border/70 rounded-2xl p-4">
-            <div class="flex items-center justify-between mb-3 pb-2 border-b border-app-border/60">
+          <div class="mt-6 bg-destiny-window border border-destiny-border rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-destiny-border/80">
               <span class="text-xs font-mono font-bold text-white uppercase tracking-wider">Telemetría Completa</span>
-              <span class="text-[11px] font-mono text-app-muted">Temporada 2026</span>
+              <span class="text-[11px] font-mono text-destiny-muted">Temporada 2026</span>
             </div>
 
             <div class="grid grid-cols-2 gap-3 text-xs font-mono">
               
               <!-- Métrica 1: Goles -->
-              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
-                <div class="text-app-muted text-[10px] uppercase">Goles a la Torre</div>
+              <div class="bg-destiny-surface p-2.5 rounded-xl border border-destiny-border/60">
+                <div class="text-destiny-muted text-[10px] uppercase">Goles a la Torre</div>
                 <div id="stat-goals" class="text-base font-bold text-white mt-0.5">142</div>
                 <div class="text-[10px] text-emerald-400">1.10 goles / partida</div>
               </div>
 
               <!-- Métrica 2: Roturas de Jaula -->
-              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
-                <div class="text-app-muted text-[10px] uppercase">Roturas de Jaula</div>
+              <div class="bg-destiny-surface p-2.5 rounded-xl border border-destiny-border/60">
+                <div class="text-destiny-muted text-[10px] uppercase">Roturas de Jaula</div>
                 <div id="stat-cages" class="text-base font-bold text-white mt-0.5">89</div>
-                <div class="text-[10px] text-zinc-400">62.6% penetración</div>
+                <div class="text-[10px] text-slate-400">62.6% penetración</div>
               </div>
 
               <!-- Métrica 3: Kills & Deaths -->
-              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
-                <div class="text-app-muted text-[10px] uppercase">Kills / Deaths</div>
+              <div class="bg-destiny-surface p-2.5 rounded-xl border border-destiny-border/60">
+                <div class="text-destiny-muted text-[10px] uppercase">Kills / Deaths</div>
                 <div id="stat-kd" class="text-base font-bold text-white mt-0.5">618 / 204</div>
                 <div class="text-[10px] text-amber-300 font-bold" id="stat-kd-ratio">K/D: 3.03</div>
               </div>
 
               <!-- Métrica 4: Asistencias -->
-              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
-                <div class="text-app-muted text-[10px] uppercase">Asistencias</div>
+              <div class="bg-destiny-surface p-2.5 rounded-xl border border-destiny-border/60">
+                <div class="text-destiny-muted text-[10px] uppercase">Asistencias</div>
                 <div id="stat-assists" class="text-base font-bold text-white mt-0.5">345</div>
-                <div class="text-[10px] text-zinc-400">2.69 por partida</div>
+                <div class="text-[10px] text-slate-400">2.69 por partida</div>
               </div>
 
               <!-- Métrica 5: Daño Infligido -->
-              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
-                <div class="text-app-muted text-[10px] uppercase">Daño Infligido</div>
-                <div id="stat-damage-dealt" class="text-base font-bold text-red-400 mt-0.5">24,850 ❤</div>
-                <div class="text-[10px] text-zinc-400">194.1 ❤ / partida</div>
+              <div class="bg-destiny-surface p-2.5 rounded-xl border border-destiny-border/60">
+                <div class="text-destiny-muted text-[10px] uppercase">Daño Infligido</div>
+                <div id="stat-damage-dealt" class="text-base font-bold text-rose-400 mt-0.5">24,850 ❤</div>
+                <div class="text-[10px] text-slate-400">194.1 ❤ / partida</div>
               </div>
 
               <!-- Métrica 6: Daño Recibido -->
-              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
-                <div class="text-app-muted text-[10px] uppercase">Daño Recibido</div>
-                <div id="stat-damage-taken" class="text-base font-bold text-zinc-300 mt-0.5">11,200 ❤</div>
-                <div class="text-[10px] text-zinc-400">87.5 ❤ / partida</div>
+              <div class="bg-destiny-surface p-2.5 rounded-xl border border-destiny-border/60">
+                <div class="text-destiny-muted text-[10px] uppercase">Daño Recibido</div>
+                <div id="stat-damage-taken" class="text-base font-bold text-slate-300 mt-0.5">11,200 ❤</div>
+                <div class="text-[10px] text-slate-400">87.5 ❤ / partida</div>
               </div>
 
               <!-- Métrica 7: Puntería Arco -->
-              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
-                <div class="text-app-muted text-[10px] uppercase">Precisión de Arco</div>
+              <div class="bg-destiny-surface p-2.5 rounded-xl border border-destiny-border/60">
+                <div class="text-destiny-muted text-[10px] uppercase">Precisión de Arco</div>
                 <div id="stat-bow-acc" class="text-base font-bold text-white mt-0.5">68.4%</div>
-                <div class="text-[10px] text-zinc-400">842 / 1,231 flechas</div>
+                <div class="text-[10px] text-slate-400">842 / 1,231 flechas</div>
               </div>
 
               <!-- Métrica 8: Bloques -->
-              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
-                <div class="text-app-muted text-[10px] uppercase">Bloques Puestos/Rotos</div>
+              <div class="bg-destiny-surface p-2.5 rounded-xl border border-destiny-border/60">
+                <div class="text-destiny-muted text-[10px] uppercase">Bloques Puestos/Rotos</div>
                 <div id="stat-blocks" class="text-base font-bold text-white mt-0.5">18.9k / 14.2k</div>
-                <div class="text-[10px] text-zinc-400">Puentes & Defensas</div>
+                <div class="text-[10px] text-slate-400">Puentes & Defensas</div>
               </div>
 
               <!-- Métrica 9: Racha de Victorias -->
-              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
-                <div class="text-app-muted text-[10px] uppercase">Mejor Racha</div>
+              <div class="bg-destiny-surface p-2.5 rounded-xl border border-destiny-border/60">
+                <div class="text-destiny-muted text-[10px] uppercase">Mejor Racha</div>
                 <div id="stat-streak" class="text-base font-bold text-emerald-400 mt-0.5">14 Victorias</div>
-                <div class="text-[10px] text-zinc-400">Racha Actual: 6</div>
+                <div class="text-[10px] text-slate-400">Racha Actual: 6</div>
               </div>
 
               <!-- Métrica 10: Tiempo Jugado -->
-              <div class="bg-app-surface/60 p-2.5 rounded-xl border border-app-border/40">
-                <div class="text-app-muted text-[10px] uppercase">Tiempo en Partida</div>
+              <div class="bg-destiny-surface p-2.5 rounded-xl border border-destiny-border/60">
+                <div class="text-destiny-muted text-[10px] uppercase">Tiempo en Partida</div>
                 <div id="stat-playtime" class="text-base font-bold text-white mt-0.5">48h 35m</div>
-                <div class="text-[10px] text-zinc-400">128 partidas totales</div>
+                <div class="text-[10px] text-slate-400">128 partidas totales</div>
               </div>
 
             </div>
@@ -1139,29 +1101,29 @@
       });
     }
 
-    // Estado local de paginación y filtro
-    let currentTab = 'towers';
+    // Estado local de navegación
+    let currentTab = 'inicio';
     let currentHistoryFilter = 'ALL';
     let currentHistoryPage = 1;
     const MATCHES_PER_PAGE = 10;
     let isTilted = false;
 
-    // Conmutador de Pestañas
+    // Conmutador de Pestañas: inicio | modalidad | miembros
     function switchTab(tabId) {
       currentTab = tabId;
       document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
       const targetView = document.getElementById(`view-${tabId}`);
       if (targetView) targetView.classList.add('active');
 
-      // Actualizar estilo de píldoras en la barra superior
-      const tabs = ['towers', 'podium', 'history', 'members'];
+      // Actualizar estilo de píldoras en la barra superior (INICIO - MODALIDAD - MIEMBROS)
+      const tabs = ['inicio', 'modalidad', 'miembros'];
       tabs.forEach(t => {
         const btn = document.getElementById(`nav-btn-${t}`);
         if (btn) {
           if (t === tabId) {
-            btn.className = 'px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 bg-white text-black shadow-md flex items-center gap-2 whitespace-nowrap';
+            btn.className = 'px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 bg-white text-black shadow-md flex items-center gap-2 whitespace-nowrap';
           } else {
-            btn.className = 'px-5 py-2.5 rounded-full text-sm font-medium text-app-muted hover:text-white transition-all duration-200 flex items-center gap-2 whitespace-nowrap';
+            btn.className = 'px-6 py-2.5 rounded-full text-sm font-medium text-destiny-muted hover:text-white transition-all duration-200 flex items-center gap-2 whitespace-nowrap';
           }
         }
       });
@@ -1202,7 +1164,7 @@
       document.getElementById('stat-playtime').textContent = p.playtime;
     }
 
-    // Renderizador de Tabla de Historial (Paginado & Filtrado)
+    // Renderizador de Tabla de Historial
     function renderHistoryTable() {
       const tbody = document.getElementById('matches-table-body');
       if (!tbody) return;
@@ -1222,17 +1184,17 @@
       tbody.innerHTML = paginated.map(m => `
         <tr class="hover:bg-white/5 transition-colors">
           <td class="py-3 px-3 font-bold text-white">${m.id}</td>
-          <td class="py-3 px-3 text-app-muted">${m.date}</td>
-          <td class="py-3 px-3 text-zinc-200">${m.map}</td>
+          <td class="py-3 px-3 text-destiny-muted">${m.date}</td>
+          <td class="py-3 px-3 text-slate-200">${m.map}</td>
           <td class="py-3 px-3">
             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-              m.winner === 'RED' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+              m.winner === 'RED' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-sky-500/20 text-sky-400 border border-sky-500/30'
             }">
               ${m.winner === 'RED' ? 'VICTORIA ROJA' : 'VICTORIA AZUL'}
             </span>
           </td>
           <td class="py-3 px-3 font-bold text-white">${m.score}</td>
-          <td class="py-3 px-3 text-app-muted">${m.duration}</td>
+          <td class="py-3 px-3 text-destiny-muted">${m.duration}</td>
           <td class="py-3 px-3">
             <div class="flex items-center gap-1.5 cursor-pointer" onclick="findAndSelectPlayer('${m.mvp}')">
               <img src="https://visage.surgeplay.com/face/20/${m.mvpUuid}" alt="${m.mvp}" class="w-4 h-4 rounded">
@@ -1260,12 +1222,12 @@
       const btnBlue = document.getElementById('filter-blue');
 
       [btnAll, btnRed, btnBlue].forEach(b => {
-        b.className = 'px-3 py-1 rounded-full text-app-muted hover:text-white';
+        b.className = 'px-3 py-1 rounded-full text-destiny-muted hover:text-white';
       });
 
       if (team === 'ALL') btnAll.className = 'px-3 py-1 rounded-full font-semibold bg-white text-black';
-      if (team === 'RED') btnRed.className = 'px-3 py-1 rounded-full font-semibold bg-red-500 text-white';
-      if (team === 'BLUE') btnBlue.className = 'px-3 py-1 rounded-full font-semibold bg-blue-500 text-white';
+      if (team === 'RED') btnRed.className = 'px-3 py-1 rounded-full font-semibold bg-rose-500 text-white';
+      if (team === 'BLUE') btnBlue.className = 'px-3 py-1 rounded-full font-semibold bg-sky-500 text-white';
 
       renderHistoryTable();
     }
@@ -1275,25 +1237,23 @@
       if (match) selectPlayer(match.id);
     }
 
-    // Buscador global en tiempo real
+    // Buscador global
     function handleGlobalSearch(query) {
       if (!query) return;
       const q = query.trim().toLowerCase();
       
-      // Buscar en jugadores
       const match = Object.values(PLAYERS_DATABASE).find(p => p.nick.toLowerCase().includes(q) || p.id.includes(q));
       if (match) {
         selectPlayer(match.id);
         return;
       }
 
-      // Si la consulta parece una partida o búsqueda de historial, conmutar a historial
-      if (q.startsWith('#dt') || q.includes('ruinas') || q.includes('templo')) {
-        switchTab('history');
+      if (q.startsWith('#dt') || q.includes('ruinas') || q.includes('templo') || q.includes('towers')) {
+        switchTab('modalidad');
       }
     }
 
-    // Funciones adicionales de interacción
+    // Micro-interacciones
     function toggle3DSkinTilt() {
       isTilted = !isTilted;
       const skinImg = document.getElementById('player-full-skin');
@@ -1308,11 +1268,11 @@
       if (icon.classList.contains('fa-regular')) {
         icon.classList.remove('fa-regular');
         icon.classList.add('fa-solid');
-        icon.style.color = '#f59e0b';
+        icon.style.color = '#fbbf24';
       } else {
         icon.classList.remove('fa-solid');
         icon.classList.add('fa-regular');
-        icon.style.color = '#f2f0f7';
+        icon.style.color = '#f8fafc';
       }
     }
 
@@ -1322,15 +1282,16 @@
       alert(`Enlace de telemetría de ${currentNick} copiado al portapapeles.`);
     }
 
-    // Inicialización automática
+    // Inicialización automática y Routing
     window.addEventListener('DOMContentLoaded', () => {
       renderHistoryTable();
       selectPlayer('kylaz');
-      if (window.location.hash) {
-        const hash = window.location.hash.replace('#', '');
-        if (['towers', 'podium', 'history', 'members'].includes(hash)) {
-          switchTab(hash);
-        }
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab');
+      const hash = window.location.hash.replace('#', '');
+      const initialTab = tabParam || hash;
+      if (initialTab && ['inicio', 'modalidad', 'miembros'].includes(initialTab)) {
+        switchTab(initialTab);
       }
     });
   </script>
