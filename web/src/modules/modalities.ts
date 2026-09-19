@@ -1,5 +1,5 @@
 /**
- * Módulo de Modalidades y Leaderboard Oficial
+ * Módulo de Modalidades y Leaderboard
  */
 
 import { ModalitySubTab } from '../types';
@@ -142,31 +142,27 @@ export function renderLeaderboard(): void {
 
   container.innerHTML = OFFICIAL_LEADERBOARD.map((p, idx) => {
     const isFirst = idx === 0;
-    const rankBadge = isFirst
-      ? `<span class="w-8 h-8 rounded-full bg-[#FEF3C7] text-[#D97706] border border-[#FDE68A] flex items-center justify-center text-sm font-black shadow-sm"><i class="fa-solid fa-crown text-xs"></i></span>`
-      : `<span class="w-8 h-8 rounded-full bg-pastel-periwinkle/30 text-pastel-plum border border-pastel-cardBorder flex items-center justify-center text-xs font-bold">#${p.rank}</span>`;
 
     return `
       <div 
         data-username="${p.username}" 
         data-role="${p.roleTitle}"
         class="leaderboard-row ${isFirst ? 'active-player' : ''} p-4 rounded-2xl flex items-center justify-between gap-3 cursor-pointer transition-all"
-        onclick="window.destinyApp.selectPlayer('${p.username}', '${p.roleTitle}', this)"
+        onclick="window.destinyApp.selectPlayer('${p.username} #${p.rank}', '${p.roleTitle}', this)"
       >
         <div class="flex items-center gap-3.5">
-          ${rankBadge}
+          <span class="w-8 h-8 rounded-full bg-pastel-periwinkle/30 text-pastel-plum border border-pastel-cardBorder flex items-center justify-center text-xs font-bold">#${p.rank}</span>
           <div>
-            <div class="text-sm font-bold text-pastel-plum flex items-center gap-2">
+            <div class="text-sm font-bold text-pastel-plum">
               <span>${p.username}</span>
-              ${p.badge ? `<span class="text-[10px] px-2.5 py-0.5 rounded-full bg-pastel-denim text-white font-semibold">${p.badge}</span>` : ''}
             </div>
             <div class="text-[11px] text-pastel-plum/60 font-medium">
-              ${p.wins} Victorias • ${p.towersDestroyed} Torres • K/D: ${p.kdRatio}
+              Esperando datos del juego...
             </div>
           </div>
         </div>
         <div class="flex items-center gap-4">
-          <span class="text-xs font-extrabold text-pastel-denim font-display">${p.points.toLocaleString()} pts</span>
+          <span class="text-xs font-semibold text-pastel-plum/50 font-display">-- pts</span>
         </div>
       </div>
     `;
@@ -188,9 +184,7 @@ export function selectLeaderboardPlayer(name: string, title: string, element?: H
   if (badge) badge.textContent = name.substring(0, 2).toUpperCase();
   if (titleEl) titleEl.textContent = name;
   if (iconEl) {
-    iconEl.className = name === 'ElGlower' 
-      ? 'fa-solid fa-crown text-[11px] text-[#D97706]' 
-      : 'fa-solid fa-circle-check text-[11px] text-pastel-denim';
+    iconEl.className = 'fa-solid fa-circle-check text-[11px] text-pastel-denim';
   }
 
   const viewer = getSkinViewer();
@@ -199,5 +193,4 @@ export function selectLeaderboardPlayer(name: string, title: string, element?: H
   }
 
   showRightShowcase();
-  showToast(`Inspeccionando a ${name} (${title})`);
 }
