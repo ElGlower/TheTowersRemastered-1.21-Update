@@ -7,6 +7,7 @@ import me.PauMAVA.TTR.util.TextUtil;
 import me.PauMAVA.TTR.util.TTRPrefix;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -141,7 +142,10 @@ public class ModesGUIListener implements Listener {
                 case "reroll_teams": {
                     List<Player> eligible = new ArrayList<>();
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        if (!TTRCore.isAdmin(p)) eligible.add(p);
+                        if (p.getGameMode() != GameMode.SPECTATOR) eligible.add(p);
+                    }
+                    if (eligible.isEmpty()) {
+                        eligible.addAll(Bukkit.getOnlinePlayers());
                     }
                     Collections.shuffle(eligible);
                     plugin.getTeamHandler().clearTeams();

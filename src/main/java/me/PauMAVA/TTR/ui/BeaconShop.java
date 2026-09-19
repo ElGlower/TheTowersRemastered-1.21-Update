@@ -93,8 +93,8 @@ public class BeaconShop {
 
         // Explosivos y Cargas de Viento (1.21)
         gui.setItem(13, createItem(Material.TNT, 1, ChatColor.RED + TextUtil.toTiny("TNT"), 8, Material.COAL));
-        gui.setItem(14, createItem(Material.FIRE_CHARGE, 1, ChatColor.RED + TextUtil.toTiny("Bola de Fuego"), 10, Material.COAL, 
-                ChatColor.GRAY + TextUtil.toTiny("¡Lánzala con click derecho!")));
+        gui.setItem(14, createItem(Material.COBWEB, 4, ChatColor.WHITE + TextUtil.toTiny("Telarañas Tácticas (x4)"), 8, Material.COAL, 
+                ChatColor.GRAY + TextUtil.toTiny("Ralentiza a los invasores enemigos.")));
         gui.setItem(15, createItem(Material.WIND_CHARGE, 2, ChatColor.AQUA + TextUtil.toTiny("Carga de Viento (x2)"), 12, Material.COAL, 
                 ChatColor.GRAY + TextUtil.toTiny("¡Impulso aéreo explosivo de la 1.21!")));
         gui.setItem(16, createItem(Material.ENDER_PEARL, 1, ChatColor.DARK_AQUA + TextUtil.toTiny("Ender Pearl"), 15, Material.COAL));

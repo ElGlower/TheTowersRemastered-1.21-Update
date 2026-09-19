@@ -166,6 +166,49 @@ public class TTRConfigManager {
         return null;
     }
 
+    public String getTeamForChest(Location loc) {
+        if (loc == null || loc.getWorld() == null) return null;
+        Set<String> names = getTeamNames();
+        if (names != null) {
+            for (String team : names) {
+                List<String> list = config.getStringList("teams." + team + ".tagged_chests");
+                String key = loc.getWorld().getName() + "," + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
+                if (list != null && list.contains(key)) {
+                    return team;
+                }
+            }
+        }
+        return getTeamBaseAt(loc);
+    }
+
+    public boolean toggleTeamChest(String team, Location loc) {
+        if (loc == null || loc.getWorld() == null || team == null) return false;
+        String key = loc.getWorld().getName() + "," + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
+        List<String> list = new ArrayList<>(config.getStringList("teams." + team + ".tagged_chests"));
+        boolean added;
+        if (list.contains(key)) {
+            list.remove(key);
+            added = false;
+        } else {
+            Set<String> names = getTeamNames();
+            if (names != null) {
+                for (String other : names) {
+                    if (!other.equalsIgnoreCase(team)) {
+                        List<String> otherList = new ArrayList<>(config.getStringList("teams." + other + ".tagged_chests"));
+                        if (otherList.remove(key)) {
+                            config.set("teams." + other + ".tagged_chests", otherList);
+                        }
+                    }
+                }
+            }
+            list.add(key);
+            added = true;
+        }
+        config.set("teams." + team + ".tagged_chests", list);
+        TTRCore.getInstance().saveConfig();
+        return added;
+    }
+
     public List<Location> getTeamCages() {
         List<Location> all = new ArrayList<>();
         Set<String> names = getTeamNames();

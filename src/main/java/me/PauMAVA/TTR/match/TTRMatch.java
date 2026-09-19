@@ -59,7 +59,7 @@ public class TTRMatch {
         TTRTeam red = TTRCore.getInstance().getTeamHandler().getTeam("Red");
         TTRTeam blue = TTRCore.getInstance().getTeamHandler().getTeam("Blue");
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (TTRCore.isAdmin(p)) continue;
+            if (p.getGameMode() == GameMode.SPECTATOR) continue;
             if (TTRCore.getInstance().getTeamHandler().getPlayerTeam(p) == null) {
                 if (red != null && blue != null) {
                     if (red.getPlayers().size() <= blue.getPlayers().size()) {
@@ -72,19 +72,26 @@ public class TTRMatch {
         }
 
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (TTRCore.isAdmin(p)) continue;
             TTRTeam team = TTRCore.getInstance().getTeamHandler().getPlayerTeam(p);
-            if (team != null && team.getSpawnPoint() != null) {
-                p.teleport(team.getSpawnPoint());
-            }
-            p.getInventory().clear();
-            p.getInventory().setArmorContents(null);
-            p.getInventory().setItemInOffHand(null);
-            p.setGameMode(GameMode.SURVIVAL);
-            p.setHealth(20.0);
-            p.setFoodLevel(20);
-            for (PotionEffect pe : p.getActivePotionEffects()) {
-                p.removePotionEffect(pe.getType());
+            if (team != null) {
+                Location sp = team.getSpawnPoint();
+                if (sp == null) {
+                    sp = TTRCore.getInstance().getConfigManager().getTeamSpawn(team.getIdentifier());
+                }
+                if (sp != null) {
+                    p.teleport(sp);
+                }
+                p.getInventory().clear();
+                p.getInventory().setArmorContents(null);
+                p.getInventory().setItemInOffHand(null);
+                p.setGameMode(GameMode.SURVIVAL);
+                p.setHealth(20.0);
+                p.setFoodLevel(20);
+                for (PotionEffect pe : p.getActivePotionEffects()) {
+                    p.removePotionEffect(pe.getType());
+                }
+            } else if (TTRCore.isAdmin(p)) {
+                p.setGameMode(GameMode.SPECTATOR);
             }
         }
 

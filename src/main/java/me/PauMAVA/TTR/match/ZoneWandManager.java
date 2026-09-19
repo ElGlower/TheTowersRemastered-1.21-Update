@@ -50,6 +50,8 @@ public class ZoneWandManager {
             lore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
             lore.add(ChatColor.YELLOW + "» " + ChatColor.BOLD + TextUtil.toTiny("Clic Izquierdo:") + ChatColor.WHITE + " Marcar Punto 1 (Pos1)");
             lore.add(ChatColor.AQUA + "» " + ChatColor.BOLD + TextUtil.toTiny("Clic Derecho:") + ChatColor.WHITE + " Marcar Punto 2 (Pos2)");
+            lore.add(ChatColor.GOLD + "» " + ChatColor.BOLD + TextUtil.toTiny("Shift + Clic Der en Cofre:") + ChatColor.WHITE + " Alternar equipo (Rojo/Azul/Neutro)");
+            lore.add(ChatColor.LIGHT_PURPLE + "» " + ChatColor.BOLD + TextUtil.toTiny("Clic Der en Cofre:") + ChatColor.WHITE + " Inspeccionar equipo del cofre");
             lore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
             lore.add(ChatColor.GREEN + TextUtil.toTiny("Comandos útiles:"));
             lore.add(ChatColor.WHITE + "/dt wand setspawn <red|blue>");
@@ -107,6 +109,48 @@ public class ZoneWandManager {
                     loc.getWorld().spawnParticle(particle, loc.getX() + x, loc.getY() + y, loc.getZ() + z, 1, 0, 0, 0, 0);
                 }
             }
+        }
+    }
+
+    public void handleChestClick(Player player, org.bukkit.block.Block clickedBlock, boolean isSneaking) {
+        if (clickedBlock == null) return;
+        Location loc = clickedBlock.getLocation();
+        String currentTeam = TTRCore.getInstance().getConfigManager().getTeamForChest(loc);
+
+        if (isSneaking) {
+            String newTeam;
+            if (currentTeam == null) {
+                newTeam = "Red";
+            } else if (currentTeam.equalsIgnoreCase("Red")) {
+                newTeam = "Blue";
+            } else {
+                newTeam = null;
+            }
+
+            if (newTeam != null) {
+                TTRCore.getInstance().getConfigManager().toggleTeamChest(newTeam, loc);
+                ChatColor color = newTeam.equalsIgnoreCase("Red") ? ChatColor.RED : ChatColor.BLUE;
+                player.sendMessage(TTRPrefix.TTR_ADMIN + TextUtil.toTiny("Cofre asignado al equipo: ") + color + "" + ChatColor.BOLD + TextUtil.toTiny(newTeam) +
+                        ChatColor.GRAY + " (" + TextUtil.toTiny("Protegido contra enemigos") + ")");
+                player.playSound(loc, Sound.BLOCK_NOTE_BLOCK_CHIME, 1f, newTeam.equalsIgnoreCase("Red") ? 1.0f : 1.5f);
+                spawnOutlineParticles(player, loc, newTeam.equalsIgnoreCase("Red") ? Particle.FLAME : Particle.SOUL_FIRE_FLAME);
+            } else {
+                TTRCore.getInstance().getConfigManager().toggleTeamChest("Red", loc);
+                TTRCore.getInstance().getConfigManager().toggleTeamChest("Blue", loc);
+                player.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Cofre desasignado (Neutro / Libre)."));
+                player.playSound(loc, Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1.2f);
+                spawnOutlineParticles(player, loc, Particle.SMOKE);
+            }
+        } else {
+            if (currentTeam != null) {
+                ChatColor color = currentTeam.equalsIgnoreCase("Red") ? ChatColor.RED : ChatColor.BLUE;
+                player.sendMessage(TTRPrefix.TTR_ADMIN + TextUtil.toTiny("Estado del cofre: Asignado a ") + color + "" + ChatColor.BOLD + TextUtil.toTiny(currentTeam) +
+                        ChatColor.GRAY + " (" + TextUtil.toTiny("Shift + Clic para cambiar") + ")");
+            } else {
+                player.sendMessage(TTRPrefix.TTR_ADMIN + TextUtil.toTiny("Estado del cofre: ") + ChatColor.YELLOW + TextUtil.toTiny("Neutro / Libre") +
+                        ChatColor.GRAY + " (" + TextUtil.toTiny("Shift + Clic para asignar a Rojo") + ")");
+            }
+            player.playSound(loc, Sound.BLOCK_NOTE_BLOCK_HAT, 1f, 1.2f);
         }
     }
 }

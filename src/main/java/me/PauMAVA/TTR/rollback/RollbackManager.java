@@ -14,6 +14,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,6 +31,7 @@ public class RollbackManager implements Listener {
     // Mapa: Ubicación -> BlockData original antes de cualquier alteración
     private final Map<Location, BlockData> originalBlockData = new ConcurrentHashMap<>();
     private boolean trackingActive = true;
+    private boolean editMode = false;
 
     public RollbackManager(TTRCore plugin) {
         this.plugin = plugin;
@@ -36,16 +39,32 @@ public class RollbackManager implements Listener {
     }
 
     public void startTracking() {
-        this.trackingActive = true;
+        if (!editMode) {
+            this.trackingActive = true;
+        }
     }
 
     public void stopTracking() {
-        // Mantener el tracking siempre activo para capturar cualquier alteración del mapa
-        this.trackingActive = true;
+        if (!editMode) {
+            this.trackingActive = true;
+        }
     }
 
     public boolean isTracking() {
-        return trackingActive;
+        return trackingActive && !editMode;
+    }
+
+    public boolean isEditMode() {
+        return editMode;
+    }
+
+    public void setEditMode(boolean editMode) {
+        this.editMode = editMode;
+        this.trackingActive = !editMode;
+    }
+
+    public void clearHistory() {
+        this.originalBlockData.clear();
     }
 
     public int getModifiedBlockCount() {
@@ -57,7 +76,7 @@ public class RollbackManager implements Listener {
     }
 
     public void record(Location loc, BlockData data) {
-        if (!trackingActive || loc == null || data == null) return;
+        if (editMode || !trackingActive || loc == null || data == null) return;
         originalBlockData.putIfAbsent(loc.clone(), data.clone());
     }
 
@@ -103,9 +122,19 @@ public class RollbackManager implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBlockFromTo(BlockFromToEvent event) {
         Block toBlock = event.getToBlock();
-        if (toBlock.getType() != Material.AIR && !toBlock.isLiquid()) {
-            record(toBlock.getLocation(), toBlock.getBlockData());
-        }
+        record(toBlock.getLocation(), toBlock.getBlockData());
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onBucketEmpty(PlayerBucketEmptyEvent event) {
+        Block b = event.getBlockClicked().getRelative(event.getBlockFace());
+        record(b.getLocation(), b.getBlockData());
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onBucketFill(PlayerBucketFillEvent event) {
+        Block b = event.getBlockClicked();
+        record(b.getLocation(), b.getBlockData());
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

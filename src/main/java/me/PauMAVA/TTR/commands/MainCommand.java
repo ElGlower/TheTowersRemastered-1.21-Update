@@ -11,6 +11,7 @@ import me.PauMAVA.TTR.util.TextUtil;
 import me.PauMAVA.TTR.util.TTRPrefix;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -222,8 +223,66 @@ public class MainCommand implements CommandExecutor {
                     TTRCore.getInstance().getConfigManager().setLobby(loc);
                     p.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Lobby establecido en tu ubicación."));
                     return true;
+                } else if (wandSub.equals("chest") && subArgs.length > 1) {
+                    org.bukkit.block.Block target = p.getTargetBlockExact(5);
+                    if (target == null) {
+                        p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Debes estar mirando directamente a un cofre o contenedor."));
+                        return true;
+                    }
+                    ZoneWandManager.getInstance().handleChestClick(p, target, true);
+                    return true;
+                } else if (wandSub.equals("inspect")) {
+                    org.bukkit.block.Block target = p.getTargetBlockExact(5);
+                    if (target == null) {
+                        p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Debes estar mirando a un bloque o cofre."));
+                        return true;
+                    }
+                    ZoneWandManager.getInstance().handleChestClick(p, target, false);
+                    return true;
                 }
-                p.sendMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + "Uso: /dt wand [setspawn <red|blue> | setcage <red|blue> | setbase <red|blue> | setlobby]");
+                p.sendMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + "Uso: /dt wand [setspawn <red|blue> | setcage <red|blue> | setbase <red|blue> | setlobby | chest <red|blue> | inspect]");
+                return true;
+            }
+            case "edit":
+            case "editmode": {
+                if (TTRCore.getInstance().getRollbackManager() == null) {
+                    sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("RollbackManager no está activo."));
+                    return true;
+                }
+                boolean current = TTRCore.getInstance().getRollbackManager().isEditMode();
+                boolean newMode;
+                if (subArgs.length > 0) {
+                    newMode = subArgs[0].equalsIgnoreCase("on") || subArgs[0].equalsIgnoreCase("true");
+                } else {
+                    newMode = !current;
+                }
+                TTRCore.getInstance().getRollbackManager().setEditMode(newMode);
+                if (newMode) {
+                    sender.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.GREEN + "" + ChatColor.BOLD + TextUtil.toTiny("¡Modo Edición ACTIVADO!") +
+                            ChatColor.YELLOW + " Los cambios que hagas ahora NO serán revertidos en el rollback.");
+                } else {
+                    sender.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.RED + "" + ChatColor.BOLD + TextUtil.toTiny("¡Modo Edición DESACTIVADO!") +
+                            ChatColor.GRAY + " El mapa vuelve a registrar cambios para el rollback.");
+                }
+                return true;
+            }
+            case "savemap":
+            case "save": {
+                if (TTRCore.getInstance().getRollbackManager() != null) {
+                    TTRCore.getInstance().getRollbackManager().clearHistory();
+                }
+                Location lobby = TTRCore.getInstance().getConfigManager().getLobbyLocation();
+                if (lobby != null && lobby.getWorld() != null) {
+                    lobby.getWorld().save();
+                }
+                for (org.bukkit.World w : Bukkit.getWorlds()) {
+                    if (w.getName().contains("towers") || (lobby != null && w.equals(lobby.getWorld()))) {
+                        w.save();
+                    }
+                }
+                TTRCore.getInstance().saveConfig();
+                sender.sendMessage(TTRPrefix.TTR_SUCCESS + ChatColor.GREEN + "" + ChatColor.BOLD + TextUtil.toTiny("¡Mapa guardado exitosamente!") +
+                        ChatColor.WHITE + " El estado actual del mundo es ahora la plantilla base para futuros reinicios.");
                 return true;
             }
             case "parkour": {
@@ -260,7 +319,10 @@ public class MainCommand implements CommandExecutor {
             case "reroll": {
                 List<Player> eligible = new ArrayList<>();
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (!TTRCore.isAdmin(p)) eligible.add(p);
+                    if (p.getGameMode() != GameMode.SPECTATOR) eligible.add(p);
+                }
+                if (eligible.isEmpty()) {
+                    eligible.addAll(Bukkit.getOnlinePlayers());
                 }
                 Collections.shuffle(eligible);
                 TTRCore.getInstance().getTeamHandler().clearTeams();

@@ -66,6 +66,13 @@ public class CageChecker {
         Location spawn = TTRCore.getInstance().getConfigManager().getTeamSpawn(playersTeam.getIdentifier());
         if (spawn != null) player.teleport(spawn);
 
+        // Limpiar todos los efectos de pociones al anotar
+        for (org.bukkit.potion.PotionEffect effect : player.getActivePotionEffects()) {
+            player.removePotionEffect(effect.getType());
+        }
+        player.setFireTicks(0);
+        player.setFallDistance(0f);
+
         playersTeam.addPoints(1);
         TTRCore.getInstance().getScoreboard().refreshScoreboard();
         TTRCore.getInstance().getCurrentMatch().updateBossBar();
