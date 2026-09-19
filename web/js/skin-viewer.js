@@ -40,29 +40,81 @@ function initSkinViewer() {
 
     // Iluminación radiante equilibrada para colores nítidos y sin sobreexposición
     const isDark = document.body.classList.contains('dark-mode');
-    if (skinViewer.globalLight) skinViewer.globalLight.intensity = isDark ? 2.5 : 3.2;
-    if (skinViewer.cameraLight) skinViewer.cameraLight.intensity = isDark ? 0.9 : 1.1;
+    if (skinViewer.globalLight) skinViewer.globalLight.intensity = isDark ? 2.9 : 3.2;
+    if (skinViewer.cameraLight) skinViewer.cameraLight.intensity = isDark ? 1.05 : 1.1;
 
-    // Controles orbitales nativos para rotar libremente arrastrando con el ratón
-    const controls = skinview3d.createOrbitControls(skinViewer);
-    controls.enableRotate = true;
-    controls.enableZoom = false; // Mantiene el tamaño consistente dentro de la tarjeta
-    controls.enablePan = false;
-    skinViewer.controls = controls;
+    // Desactivar movimiento de cámara por defecto para usar rotación tipo plataforma giratoria (turntable)
+    if (skinViewer.controls) {
+      skinViewer.controls.enabled = false;
+    }
 
     // Animación suave de respiración / espera (Idle Animation)
     const idleAnim = new skinview3d.IdleAnimation();
     idleAnim.speed = 0.8;
     skinViewer.animation = idleAnim;
 
-    // Velocidad de autorotación si el usuario la enciende
-    skinViewer.autoRotateSpeed = 1.5;
+    // Configurar rotación manual interactiva por arrastre con inercia (Mouse y Touch)
+    setupTurntableControls(canvas);
 
     console.log("Visor 3D WebGL de Destiny Owners inicializado correctamente.");
   } catch (err) {
     console.error("Error al inicializar el visor 3D, activando fallback visual:", err);
     activateSkinFallback();
   }
+}
+
+let isDragging = false;
+let lastPointerX = 0;
+let rotationVelocity = 0;
+
+/**
+ * Controles de plataforma giratoria (turntable) con arrastre intuitivo y desaceleración física
+ */
+function setupTurntableControls(canvas) {
+  canvas.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    lastPointerX = e.clientX;
+    rotationVelocity = 0;
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    canvas.classList.add('cursor-grabbing');
+    canvas.classList.remove('cursor-grab');
+  });
+
+  canvas.addEventListener('pointermove', (e) => {
+    if (!isDragging || !skinViewer || !skinViewer.playerObject) return;
+    const deltaX = e.clientX - lastPointerX;
+    rotationVelocity = deltaX * 0.012;
+    skinViewer.playerObject.rotation.y += rotationVelocity;
+    lastPointerX = e.clientX;
+  });
+
+  const endDrag = (e) => {
+    if (isDragging) {
+      isDragging = false;
+      canvas.classList.remove('cursor-grabbing');
+      canvas.classList.add('cursor-grab');
+      try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+    }
+  };
+
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+
+  // Bucle de animación continuo para inercia y auto-giro
+  function rotationLoop() {
+    if (skinViewer && skinViewer.playerObject) {
+      if (!isDragging) {
+        if (Math.abs(rotationVelocity) > 0.0003) {
+          skinViewer.playerObject.rotation.y += rotationVelocity;
+          rotationVelocity *= 0.92; // Amortiguación física
+        } else if (isAutoRotating) {
+          skinViewer.playerObject.rotation.y += 0.016; // Giro continuo
+        }
+      }
+    }
+    requestAnimationFrame(rotationLoop);
+  }
+  requestAnimationFrame(rotationLoop);
 }
 
 function activateSkinFallback() {
@@ -77,8 +129,8 @@ function activateSkinFallback() {
  */
 function updateSkinViewerLighting(isDark) {
   if (!skinViewer) return;
-  if (skinViewer.globalLight) skinViewer.globalLight.intensity = isDark ? 2.5 : 3.2;
-  if (skinViewer.cameraLight) skinViewer.cameraLight.intensity = isDark ? 0.9 : 1.1;
+  if (skinViewer.globalLight) skinViewer.globalLight.intensity = isDark ? 2.9 : 3.2;
+  if (skinViewer.cameraLight) skinViewer.cameraLight.intensity = isDark ? 1.05 : 1.1;
 }
 
 /**
@@ -96,7 +148,7 @@ function rotateSkinStep(deltaDegrees) {
 function toggleAutoRotate() {
   if (!skinViewer) return;
   isAutoRotating = !isAutoRotating;
-  skinViewer.autoRotate = isAutoRotating;
+  rotationVelocity = 0;
 
   const btn = document.getElementById("btn-autorotate");
   if (btn) {

@@ -148,135 +148,359 @@
         </section>
 
         <!-- ======================================================== -->
-        <!-- VISTA 2: MODALIDAD (THE TOWERS & ALINEACIÓN DE EQUIPOS)  -->
+        <!-- VISTA 2: MODALIDAD (SELECTOR DE MODALIDADES & DETALLE)    -->
         <!-- ======================================================== -->
         <section id="view-modalidad" class="tab-view h-full flex flex-col gap-6">
           
-          <!-- BARRA SUPERIOR DE MODALIDAD -->
-          <div class="flex flex-wrap items-center justify-between gap-4 p-6 rounded-3xl pastel-glass-card shadow-sm">
-            <div class="flex items-center gap-3.5">
-              <div class="w-12 h-12 rounded-2xl bg-pastel-periwinkle/50 border border-pastel-cardBorder flex items-center justify-center text-pastel-denim text-xl shadow-sm">
-                <i class="fa-solid fa-chess-rook"></i>
-              </div>
+          <!-- ====================================================== -->
+          <!-- A. SELECTOR DE MODALIDADES (CARDS LADO A LADO BOCETO)   -->
+          <!-- ====================================================== -->
+          <div id="modalidad-selector" class="flex flex-col gap-6 w-full">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-6 sm:p-7 rounded-3xl pastel-glass-card shadow-sm">
               <div>
-                <h3 class="text-2xl font-bold text-pastel-plum tracking-tight">The Towers</h3>
-                <span class="text-xs text-pastel-plum/75 font-medium">Modalidad Competitiva por Equipos</span>
+                <h3 class="text-2xl sm:text-3xl font-bold text-pastel-plum tracking-tight font-display">Modalidades de Juego</h3>
+                <p class="text-xs sm:text-sm text-pastel-plum/75 font-normal mt-1">Selecciona una modalidad para ver la partida en vivo o la clasificación oficial.</p>
+              </div>
+              <div class="flex items-center gap-2 bg-pastel-periwinkle/30 border border-pastel-cardBorder px-4 py-2 rounded-full text-xs text-pastel-plum font-semibold self-start sm:self-auto">
+                <i class="fa-solid fa-gamepad text-pastel-denim"></i>
+                <span>Temporada Activa</span>
               </div>
             </div>
 
-            <div class="flex items-center gap-2 bg-pastel-periwinkle/30 border border-pastel-cardBorder px-4 py-2 rounded-full text-xs text-pastel-plum font-semibold">
-              <span class="w-2 h-2 rounded-full bg-pastel-denim"></span>
-              <span>En Espera de Jugadores</span>
+            <!-- CUADRÍCULA DE MODALIDADES (2 CARDS EXACTAS DEL BOCETO) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
+              
+              <!-- CARD 1: THE TOWERS (ACTIVA) -->
+              <div onclick="openModalityDetail('the-towers')" class="modality-card group flex flex-col justify-between gap-6">
+                <!-- Ribete Zigzag Ornamental -->
+                <svg class="zigzag-border-trim" viewBox="0 0 140 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0 0 L140 0 L140 14 L130 26 L120 14 L110 26 L100 14 L90 26 L80 14 L70 26 L60 14 L50 26 L40 14 L30 26 L20 14 L10 26 L0 14 Z" fill="currentColor" class="text-pastel-denim/35"/>
+                </svg>
+
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                  <!-- Emblema Circular con efecto espiral y anillo rotatorio (como en el boceto) -->
+                  <div class="modality-emblem">
+                    <i class="fa-solid fa-chess-rook text-3xl text-pastel-denim drop-shadow-sm group-hover:scale-110 transition-transform"></i>
+                  </div>
+
+                  <div class="flex-1">
+                    <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                      <span class="text-[10px] uppercase font-black tracking-wider px-2.5 py-0.5 rounded-full bg-pastel-blush text-pastel-plum border border-[#E79796]/40">4v4 Equipos</span>
+                      <span class="flex items-center gap-1.5 text-[11px] font-bold text-[#48BB78]">
+                        <span class="w-2 h-2 rounded-full bg-[#48BB78] animate-pulse"></span>
+                        <span>En Vivo</span>
+                      </span>
+                    </div>
+                    <h4 class="text-3xl font-extrabold text-pastel-plum tracking-tight font-display group-hover:text-pastel-denim transition-colors">THE TOWERS</h4>
+                    <p class="text-xs text-pastel-plum/80 mt-1 line-clamp-2 leading-relaxed">
+                      Conquista las torres rivales, protege tu base con tu equipo y anota puntos decisivos en la meta enemiga.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="pt-4 border-t border-pastel-cardBorder/80 flex items-center justify-between text-xs">
+                  <span class="text-pastel-plum/70 font-medium">
+                    <i class="fa-solid fa-users text-pastel-denim mr-1.5"></i>8 Jugadores por Partida
+                  </span>
+                  <span class="font-bold text-pastel-denim group-hover:translate-x-1 transition-transform flex items-center gap-1.5">
+                    Ver Partida / Leaderboard <i class="fa-solid fa-arrow-right text-[11px]"></i>
+                  </span>
+                </div>
+              </div>
+
+              <!-- CARD 2: PRÓXIMA MODALIDAD (SLOT COMUNIDAD) -->
+              <div class="modality-card modality-card-coming group flex flex-col justify-between gap-6 cursor-default">
+                <!-- Ribete Zigzag Ornamental -->
+                <svg class="zigzag-border-trim" viewBox="0 0 140 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0 0 L140 0 L140 14 L130 26 L120 14 L110 26 L100 14 L90 26 L80 14 L70 26 L60 14 L50 26 L40 14 L30 26 L20 14 L10 26 L0 14 Z" fill="currentColor" class="text-pastel-plum/25"/>
+                </svg>
+
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                  <!-- Emblema Circular con efecto espiral -->
+                  <div class="modality-emblem opacity-80">
+                    <i class="fa-solid fa-wand-magic-sparkles text-3xl text-pastel-plum drop-shadow-sm"></i>
+                  </div>
+
+                  <div class="flex-1">
+                    <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                      <span class="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-pastel-periwinkle/40 text-pastel-plum border border-pastel-cardBorder">En Desarrollo</span>
+                      <span class="text-[11px] font-semibold text-pastel-plum/60">Próximamente</span>
+                    </div>
+                    <h4 class="text-3xl font-extrabold text-pastel-plum/80 tracking-tight font-display">NUEVO MODO</h4>
+                    <p class="text-xs text-pastel-plum/75 mt-1 line-clamp-2 leading-relaxed">
+                      Estamos preparando la siguiente experiencia interactiva. Vota sugerencias y opina con la comunidad.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="pt-4 border-t border-pastel-cardBorder/60 flex items-center justify-between text-xs">
+                  <span class="text-pastel-plum/60 font-medium">
+                    <i class="fa-solid fa-comments text-pastel-plum/70 mr-1.5"></i>Votación Comunitaria
+                  </span>
+                  <span class="font-semibold text-pastel-plum/60 flex items-center gap-1.5">
+                    Slot Reservado <i class="fa-solid fa-lock text-[10px]"></i>
+                  </span>
+                </div>
+              </div>
+
             </div>
+
           </div>
 
-          <!-- EQUIPOS DIVIDIDOS CON RANURAS DISPONIBLES (CERO USUARIOS INVENTADOS) -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
+          <!-- ====================================================== -->
+          <!-- B. VISTA DETALLADA DE LA MODALIDAD (THE TOWERS)         -->
+          <!-- ====================================================== -->
+          <div id="modalidad-detail" class="hidden flex-col gap-6 w-full">
             
-            <!-- Columna Equipo Rojo (Paleta Blush/Rosa Pastel) -->
-            <div class="team-card-red p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-pastel-blush/60 to-white/95 border border-pastel-blush shadow-sm flex flex-col justify-between gap-5 backdrop-blur-xl">
-              <div>
-                <div class="flex items-center justify-between text-pastel-plum font-bold pb-4 border-b border-pastel-blush">
-                  <span class="flex items-center gap-2 text-sm">
-                    <i class="fa-solid fa-shield-halved text-[#E79796]"></i>
-                    <span class="tracking-wide">RED TEAM</span>
-                  </span>
-                  <span class="px-3 py-1 rounded-full bg-pastel-blush text-pastel-plum text-xs font-semibold border border-[#E79796]/30">0 / 4 Jugadores</span>
-                </div>
-
-                <!-- 4 Ranuras Disponibles -->
-                <div class="space-y-3 mt-4">
-                  <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                    <span class="flex items-center gap-2.5">
-                      <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
-                      <span class="font-medium">Ranura disponible</span>
-                    </span>
-                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
-                  </div>
-
-                  <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                    <span class="flex items-center gap-2.5">
-                      <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
-                      <span class="font-medium">Ranura disponible</span>
-                    </span>
-                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
-                  </div>
-
-                  <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                    <span class="flex items-center gap-2.5">
-                      <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
-                      <span class="font-medium">Ranura disponible</span>
-                    </span>
-                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
-                  </div>
-
-                  <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                    <span class="flex items-center gap-2.5">
-                      <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
-                      <span class="font-medium">Ranura disponible</span>
-                    </span>
-                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
-                  </div>
+            <!-- BARRA DE NAVEGACIÓN Y SUB-PESTAÑAS DE THE TOWERS -->
+            <div class="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6 rounded-3xl pastel-glass-card shadow-sm">
+              <div class="flex items-center gap-4">
+                <button onclick="closeModalityDetail()" class="px-4 py-2 rounded-full bg-pastel-periwinkle/40 hover:bg-pastel-periwinkle/70 text-pastel-plum text-xs font-bold transition-all flex items-center gap-2 border border-pastel-cardBorder shadow-sm">
+                  <i class="fa-solid fa-arrow-left"></i>
+                  <span>Volver</span>
+                </button>
+                <div>
+                  <h3 class="text-xl sm:text-2xl font-extrabold text-pastel-plum tracking-tight font-display">The Towers</h3>
+                  <span class="text-[11px] text-pastel-plum/75 font-medium">Modalidad Competitiva por Equipos</span>
                 </div>
               </div>
 
-              <div class="pt-3 border-t border-pastel-blush text-[11px] text-pastel-plum/80 flex items-center justify-between font-medium">
-                <span>Base Roja • Torre 1 & 2</span>
-                <span class="font-bold text-[#E79796]">Listo</span>
+              <!-- PÍLDORA CONMUTADORA: PARTIDA EN VIVO VS LEADERBOARD -->
+              <div class="flex items-center p-1.5 rounded-full bg-white/70 border border-pastel-cardBorder shadow-inner">
+                <button id="subtab-btn-partida" onclick="switchModalitySubTab('partida')" class="px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 bg-pastel-denim text-white shadow-sm flex items-center gap-2">
+                  <i class="fa-solid fa-gamepad text-xs"></i>
+                  <span>Partida en Vivo</span>
+                </button>
+                <button id="subtab-btn-leaderboard" onclick="switchModalitySubTab('leaderboard')" class="px-5 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2">
+                  <i class="fa-solid fa-trophy text-xs text-pastel-denim"></i>
+                  <span>Leaderboard</span>
+                </button>
               </div>
             </div>
 
-            <!-- Columna Equipo Azul (Paleta Periwinkle/Denim Pastel) -->
-            <div class="team-card-blue p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-pastel-periwinkle/50 to-white/95 border border-pastel-periwinkle shadow-sm flex flex-col justify-between gap-5 backdrop-blur-xl">
-              <div>
-                <div class="flex items-center justify-between text-pastel-denim font-bold pb-4 border-b border-pastel-periwinkle">
-                  <span class="flex items-center gap-2 text-sm">
-                    <i class="fa-solid fa-shield-halved text-pastel-denim"></i>
-                    <span class="tracking-wide">BLUE TEAM</span>
+            <!-- SUB-VISTA 1: PARTIDA EN VIVO (RED TEAM VS BLUE TEAM) -->
+            <div id="subview-partida" class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
+              
+              <!-- Columna Equipo Rojo -->
+              <div class="team-card-red p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-pastel-blush/60 to-white/95 border border-pastel-blush shadow-sm flex flex-col justify-between gap-5 backdrop-blur-xl">
+                <div>
+                  <div class="flex items-center justify-between text-pastel-plum font-bold pb-4 border-b border-pastel-blush">
+                    <span class="flex items-center gap-2 text-sm">
+                      <i class="fa-solid fa-shield-halved text-[#E79796]"></i>
+                      <span class="tracking-wide">RED TEAM</span>
+                    </span>
+                    <span class="px-3 py-1 rounded-full bg-pastel-blush text-pastel-plum text-xs font-semibold border border-[#E79796]/30">0 / 4 Jugadores</span>
+                  </div>
+
+                  <div class="space-y-3 mt-4">
+                    <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
+                      <span class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
+                        <span class="font-medium">Ranura disponible</span>
+                      </span>
+                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
+                    </div>
+
+                    <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
+                      <span class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
+                        <span class="font-medium">Ranura disponible</span>
+                      </span>
+                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
+                    </div>
+
+                    <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
+                      <span class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
+                        <span class="font-medium">Ranura disponible</span>
+                      </span>
+                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
+                    </div>
+
+                    <div class="slot-card-red p-3.5 rounded-2xl bg-white/70 border border-dashed border-[#E79796]/40 flex items-center justify-between text-xs text-pastel-plum transition-all">
+                      <span class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-user-plus text-xs text-[#E79796]"></i>
+                        <span class="font-medium">Ranura disponible</span>
+                      </span>
+                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pt-3 border-t border-pastel-blush text-[11px] text-pastel-plum/80 flex items-center justify-between font-medium">
+                  <span>Base Roja • Torre 1 & 2</span>
+                  <span class="font-bold text-[#E79796]">Listo</span>
+                </div>
+              </div>
+
+              <!-- Columna Equipo Azul -->
+              <div class="team-card-blue p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-pastel-periwinkle/50 to-white/95 border border-pastel-periwinkle shadow-sm flex flex-col justify-between gap-5 backdrop-blur-xl">
+                <div>
+                  <div class="flex items-center justify-between text-pastel-denim font-bold pb-4 border-b border-pastel-periwinkle">
+                    <span class="flex items-center gap-2 text-sm">
+                      <i class="fa-solid fa-shield-halved text-pastel-denim"></i>
+                      <span class="tracking-wide">BLUE TEAM</span>
+                    </span>
+                    <span class="px-3 py-1 rounded-full bg-pastel-periwinkle/60 text-pastel-denim text-xs font-semibold border border-pastel-cornflower/40">0 / 4 Jugadores</span>
+                  </div>
+
+                  <div class="space-y-3 mt-4">
+                    <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
+                      <span class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
+                        <span class="font-medium">Ranura disponible</span>
+                      </span>
+                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
+                    </div>
+
+                    <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
+                      <span class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
+                        <span class="font-medium">Ranura disponible</span>
+                      </span>
+                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
+                    </div>
+
+                    <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
+                      <span class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
+                        <span class="font-medium">Ranura disponible</span>
+                      </span>
+                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
+                    </div>
+
+                    <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
+                      <span class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
+                        <span class="font-medium">Ranura disponible</span>
+                      </span>
+                      <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pt-3 border-t border-pastel-periwinkle text-[11px] text-pastel-denim flex items-center justify-between font-medium">
+                  <span>Base Azul • Torre 1 & 2</span>
+                  <span class="font-bold">Listo</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- SUB-VISTA 2: LEADERBOARD (TABLA DE CLASIFICACIÓN CON PERFILES) -->
+            <div id="subview-leaderboard" class="hidden flex-col gap-4 flex-1">
+              
+              <div class="p-6 sm:p-7 rounded-3xl pastel-glass-card shadow-sm flex flex-col gap-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-pastel-cardBorder/80">
+                  <div>
+                    <h4 class="text-xl font-bold text-pastel-plum font-display">Tabla de Clasificación Oficial</h4>
+                    <p class="text-xs text-pastel-plum/70 mt-0.5">Haz clic en cualquier perfil para inspeccionar su skin 3D interactiva.</p>
+                  </div>
+                  <span class="text-xs font-bold px-3 py-1 rounded-full bg-pastel-periwinkle/40 text-pastel-plum border border-pastel-cardBorder">
+                    Temporada 1
                   </span>
-                  <span class="px-3 py-1 rounded-full bg-pastel-periwinkle/60 text-pastel-denim text-xs font-semibold border border-pastel-cornflower/40">0 / 4 Jugadores</span>
                 </div>
 
-                <!-- 4 Ranuras Disponibles -->
-                <div class="space-y-3 mt-4">
-                  <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                    <span class="flex items-center gap-2.5">
-                      <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
-                      <span class="font-medium">Ranura disponible</span>
-                    </span>
-                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
+                <!-- Lista de Jugadores Clasificados -->
+                <div class="space-y-2.5">
+                  
+                  <!-- Jugador #1 -->
+                  <div onclick="selectLeaderboardPlayer('Destiny_Leader', 'Rank #1 • Campeón', 148, 412, 3.85, this)" class="leaderboard-row active-player p-4 rounded-2xl bg-white/60 border border-pastel-cardBorder flex items-center justify-between gap-3 cursor-pointer shadow-sm">
+                    <div class="flex items-center gap-3.5">
+                      <span class="w-8 h-8 rounded-full bg-[#FEF3C7] text-[#D97706] border border-[#FDE68A] flex items-center justify-center text-sm font-black shadow-sm">
+                        <i class="fa-solid fa-crown text-xs"></i>
+                      </span>
+                      <div>
+                        <div class="text-sm font-bold text-pastel-plum flex items-center gap-2">
+                          <span>Destiny_Leader</span>
+                          <span class="text-[10px] px-2 py-0.5 rounded-full bg-pastel-denim text-white font-semibold">Oficial</span>
+                        </div>
+                        <div class="text-[11px] text-pastel-plum/60 font-medium">148 Victorias • 412 Torres</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs font-extrabold text-pastel-denim">3,240 pts</span>
+                      <span class="text-[11px] text-pastel-plum/70 font-semibold px-2.5 py-1 rounded-xl bg-pastel-periwinkle/30 border border-pastel-cardBorder hidden sm:inline-block">Ver 3D</span>
+                    </div>
                   </div>
 
-                  <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                    <span class="flex items-center gap-2.5">
-                      <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
-                      <span class="font-medium">Ranura disponible</span>
-                    </span>
-                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
+                  <!-- Jugador #2 -->
+                  <div onclick="selectLeaderboardPlayer('Valkyrie_99', 'Rank #2 • Subcampeón', 125, 350, 3.10, this)" class="leaderboard-row p-4 rounded-2xl bg-white/60 border border-pastel-cardBorder flex items-center justify-between gap-3 cursor-pointer shadow-sm">
+                    <div class="flex items-center gap-3.5">
+                      <span class="w-8 h-8 rounded-full bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0] flex items-center justify-center text-xs font-black shadow-sm">
+                        #2
+                      </span>
+                      <div>
+                        <div class="text-sm font-bold text-pastel-plum flex items-center gap-2">
+                          <span>Valkyrie_99</span>
+                        </div>
+                        <div class="text-[11px] text-pastel-plum/60 font-medium">125 Victorias • 350 Torres</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs font-extrabold text-pastel-denim">2,810 pts</span>
+                      <span class="text-[11px] text-pastel-plum/70 font-semibold px-2.5 py-1 rounded-xl bg-pastel-periwinkle/30 border border-pastel-cardBorder hidden sm:inline-block">Ver 3D</span>
+                    </div>
                   </div>
 
-                  <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                    <span class="flex items-center gap-2.5">
-                      <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
-                      <span class="font-medium">Ranura disponible</span>
-                    </span>
-                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
+                  <!-- Jugador #3 -->
+                  <div onclick="selectLeaderboardPlayer('ShadowRider', 'Rank #3 • Veterano', 108, 290, 2.75, this)" class="leaderboard-row p-4 rounded-2xl bg-white/60 border border-pastel-cardBorder flex items-center justify-between gap-3 cursor-pointer shadow-sm">
+                    <div class="flex items-center gap-3.5">
+                      <span class="w-8 h-8 rounded-full bg-[#FFEDD5] text-[#C2410C] border border-[#FED7AA] flex items-center justify-center text-xs font-black shadow-sm">
+                        #3
+                      </span>
+                      <div>
+                        <div class="text-sm font-bold text-pastel-plum flex items-center gap-2">
+                          <span>ShadowRider</span>
+                        </div>
+                        <div class="text-[11px] text-pastel-plum/60 font-medium">108 Victorias • 290 Torres</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs font-extrabold text-pastel-denim">2,450 pts</span>
+                      <span class="text-[11px] text-pastel-plum/70 font-semibold px-2.5 py-1 rounded-xl bg-pastel-periwinkle/30 border border-pastel-cardBorder hidden sm:inline-block">Ver 3D</span>
+                    </div>
                   </div>
 
-                  <div class="slot-card-blue p-3.5 rounded-2xl bg-white/70 border border-dashed border-pastel-cornflower/50 flex items-center justify-between text-xs text-pastel-plum transition-all">
-                    <span class="flex items-center gap-2.5">
-                      <i class="fa-solid fa-user-plus text-xs text-pastel-denim"></i>
-                      <span class="font-medium">Ranura disponible</span>
-                    </span>
-                    <span class="text-[11px] opacity-70 font-medium">Esperando jugador</span>
+                  <!-- Jugador #4 -->
+                  <div onclick="selectLeaderboardPlayer('Aether_Soul', 'Rank #4 • Maestro', 89, 230, 2.40, this)" class="leaderboard-row p-4 rounded-2xl bg-white/60 border border-pastel-cardBorder flex items-center justify-between gap-3 cursor-pointer shadow-sm">
+                    <div class="flex items-center gap-3.5">
+                      <span class="w-8 h-8 rounded-full bg-pastel-periwinkle/30 text-pastel-plum border border-pastel-cardBorder flex items-center justify-center text-xs font-bold">
+                        #4
+                      </span>
+                      <div>
+                        <div class="text-sm font-bold text-pastel-plum">Aether_Soul</div>
+                        <div class="text-[11px] text-pastel-plum/60 font-medium">89 Victorias • 230 Torres</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs font-extrabold text-pastel-denim">2,120 pts</span>
+                      <span class="text-[11px] text-pastel-plum/70 font-semibold px-2.5 py-1 rounded-xl bg-pastel-periwinkle/30 border border-pastel-cardBorder hidden sm:inline-block">Ver 3D</span>
+                    </div>
                   </div>
+
+                  <!-- Jugador #5 -->
+                  <div onclick="selectLeaderboardPlayer('Luna_Kitten', 'Rank #5 • Estratega', 76, 195, 2.15, this)" class="leaderboard-row p-4 rounded-2xl bg-white/60 border border-pastel-cardBorder flex items-center justify-between gap-3 cursor-pointer shadow-sm">
+                    <div class="flex items-center gap-3.5">
+                      <span class="w-8 h-8 rounded-full bg-pastel-periwinkle/30 text-pastel-plum border border-pastel-cardBorder flex items-center justify-center text-xs font-bold">
+                        #5
+                      </span>
+                      <div>
+                        <div class="text-sm font-bold text-pastel-plum">Luna_Kitten</div>
+                        <div class="text-[11px] text-pastel-plum/60 font-medium">76 Victorias • 195 Torres</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs font-extrabold text-pastel-denim">1,890 pts</span>
+                      <span class="text-[11px] text-pastel-plum/70 font-semibold px-2.5 py-1 rounded-xl bg-pastel-periwinkle/30 border border-pastel-cardBorder hidden sm:inline-block">Ver 3D</span>
+                    </div>
+                  </div>
+
                 </div>
+
               </div>
 
-              <div class="pt-3 border-t border-pastel-periwinkle text-[11px] text-pastel-denim flex items-center justify-between font-medium">
-                <span>Base Azul • Torre 1 & 2</span>
-                <span class="font-bold">Listo</span>
-              </div>
             </div>
 
           </div>
@@ -413,12 +637,12 @@
           
           <!-- Notch Cutout Cóncavo Superior -->
           <div class="notch-cutout flex items-center gap-2.5">
-            <div class="w-6 h-6 rounded-full bg-pastel-denim text-white flex items-center justify-center text-[10px] font-bold">
+            <div id="notch-avatar-badge" class="w-6 h-6 rounded-full bg-pastel-denim text-white flex items-center justify-center text-[10px] font-bold">
               DO
             </div>
             <div class="flex items-center gap-1.5">
-              <span class="text-xs font-bold text-pastel-plum">Destiny Owners</span>
-              <i class="fa-solid fa-circle-check text-[11px] text-pastel-denim"></i>
+              <span id="notch-player-title" class="text-xs font-bold text-pastel-plum">Destiny Owners</span>
+              <i id="notch-player-icon" class="fa-solid fa-circle-check text-[11px] text-pastel-denim"></i>
             </div>
           </div>
 
@@ -450,20 +674,6 @@
     </div>
 
   </main>
-
-  <!-- ============================================================ -->
-  <!-- PIE DE PÁGINA LIMPIO (INTEGRADO EN TODA LA PÁGINA)           -->
-  <!-- ============================================================ -->
-  <footer class="w-full relative z-20 px-6 sm:px-10 lg:px-16 py-4 border-t border-pastel-cardBorder/60 backdrop-blur-xl bg-white/60">
-    <div class="max-w-[1720px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-pastel-plum/80">
-      <div class="flex items-center gap-2 font-medium">
-        <span class="w-2.5 h-2.5 rounded-full bg-[#48BB78]"></span>
-        <span class="text-pastel-plum font-bold font-display">DESTINY OWNERS</span>
-        <span>• Servidor en línea</span>
-      </div>
-      <span class="font-semibold text-pastel-denim">play.destinyowners.com</span>
-    </div>
-  </footer>
 
   <!-- Toast Notification Flotante -->
   <div id="toast-notification" class="fixed bottom-8 right-8 z-50 flex items-center gap-3 bg-pastel-denim text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-white/40 backdrop-blur-xl text-sm font-semibold">
