@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DESTINY — Servidor Oficial & The Towers</title>
+  <title>DESTINY — The Towers</title>
   
-  <!-- Tipografía moderna de alta gama (Plus Jakarta Sans + Outfit) -->
+  <!-- Tipografía moderna (Outfit para títulos + Plus Jakarta Sans para texto) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
@@ -25,11 +25,12 @@
           },
           colors: {
             palette: {
-              outer: '#9f94ab',
-              window: '#272132',
-              card: '#332b3f',
-              cardHover: '#3c334b',
-              inner: '#1f1a28',
+              canvas: '#1a1624',
+              surface: '#262032',
+              surfaceHover: '#2e273c',
+              card: '#2f283d',
+              cardHover: '#383049',
+              inner: '#1e1828',
               border: 'rgba(255, 255, 255, 0.08)',
               borderStrong: 'rgba(255, 255, 255, 0.14)',
               muted: '#9a90a6',
@@ -52,7 +53,7 @@
       -webkit-font-smoothing: antialiased;
     }
     body {
-      background: radial-gradient(ellipse at 50% 20%, #a89db4 0%, #8e839b 100%);
+      background: radial-gradient(circle at 50% 10%, #2f273d 0%, #211c2b 55%, #181420 100%);
       color: #f5f3f7;
       font-family: 'Plus Jakarta Sans', sans-serif;
       min-height: 100vh;
@@ -69,21 +70,21 @@
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #241e2e;
+      background: #1c1826;
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb {
-      background: #463c56;
+      background: #3d344d;
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #5b4f6e;
+      background: #524766;
     }
 
-    /* Notch Card (fiel a la referencia) */
+    /* Notch Card fluida */
     .notch-container {
       position: relative;
-      background: #332b3f;
+      background: #2b2438;
       border-radius: 32px;
       border: 1px solid rgba(255, 255, 255, 0.08);
       overflow: hidden;
@@ -93,7 +94,7 @@
       position: absolute;
       top: 0;
       left: 32px;
-      background: #272132;
+      background: #211c2b;
       padding: 7px 22px 11px 22px;
       border-bottom-left-radius: 20px;
       border-bottom-right-radius: 20px;
@@ -103,7 +104,7 @@
       z-index: 20;
     }
 
-    /* Pedestal con iluminación ambiental difusa */
+    /* Pedestal con iluminación ambiental */
     .pedestal-glow {
       position: relative;
     }
@@ -121,7 +122,7 @@
       pointer-events: none;
     }
 
-    /* Contenedor 3D interactivo giratorio */
+    /* Contenedor 3D giratorio interactivo */
     .skin-turntable {
       perspective: 900px;
       cursor: grab;
@@ -149,7 +150,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Botones de acción circulares flotantes */
+    /* Botones circulares flotantes */
     .floating-circle-btn {
       width: 44px;
       height: 44px;
@@ -179,495 +180,405 @@
   </style>
 </head>
 
-<body class="p-3 sm:p-6 md:p-10 flex items-center justify-center">
+<body class="w-full min-h-screen flex flex-col justify-between p-4 sm:p-7 lg:p-10">
 
   <!-- ============================================================ -->
-  <!-- CONTENEDOR MAESTRO (VENTANA REDONDEADA ESTILO MOCK)           -->
+  <!-- BARRA SUPERIOR: EN TODA LA PÁGINA (DESTINY | PÍLDORA | IP)   -->
   <!-- ============================================================ -->
-  <div class="w-full max-w-[1600px] bg-palette-window border border-palette-borderStrong rounded-[38px] p-6 sm:p-8 md:p-10 shadow-[0_30px_90px_rgba(20,15,28,0.45)] flex flex-col gap-7">
-
-    <!-- ============================================================ -->
-    <!-- BARRA SUPERIOR: DESTINY | PÍLDORA (INICIO, MODALIDAD, MIEMBROS) | ESTADO -->
-    <!-- ============================================================ -->
-    <header class="w-full flex flex-col lg:flex-row items-center justify-between gap-5 pb-5 border-b border-palette-border">
-      
-      <!-- Lado Izquierdo: DESTINY en grande (Sin subtítulo) -->
-      <div class="flex items-center gap-3.5 w-full lg:w-auto justify-between lg:justify-start cursor-pointer" onclick="switchTab('inicio')">
-        <div class="w-12 h-12 rounded-2xl bg-white text-palette-window flex items-center justify-center font-black text-2xl tracking-tighter shadow-md">
-          DO
-        </div>
-        <h1 class="text-3xl font-black tracking-tight text-white uppercase leading-none font-display">
-          DESTINY
-        </h1>
+  <header class="w-full max-w-[1780px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-5 pb-6 border-b border-palette-border">
+    
+    <!-- Lado Izquierdo: DESTINY en grande -->
+    <div class="flex items-center gap-3.5 w-full lg:w-auto justify-between lg:justify-start cursor-pointer" onclick="switchTab('inicio')">
+      <div class="w-12 h-12 rounded-2xl bg-white text-palette-canvas flex items-center justify-center font-black text-2xl tracking-tighter shadow-md">
+        DO
       </div>
+      <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-white uppercase leading-none font-display">
+        DESTINY
+      </h1>
+    </div>
 
-      <!-- Centro: Píldora de Navegación Exacta (INICIO - MODALIDAD - MIEMBROS) -->
-      <nav class="flex items-center bg-palette-inner p-1.5 rounded-full border border-palette-border shadow-inner">
-        <button id="nav-btn-inicio" onclick="switchTab('inicio')" class="px-7 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 bg-white text-palette-window shadow-md flex items-center gap-2">
-          <span>Inicio</span>
-        </button>
-        <button id="nav-btn-modalidad" onclick="switchTab('modalidad')" class="px-7 py-2.5 rounded-full text-sm font-medium text-palette-muted hover:text-white transition-all duration-200 flex items-center gap-2">
-          <span>Modalidad</span>
-        </button>
-        <button id="nav-btn-miembros" onclick="switchTab('miembros')" class="px-7 py-2.5 rounded-full text-sm font-medium text-palette-muted hover:text-white transition-all duration-200 flex items-center gap-2">
-          <span>Miembros</span>
-        </button>
-      </nav>
+    <!-- Centro: Píldora de Navegación (INICIO - MODALIDAD - MIEMBROS) -->
+    <nav class="flex items-center bg-palette-inner p-1.5 rounded-full border border-palette-border shadow-inner">
+      <button id="nav-btn-inicio" onclick="switchTab('inicio')" class="px-7 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 bg-white text-palette-canvas shadow-md flex items-center gap-2">
+        <span>Inicio</span>
+      </button>
+      <button id="nav-btn-modalidad" onclick="switchTab('modalidad')" class="px-7 py-2.5 rounded-full text-sm font-medium text-palette-muted hover:text-white transition-all duration-200 flex items-center gap-2">
+        <span>Modalidad</span>
+      </button>
+      <button id="nav-btn-miembros" onclick="switchTab('miembros')" class="px-7 py-2.5 rounded-full text-sm font-medium text-palette-muted hover:text-white transition-all duration-200 flex items-center gap-2">
+        <span>Miembros</span>
+      </button>
+    </nav>
 
-      <!-- Lado Derecho: Estado del Servidor HolyHosting & Copiar IP -->
-      <div class="flex items-center gap-3 w-full lg:w-auto justify-end">
-        <button onclick="copyServerIP()" class="flex items-center gap-2.5 bg-palette-card hover:bg-palette-cardHover border border-palette-border px-4 py-2 rounded-full text-xs font-medium transition-all text-white shadow-sm">
-          <i class="fa-regular fa-copy text-palette-muted text-xs"></i>
-          <span>play.destinyowners.com</span>
-        </button>
+    <!-- Lado Derecho: Copiar IP & Estado del Servidor -->
+    <div class="flex items-center gap-3 w-full lg:w-auto justify-end">
+      <button onclick="copyServerIP()" class="flex items-center gap-2.5 bg-palette-card hover:bg-palette-cardHover border border-palette-border px-4 py-2.5 rounded-full text-xs font-medium transition-all text-white shadow-sm">
+        <i class="fa-regular fa-copy text-palette-muted text-xs"></i>
+        <span>play.destinyowners.com</span>
+      </button>
 
-        <div class="flex items-center gap-2 bg-palette-inner border border-palette-border px-4 py-2 rounded-full text-xs font-semibold text-white">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>Paper 26.3</span>
-        </div>
+      <div class="flex items-center gap-2 bg-palette-inner border border-palette-border px-4 py-2.5 rounded-full text-xs font-semibold text-white">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>En Línea</span>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <!-- ============================================================ -->
-    <!-- CONTENIDO PRINCIPAL: VISTAS Y PANEL LATERAL DINÁMICO          -->
-    <!-- ============================================================ -->
-    <main class="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+  <!-- ============================================================ -->
+  <!-- CONTENIDO PRINCIPAL: ABARCA TODA LA PÁGINA                   -->
+  <!-- ============================================================ -->
+  <main class="w-full max-w-[1780px] mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start my-6">
 
-      <!-- COLUMNA IZQUIERDA: CONTENIDO Y VISTAS -->
-      <div id="left-content-area" class="lg:col-span-7 flex flex-col gap-6">
+    <!-- COLUMNA IZQUIERDA: VISTAS PRINCIPALES -->
+    <div id="left-content-area" class="lg:col-span-7 flex flex-col gap-6">
 
-        <!-- ======================================================== -->
-        <!-- VISTA 1: INICIO (DESTINY EN GRANDE)                      -->
-        <!-- ======================================================== -->
-        <section id="view-inicio" class="tab-view active flex flex-col gap-6">
-          
-          <!-- BANNER HERO: DESTINY EN GRANDE -->
-          <div class="bg-palette-card border border-palette-border rounded-[32px] p-8 sm:p-12 shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[300px]">
-            <div>
-              <div class="inline-flex items-center gap-2 bg-palette-inner/80 border border-palette-border px-3.5 py-1.5 rounded-full text-xs text-emerald-300 mb-4 font-semibold">
-                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span>Servidor en línea en HolyHosting</span>
-              </div>
-              
-              <!-- DESTINY EN GRANDE -->
-              <h2 class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter text-white uppercase select-none leading-none font-display">
-                DESTINY
-              </h2>
-            </div>
-
-            <!-- Accesos e Información Técnica Real -->
-            <div class="flex flex-wrap items-center justify-between gap-4 pt-8 mt-6 border-t border-palette-border">
-              <div class="flex items-center gap-8 text-xs">
-                <div>
-                  <span class="text-palette-muted block text-[11px] font-medium uppercase tracking-wider">Modalidad</span>
-                  <span class="text-white font-bold text-sm">The Towers</span>
-                </div>
-                <div class="h-6 w-px bg-palette-border"></div>
-                <div>
-                  <span class="text-palette-muted block text-[11px] font-medium uppercase tracking-wider">Versión</span>
-                  <span class="text-white font-bold text-sm">Minecraft 1.21.4 (26.3)</span>
-                </div>
-                <div class="h-6 w-px bg-palette-border"></div>
-                <div>
-                  <span class="text-palette-muted block text-[11px] font-medium uppercase tracking-wider">Estado</span>
-                  <span class="text-palette-muted text-sm font-medium">A la espera de partidas</span>
-                </div>
-              </div>
-
-              <button onclick="switchTab('modalidad')" class="px-6 py-3 rounded-full bg-white hover:bg-slate-100 text-palette-window text-xs font-bold transition-all shadow-md flex items-center gap-2 font-heading">
-                <span>Ver Modalidad</span>
-                <i class="fa-solid fa-arrow-right text-[11px]"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- TARJETA INFORMATIVA DEL SERVIDOR -->
-          <div class="bg-palette-card border border-palette-border rounded-[28px] p-7 shadow-lg">
-            <h3 class="text-base font-bold text-white mb-1.5">Conexión Directa</h3>
-            <p class="text-xs text-palette-muted mb-4 font-normal">Puedes unirte al servidor con cualquier cliente de Minecraft compatible con la versión 1.21.4.</p>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div class="p-4 rounded-2xl bg-palette-inner border border-palette-border">
-                <span class="text-palette-muted text-[11px] uppercase tracking-wider block mb-1 font-semibold">Dirección del Servidor</span>
-                <span class="text-white font-bold text-sm">play.destinyowners.com</span>
-              </div>
-              <div class="p-4 rounded-2xl bg-palette-inner border border-palette-border">
-                <span class="text-palette-muted text-[11px] uppercase tracking-wider block mb-1 font-semibold">Puerto Oficial</span>
-                <span class="text-white font-bold text-sm">25565 (Predeterminado)</span>
-              </div>
-            </div>
-          </div>
-
-        </section>
-
-        <!-- ======================================================== -->
-        <!-- VISTA 2: MODALIDAD (THE TOWERS CON EQUIPOS DIVIDIDOS)    -->
-        <!-- ======================================================== -->
-        <section id="view-modalidad" class="tab-view flex flex-col gap-6">
-          
-          <!-- TARJETA DE THE TOWERS -->
-          <div class="bg-palette-card border border-palette-border rounded-[28px] p-7 sm:p-8 shadow-xl">
-            
-            <div class="flex items-center justify-between pb-5 border-b border-palette-border">
-              <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-2xl bg-palette-inner border border-palette-border flex items-center justify-center text-white text-lg">
-                  <i class="fa-solid fa-chess-rook"></i>
-                </div>
-                <div>
-                  <h3 class="text-xl font-bold text-white tracking-tight">The Towers</h3>
-                  <span class="text-xs text-palette-muted font-medium">Modalidad Competitiva por Equipos</span>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2 bg-palette-inner border border-palette-border px-3.5 py-1.5 rounded-full text-xs text-palette-muted font-medium">
-                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
-                <span>En Espera de Jugadores</span>
-              </div>
-            </div>
-
-            <!-- Mecánicas de Juego con Íconos Vectoriales Limpios -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6 text-xs">
-              <div class="p-4 rounded-2xl bg-palette-inner border border-palette-border">
-                <div class="text-palette-accentGold font-bold mb-1 flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-crosshairs text-xs"></i>
-                  <span>Objetivo</span>
-                </div>
-                <p class="text-palette-muted leading-relaxed">Anotar 10 puntos en la jaula enemiga para ganar el encuentro.</p>
-              </div>
-
-              <div class="p-4 rounded-2xl bg-palette-inner border border-palette-border">
-                <div class="text-emerald-400 font-bold mb-1 flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-gem text-xs"></i>
-                  <span>Generadores</span>
-                </div>
-                <p class="text-palette-muted leading-relaxed">Hierro en bases, Oro en puentes y Esmeraldas en la torre central.</p>
-              </div>
-
-              <div class="p-4 rounded-2xl bg-palette-inner border border-palette-border">
-                <div class="text-palette-accentWarm font-bold mb-1 flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-tower-broadcast text-xs"></i>
-                  <span>Faros</span>
-                </div>
-                <p class="text-palette-muted leading-relaxed">Mejoras de equipo automáticas con pociones y armaduras mejoradas.</p>
-              </div>
-            </div>
-
-            <!-- EQUIPOS DIVIDIDOS CON PERFILES CLICKEABLES -->
-            <div>
-              <div class="flex items-center justify-between mb-3 text-xs">
-                <span class="text-palette-muted uppercase font-bold tracking-wider">Alineación de Equipos</span>
-                <span class="text-palette-muted font-medium">Haz clic en un jugador para inspeccionar su perfil</span>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                
-                <!-- Columna Equipo Rojo -->
-                <div class="p-4 rounded-2xl bg-palette-inner border border-rose-500/25 flex flex-col gap-3">
-                  <div class="flex items-center justify-between text-rose-400 font-bold pb-2 border-b border-rose-500/20">
-                    <span class="flex items-center gap-2">
-                      <i class="fa-solid fa-shield-halved text-rose-400"></i>
-                      <span>RED TEAM</span>
-                    </span>
-                    <span class="px-2 py-0.5 rounded bg-rose-500/10 text-[11px]">4 / 8</span>
-                  </div>
-
-                  <!-- Perfiles clickeables en Equipo Rojo -->
-                  <div class="space-y-2">
-                    <div onclick="inspectPlayerProfile('Kylaz', 'f4aa6afad90c4dd297b2ed453b8c99fe', 'Líder de Asalto', 'RED')" class="p-2.5 rounded-xl bg-palette-card hover:bg-palette-cardHover border border-palette-border cursor-pointer flex items-center justify-between transition-all group">
-                      <div class="flex items-center gap-2.5">
-                        <img src="https://visage.surgeplay.com/face/40/f4aa6afad90c4dd297b2ed453b8c99fe" alt="Kylaz" class="w-7 h-7 rounded-lg">
-                        <div>
-                          <span class="font-bold text-white group-hover:text-rose-300 transition-colors block leading-tight">Kylaz</span>
-                          <span class="text-[10px] text-palette-muted font-medium">Líder de Asalto</span>
-                        </div>
-                      </div>
-                      <i class="fa-solid fa-chevron-right text-[10px] text-palette-muted group-hover:text-white transition-colors"></i>
-                    </div>
-
-                    <div onclick="inspectPlayerProfile('ElGlower', '853c80ef3c3749fdaa49938b674acd16', 'Defensor', 'RED')" class="p-2.5 rounded-xl bg-palette-card hover:bg-palette-cardHover border border-palette-border cursor-pointer flex items-center justify-between transition-all group">
-                      <div class="flex items-center gap-2.5">
-                        <img src="https://visage.surgeplay.com/face/40/853c80ef3c3749fdaa49938b674acd16" alt="ElGlower" class="w-7 h-7 rounded-lg">
-                        <div>
-                          <span class="font-bold text-white group-hover:text-rose-300 transition-colors block leading-tight">ElGlower</span>
-                          <span class="text-[10px] text-palette-muted font-medium">Defensor</span>
-                        </div>
-                      </div>
-                      <i class="fa-solid fa-chevron-right text-[10px] text-palette-muted group-hover:text-white transition-colors"></i>
-                    </div>
-
-                    <div class="p-2.5 rounded-xl bg-palette-card/40 border border-dashed border-palette-border flex items-center justify-between text-palette-muted text-[11px]">
-                      <span>Ranura disponible</span>
-                      <i class="fa-solid fa-user-plus text-[10px]"></i>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Columna Equipo Azul -->
-                <div class="p-4 rounded-2xl bg-palette-inner border border-sky-500/25 flex flex-col gap-3">
-                  <div class="flex items-center justify-between text-sky-400 font-bold pb-2 border-b border-sky-500/20">
-                    <span class="flex items-center gap-2">
-                      <i class="fa-solid fa-shield-halved text-sky-400"></i>
-                      <span>BLUE TEAM</span>
-                    </span>
-                    <span class="px-2 py-0.5 rounded bg-sky-500/10 text-[11px]">4 / 8</span>
-                  </div>
-
-                  <!-- Perfiles clickeables en Equipo Azul -->
-                  <div class="space-y-2">
-                    <div onclick="inspectPlayerProfile('Gpminer17', '06af403561ab422faedd1edabc8d71c7', 'Líder de Asalto', 'BLUE')" class="p-2.5 rounded-xl bg-palette-card hover:bg-palette-cardHover border border-palette-border cursor-pointer flex items-center justify-between transition-all group">
-                      <div class="flex items-center gap-2.5">
-                        <img src="https://visage.surgeplay.com/face/40/06af403561ab422faedd1edabc8d71c7" alt="Gpminer17" class="w-7 h-7 rounded-lg">
-                        <div>
-                          <span class="font-bold text-white group-hover:text-sky-300 transition-colors block leading-tight">Gpminer17</span>
-                          <span class="text-[10px] text-palette-muted font-medium">Líder de Asalto</span>
-                        </div>
-                      </div>
-                      <i class="fa-solid fa-chevron-right text-[10px] text-palette-muted group-hover:text-white transition-colors"></i>
-                    </div>
-
-                    <div onclick="inspectPlayerProfile('Crozzor', '3d50b9cde587408eb401a6afcab79d2c', 'Minero Central', 'BLUE')" class="p-2.5 rounded-xl bg-palette-card hover:bg-palette-cardHover border border-palette-border cursor-pointer flex items-center justify-between transition-all group">
-                      <div class="flex items-center gap-2.5">
-                        <img src="https://visage.surgeplay.com/face/40/3d50b9cde587408eb401a6afcab79d2c" alt="Crozzor" class="w-7 h-7 rounded-lg">
-                        <div>
-                          <span class="font-bold text-white group-hover:text-sky-300 transition-colors block leading-tight">Crozzor</span>
-                          <span class="text-[10px] text-palette-muted font-medium">Minero Central</span>
-                        </div>
-                      </div>
-                      <i class="fa-solid fa-chevron-right text-[10px] text-palette-muted group-hover:text-white transition-colors"></i>
-                    </div>
-
-                    <div class="p-2.5 rounded-xl bg-palette-card/40 border border-dashed border-palette-border flex items-center justify-between text-palette-muted text-[11px]">
-                      <span>Ranura disponible</span>
-                      <i class="fa-solid fa-user-plus text-[10px]"></i>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Historial Limpio de Partidas -->
-          <div class="bg-palette-card border border-palette-border rounded-[28px] p-7 shadow-xl">
-            <h3 class="text-base font-bold text-white mb-1">Registro de Partidas</h3>
-            <p class="text-xs text-palette-muted mb-4 font-normal">Las partidas jugadas en el servidor se sincronizarán automáticamente aquí.</p>
-            
-            <div class="p-8 rounded-2xl bg-palette-inner border border-palette-border text-center text-xs text-palette-muted">
-              <i class="fa-solid fa-clock-rotate-left text-2xl text-palette-muted/40 mb-2 block"></i>
-              <span>No hay partidas registradas en la sesión actual.</span>
-            </div>
-          </div>
-
-        </section>
-
-        <!-- ======================================================== -->
-        <!-- VISTA 3: MIEMBROS (UNKNOWN MEMBER SLOTS STRICTLY)        -->
-        <!-- ======================================================== -->
-        <section id="view-miembros" class="tab-view flex flex-col gap-6">
-          <div class="bg-palette-card border border-palette-border rounded-[28px] p-7 sm:p-8 shadow-xl">
-            
-            <div class="pb-5 border-b border-palette-border">
-              <h2 class="text-xl font-bold text-white tracking-tight">Miembros de Destiny</h2>
-              <p class="text-xs text-palette-muted mt-0.5">Espacios reservados de plantilla. Pendiente de asignación oficial.</p>
-            </div>
-
-            <!-- CUADRÍCULA DE SLOTS RESERVADOS (UNKNOWN MEMBER) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
-              
-              <!-- Slot 1 -->
-              <div class="p-4 rounded-2xl bg-palette-inner border border-palette-border flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-palette-card border border-palette-border flex items-center justify-center text-palette-muted text-base">
-                  <i class="fa-solid fa-user-secret"></i>
-                </div>
-                <div>
-                  <h4 class="text-sm font-bold text-white">Unknown Member</h4>
-                  <span class="text-[10px] px-2 py-0.5 rounded bg-white/5 text-palette-muted border border-white/10 font-medium">Slot Reservado</span>
-                  <div class="text-[11px] text-palette-muted font-medium mt-1">#DESTINY-01</div>
-                </div>
-              </div>
-
-              <!-- Slot 2 -->
-              <div class="p-4 rounded-2xl bg-palette-inner border border-palette-border flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-palette-card border border-palette-border flex items-center justify-center text-palette-muted text-base">
-                  <i class="fa-solid fa-user-secret"></i>
-                </div>
-                <div>
-                  <h4 class="text-sm font-bold text-white">Unknown Member</h4>
-                  <span class="text-[10px] px-2 py-0.5 rounded bg-white/5 text-palette-muted border border-white/10 font-medium">Slot Reservado</span>
-                  <div class="text-[11px] text-palette-muted font-medium mt-1">#DESTINY-02</div>
-                </div>
-              </div>
-
-              <!-- Slot 3 -->
-              <div class="p-4 rounded-2xl bg-palette-inner border border-palette-border flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-palette-card border border-palette-border flex items-center justify-center text-palette-muted text-base">
-                  <i class="fa-solid fa-user-secret"></i>
-                </div>
-                <div>
-                  <h4 class="text-sm font-bold text-white">Unknown Member</h4>
-                  <span class="text-[10px] px-2 py-0.5 rounded bg-white/5 text-palette-muted border border-white/10 font-medium">Slot Reservado</span>
-                  <div class="text-[11px] text-palette-muted font-medium mt-1">#DESTINY-03</div>
-                </div>
-              </div>
-
-              <!-- Slot 4 -->
-              <div class="p-4 rounded-2xl bg-palette-inner border border-palette-border flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-palette-card border border-palette-border flex items-center justify-center text-palette-muted text-base">
-                  <i class="fa-solid fa-user-secret"></i>
-                </div>
-                <div>
-                  <h4 class="text-sm font-bold text-white">Unknown Member</h4>
-                  <span class="text-[10px] px-2 py-0.5 rounded bg-white/5 text-palette-muted border border-white/10 font-medium">Slot Reservado</span>
-                  <div class="text-[11px] text-palette-muted font-medium mt-1">#DESTINY-04</div>
-                </div>
-              </div>
-
-              <!-- Slot 5 -->
-              <div class="p-4 rounded-2xl bg-palette-inner border border-palette-border flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-palette-card border border-palette-border flex items-center justify-center text-palette-muted text-base">
-                  <i class="fa-solid fa-user-secret"></i>
-                </div>
-                <div>
-                  <h4 class="text-sm font-bold text-white">Unknown Member</h4>
-                  <span class="text-[10px] px-2 py-0.5 rounded bg-white/5 text-palette-muted border border-white/10 font-medium">Slot Reservado</span>
-                  <div class="text-[11px] text-palette-muted font-medium mt-1">#DESTINY-05</div>
-                </div>
-              </div>
-
-              <!-- Slot 6 -->
-              <div class="p-4 rounded-2xl bg-palette-inner border border-palette-border flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-palette-card border border-palette-border flex items-center justify-center text-palette-muted text-base">
-                  <i class="fa-solid fa-user-secret"></i>
-                </div>
-                <div>
-                  <h4 class="text-sm font-bold text-white">Unknown Member</h4>
-                  <span class="text-[10px] px-2 py-0.5 rounded bg-white/5 text-palette-muted border border-white/10 font-medium">Slot Reservado</span>
-                  <div class="text-[11px] text-palette-muted font-medium mt-1">#DESTINY-06</div>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        </section>
-
-      </div>
-
-      <!-- ============================================================ -->
-      <!-- COLUMNA DERECHA: NOTCH SHOWCASE CARD CON SKIN GIRATORIA 3D   -->
-      <!-- ============================================================ -->
-      <aside id="right-showcase-panel" class="lg:col-span-5 flex flex-col gap-6">
+      <!-- ======================================================== -->
+      <!-- VISTA 1: INICIO (DESTINY EN GRANDE - LIMPIO Y ELEGANTE)  -->
+      <!-- ======================================================== -->
+      <section id="view-inicio" class="tab-view active flex flex-col gap-6">
         
-        <div class="notch-container p-7 shadow-2xl flex flex-col relative">
-          
-          <!-- Notch Cutout Cóncavo Superior -->
-          <div class="notch-cutout flex items-center gap-2.5 shadow-md">
-            <div id="showcase-avatar-badge" class="w-6 h-6 rounded-full bg-white text-palette-window flex items-center justify-center text-[10px] font-bold">
-              DO
+        <!-- BANNER HERO MAJESTUOSO: DESTINY EN GRANDE -->
+        <div class="bg-palette-card border border-palette-border rounded-[32px] p-8 sm:p-12 lg:p-16 shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[380px]">
+          <div>
+            <div class="inline-flex items-center gap-2 bg-palette-inner/80 border border-palette-border px-4 py-2 rounded-full text-xs text-emerald-300 mb-6 font-semibold">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <span>Servidor en línea en HolyHosting</span>
             </div>
-            <div class="flex items-center gap-1.5">
-              <span id="showcase-badge-title" class="text-xs font-bold text-white">Destiny</span>
-              <i class="fa-solid fa-circle-check text-[11px] text-sky-400"></i>
-            </div>
-          </div>
-
-          <!-- Botones de Acción Circulares Flotantes -->
-          <div class="absolute top-6 right-6 flex flex-col gap-3 z-20">
-            <!-- Botón Cerrar si estamos en Modalidad -->
-            <button id="btn-close-showcase" onclick="closeModalidadProfile()" title="Cerrar vista de perfil" class="floating-circle-btn hidden text-rose-300 hover:text-white">
-              <i class="fa-solid fa-xmark text-xs"></i>
-            </button>
-            <button onclick="toggleAutoRotate()" title="Activar/Detener giro automático" id="btn-autorotate" class="floating-circle-btn">
-              <i class="fa-solid fa-rotate text-xs"></i>
-            </button>
-            <button onclick="copyServerIP()" title="Copiar IP del Servidor" class="floating-circle-btn">
-              <i class="fa-solid fa-copy text-xs"></i>
-            </button>
-          </div>
-
-          <!-- PRESENTACIÓN VISUAL EN PEDESTAL CON GIRO 3D INTERACTIVO -->
-          <div class="pedestal-glow flex flex-col items-center justify-center pt-9 pb-3">
             
-            <!-- Contenedor 3D que se puede arrastrar para girar -->
-            <div id="skin-turntable-container" class="skin-turntable relative w-56 h-72 flex items-center justify-center">
-              <img id="player-3d-skin" src="https://visage.surgeplay.com/full/512/f4aa6afad90c4dd297b2ed453b8c99fe?tilt=0&yaw=20" alt="Personaje 3D" class="skin-3d-model max-h-full object-contain filter drop-shadow-[0_22px_28px_rgba(0,0,0,0.5)] pointer-events-none">
-            </div>
+            <!-- DESTINY EN GRANDE -->
+            <h2 class="text-7xl sm:text-8xl md:text-9xl lg:text-[140px] font-black tracking-tighter text-white uppercase select-none leading-none font-display">
+              DESTINY
+            </h2>
+          </div>
 
-            <!-- Controles de Giro Suaves -->
-            <div class="flex items-center gap-3 mt-2 text-xs font-medium text-palette-muted">
-              <button onclick="rotateSkinStep(-30)" class="px-2.5 py-1 rounded-full bg-palette-inner hover:bg-palette-card border border-palette-border text-white text-[11px] transition-all">
-                <i class="fa-solid fa-chevron-left mr-1"></i> -30°
-              </button>
-              <span class="text-[11px] tracking-wide text-palette-muted select-none flex items-center gap-1.5">
-                <i class="fa-solid fa-arrows-left-right text-[10px]"></i> Arrastra para girar
-              </span>
-              <button onclick="rotateSkinStep(30)" class="px-2.5 py-1 rounded-full bg-palette-inner hover:bg-palette-card border border-palette-border text-white text-[11px] transition-all">
-                +30° <i class="fa-solid fa-chevron-right ml-1"></i>
-              </button>
-            </div>
-
-            <!-- Título del Showcase -->
-            <div class="text-center mt-3">
-              <h3 id="showcase-hero-name" class="text-3xl font-black text-white tracking-tight font-display">The Towers</h3>
-              <div class="flex items-center justify-center gap-2 mt-1">
-                <span id="showcase-hero-role" class="text-xs text-palette-muted font-medium">Modalidad Oficial</span>
-                <span class="text-palette-muted">•</span>
-                <span id="showcase-hero-tag" class="text-xs font-bold text-palette-accentGold">Temporada 2026</span>
+          <!-- Accesos e Información Técnica Real -->
+          <div class="flex flex-wrap items-center justify-between gap-5 pt-8 mt-6 border-t border-palette-border">
+            <div class="flex items-center gap-8 text-xs">
+              <div>
+                <span class="text-palette-muted block text-[11px] font-medium uppercase tracking-wider">Modalidad</span>
+                <span class="text-white font-bold text-base font-display">The Towers</span>
               </div>
+              <div class="h-8 w-px bg-palette-border"></div>
+              <div>
+                <span class="text-palette-muted block text-[11px] font-medium uppercase tracking-wider">Servidor</span>
+                <span class="text-white font-bold text-base font-display">play.destinyowners.com</span>
+              </div>
+            </div>
+
+            <button onclick="switchTab('modalidad')" class="px-7 py-3.5 rounded-full bg-white hover:bg-slate-100 text-palette-canvas text-xs font-bold transition-all shadow-lg flex items-center gap-2 font-heading">
+              <span>Ver Modalidad</span>
+              <i class="fa-solid fa-arrow-right text-[11px]"></i>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- VISTA 2: MODALIDAD (THE TOWERS & ALINEACIÓN DE EQUIPOS)  -->
+      <!-- ======================================================== -->
+      <section id="view-modalidad" class="tab-view flex flex-col gap-6">
+        
+        <!-- TARJETA DE THE TOWERS -->
+        <div class="bg-palette-card border border-palette-border rounded-[32px] p-8 sm:p-10 shadow-xl">
+          
+          <div class="flex items-center justify-between pb-6 border-b border-palette-border">
+            <div class="flex items-center gap-3.5">
+              <div class="w-12 h-12 rounded-2xl bg-palette-inner border border-palette-border flex items-center justify-center text-white text-xl">
+                <i class="fa-solid fa-chess-rook"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-white tracking-tight">The Towers</h3>
+                <span class="text-xs text-palette-muted font-medium">Modalidad Competitiva por Equipos</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 bg-palette-inner border border-palette-border px-4 py-2 rounded-full text-xs text-palette-muted font-medium">
+              <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+              <span>En Espera de Jugadores</span>
             </div>
           </div>
 
-          <!-- Píldoras Inferiores Simples (Estilo Mock) -->
-          <div class="flex items-center justify-between gap-3 mt-3 pt-4 border-t border-palette-border">
-            <div class="flex-1 bg-white/10 border border-white/15 rounded-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-bold text-white shadow-sm">
-              <i class="fa-solid fa-bullseye text-palette-accentGold"></i>
-              <span id="showcase-pill-left">10 Puntos</span>
+          <!-- EQUIPOS DIVIDIDOS CON PERFILES CLICKEABLES -->
+          <div class="mt-6">
+            <div class="flex items-center justify-between mb-4 text-xs">
+              <span class="text-palette-muted uppercase font-bold tracking-wider">Alineación de Equipos</span>
+              <span class="text-palette-muted font-medium">Haz clic en un jugador para inspeccionar su perfil</span>
             </div>
 
-            <div class="flex-1 bg-palette-accentWarm/80 border border-palette-accentWarm rounded-full py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-bold text-white shadow-sm">
-              <i class="fa-solid fa-server"></i>
-              <span id="showcase-pill-right">Paper 26.3</span>
-            </div>
-          </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
+              
+              <!-- Columna Equipo Rojo -->
+              <div class="p-5 rounded-2xl bg-palette-inner border border-rose-500/25 flex flex-col gap-3.5">
+                <div class="flex items-center justify-between text-rose-400 font-bold pb-2.5 border-b border-rose-500/20">
+                  <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-rose-400"></i>
+                    <span>RED TEAM</span>
+                  </span>
+                  <span class="px-2.5 py-0.5 rounded bg-rose-500/10 text-[11px]">4 / 8</span>
+                </div>
 
-          <!-- Información Técnica del Servidor / Perfil Inspeccionado -->
-          <div class="mt-5 bg-palette-inner rounded-2xl p-4 border border-palette-border">
-            <div class="flex items-center justify-between mb-3 pb-2 border-b border-palette-border">
-              <span id="showcase-panel-title" class="text-xs font-bold text-white uppercase tracking-wider">Estado Técnico</span>
-              <span id="showcase-panel-status" class="text-[11px] font-semibold text-emerald-400">En Línea</span>
-            </div>
+                <!-- Perfiles clickeables en Equipo Rojo -->
+                <div class="space-y-2.5">
+                  <div onclick="inspectPlayerProfile('Kylaz', 'f4aa6afad90c4dd297b2ed453b8c99fe', 'Líder de Asalto', 'RED')" class="p-3 rounded-xl bg-palette-card hover:bg-palette-cardHover border border-palette-border cursor-pointer flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-3">
+                      <img src="https://visage.surgeplay.com/face/40/f4aa6afad90c4dd297b2ed453b8c99fe" alt="Kylaz" class="w-8 h-8 rounded-lg">
+                      <div>
+                        <span class="font-bold text-white group-hover:text-rose-300 transition-colors block leading-tight text-sm">Kylaz</span>
+                        <span class="text-[11px] text-palette-muted font-medium">Líder de Asalto</span>
+                      </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs text-palette-muted group-hover:text-white transition-colors"></i>
+                  </div>
 
-            <div id="showcase-grid-content" class="grid grid-cols-2 gap-3 text-xs">
-              <div class="bg-palette-card p-2.5 rounded-xl border border-palette-border">
-                <div class="text-palette-muted text-[11px] font-medium uppercase tracking-wider">Motor</div>
-                <div class="text-white font-bold mt-0.5">Paper 26.3</div>
+                  <div onclick="inspectPlayerProfile('ElGlower', '853c80ef3c3749fdaa49938b674acd16', 'Defensor', 'RED')" class="p-3 rounded-xl bg-palette-card hover:bg-palette-cardHover border border-palette-border cursor-pointer flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-3">
+                      <img src="https://visage.surgeplay.com/face/40/853c80ef3c3749fdaa49938b674acd16" alt="ElGlower" class="w-8 h-8 rounded-lg">
+                      <div>
+                        <span class="font-bold text-white group-hover:text-rose-300 transition-colors block leading-tight text-sm">ElGlower</span>
+                        <span class="text-[11px] text-palette-muted font-medium">Defensor</span>
+                      </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs text-palette-muted group-hover:text-white transition-colors"></i>
+                  </div>
+
+                  <div class="p-3 rounded-xl bg-palette-card/40 border border-dashed border-palette-border flex items-center justify-between text-palette-muted text-xs">
+                    <span>Ranura disponible</span>
+                    <i class="fa-solid fa-user-plus text-xs"></i>
+                  </div>
+                </div>
               </div>
 
-              <div class="bg-palette-card p-2.5 rounded-xl border border-palette-border">
-                <div class="text-palette-muted text-[11px] font-medium uppercase tracking-wider">Plataforma</div>
-                <div class="text-white font-bold mt-0.5">HolyHosting</div>
+              <!-- Columna Equipo Azul -->
+              <div class="p-5 rounded-2xl bg-palette-inner border border-sky-500/25 flex flex-col gap-3.5">
+                <div class="flex items-center justify-between text-sky-400 font-bold pb-2.5 border-b border-sky-500/20">
+                  <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-sky-400"></i>
+                    <span>BLUE TEAM</span>
+                  </span>
+                  <span class="px-2.5 py-0.5 rounded bg-sky-500/10 text-[11px]">4 / 8</span>
+                </div>
+
+                <!-- Perfiles clickeables en Equipo Azul -->
+                <div class="space-y-2.5">
+                  <div onclick="inspectPlayerProfile('Gpminer17', '06af403561ab422faedd1edabc8d71c7', 'Líder de Asalto', 'BLUE')" class="p-3 rounded-xl bg-palette-card hover:bg-palette-cardHover border border-palette-border cursor-pointer flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-3">
+                      <img src="https://visage.surgeplay.com/face/40/06af403561ab422faedd1edabc8d71c7" alt="Gpminer17" class="w-8 h-8 rounded-lg">
+                      <div>
+                        <span class="font-bold text-white group-hover:text-sky-300 transition-colors block leading-tight text-sm">Gpminer17</span>
+                        <span class="text-[11px] text-palette-muted font-medium">Líder de Asalto</span>
+                      </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs text-palette-muted group-hover:text-white transition-colors"></i>
+                  </div>
+
+                  <div onclick="inspectPlayerProfile('Crozzor', '3d50b9cde587408eb401a6afcab79d2c', 'Minero Central', 'BLUE')" class="p-3 rounded-xl bg-palette-card hover:bg-palette-cardHover border border-palette-border cursor-pointer flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-3">
+                      <img src="https://visage.surgeplay.com/face/40/3d50b9cde587408eb401a6afcab79d2c" alt="Crozzor" class="w-8 h-8 rounded-lg">
+                      <div>
+                        <span class="font-bold text-white group-hover:text-sky-300 transition-colors block leading-tight text-sm">Crozzor</span>
+                        <span class="text-[11px] text-palette-muted font-medium">Minero Central</span>
+                      </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs text-palette-muted group-hover:text-white transition-colors"></i>
+                  </div>
+
+                  <div class="p-3 rounded-xl bg-palette-card/40 border border-dashed border-palette-border flex items-center justify-between text-palette-muted text-xs">
+                    <span>Ranura disponible</span>
+                    <i class="fa-solid fa-user-plus text-xs"></i>
+                  </div>
+                </div>
               </div>
 
-              <div class="bg-palette-card p-2.5 rounded-xl border border-palette-border">
-                <div class="text-palette-muted text-[11px] font-medium uppercase tracking-wider">Java</div>
-                <div class="text-white font-bold mt-0.5">Java 25 LTS</div>
-              </div>
-
-              <div class="bg-palette-card p-2.5 rounded-xl border border-palette-border">
-                <div class="text-palette-muted text-[11px] font-medium uppercase tracking-wider">Jugadores</div>
-                <div class="text-white font-bold mt-0.5">0 / 16 en Espera</div>
-              </div>
             </div>
           </div>
 
         </div>
 
-      </aside>
+      </section>
 
-    </main>
+      <!-- ======================================================== -->
+      <!-- VISTA 3: MIEMBROS (UNKNOWN MEMBER SLOTS STRICTLY)        -->
+      <!-- ======================================================== -->
+      <section id="view-miembros" class="tab-view flex flex-col gap-6">
+        <div class="bg-palette-card border border-palette-border rounded-[32px] p-8 sm:p-10 shadow-xl">
+          
+          <div class="pb-6 border-b border-palette-border">
+            <h2 class="text-2xl font-bold text-white tracking-tight">Miembros de Destiny</h2>
+            <p class="text-xs text-palette-muted mt-1 font-normal">Espacios reservados de plantilla. Pendiente de asignación oficial.</p>
+          </div>
 
-  </div>
+          <!-- CUADRÍCULA DE SLOTS RESERVADOS (UNKNOWN MEMBER) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-6">
+            
+            <!-- Slot 1 -->
+            <div class="p-5 rounded-2xl bg-palette-inner border border-palette-border flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-palette-card border border-palette-border flex items-center justify-center text-palette-muted text-lg">
+                <i class="fa-solid fa-user-secret"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Unknown Member</h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-white/5 text-palette-muted border border-white/10 font-medium">Slot Reservado</span>
+                <div class="text-[11px] text-palette-muted font-medium mt-1">#DESTINY-01</div>
+              </div>
+            </div>
+
+            <!-- Slot 2 -->
+            <div class="p-5 rounded-2xl bg-palette-inner border border-palette-border flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-palette-card border border-palette-border flex items-center justify-center text-palette-muted text-lg">
+                <i class="fa-solid fa-user-secret"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Unknown Member</h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-white/5 text-palette-muted border border-white/10 font-medium">Slot Reservado</span>
+                <div class="text-[11px] text-palette-muted font-medium mt-1">#DESTINY-02</div>
+              </div>
+            </div>
+
+            <!-- Slot 3 -->
+            <div class="p-5 rounded-2xl bg-palette-inner border border-palette-border flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-palette-card border border-palette-border flex items-center justify-center text-palette-muted text-lg">
+                <i class="fa-solid fa-user-secret"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Unknown Member</h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-white/5 text-palette-muted border border-white/10 font-medium">Slot Reservado</span>
+                <div class="text-[11px] text-palette-muted font-medium mt-1">#DESTINY-03</div>
+              </div>
+            </div>
+
+            <!-- Slot 4 -->
+            <div class="p-5 rounded-2xl bg-palette-inner border border-palette-border flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-palette-card border border-palette-border flex items-center justify-center text-palette-muted text-lg">
+                <i class="fa-solid fa-user-secret"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Unknown Member</h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-white/5 text-palette-muted border border-white/10 font-medium">Slot Reservado</span>
+                <div class="text-[11px] text-palette-muted font-medium mt-1">#DESTINY-04</div>
+              </div>
+            </div>
+
+            <!-- Slot 5 -->
+            <div class="p-5 rounded-2xl bg-palette-inner border border-palette-border flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-palette-card border border-palette-border flex items-center justify-center text-palette-muted text-lg">
+                <i class="fa-solid fa-user-secret"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Unknown Member</h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-white/5 text-palette-muted border border-white/10 font-medium">Slot Reservado</span>
+                <div class="text-[11px] text-palette-muted font-medium mt-1">#DESTINY-05</div>
+              </div>
+            </div>
+
+            <!-- Slot 6 -->
+            <div class="p-5 rounded-2xl bg-palette-inner border border-palette-border flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-palette-card border border-palette-border flex items-center justify-center text-palette-muted text-lg">
+                <i class="fa-solid fa-user-secret"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Unknown Member</h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-white/5 text-palette-muted border border-white/10 font-medium">Slot Reservado</span>
+                <div class="text-[11px] text-palette-muted font-medium mt-1">#DESTINY-06</div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- COLUMNA DERECHA: NOTCH SHOWCASE CARD CON SKIN GIRATORIA 3D   -->
+    <!-- ============================================================ -->
+    <aside id="right-showcase-panel" class="lg:col-span-5 flex flex-col gap-6">
+      
+      <div class="notch-container p-8 shadow-2xl flex flex-col relative">
+        
+        <!-- Notch Cutout Cóncavo Superior -->
+        <div class="notch-cutout flex items-center gap-2.5 shadow-md">
+          <div id="showcase-avatar-badge" class="w-6 h-6 rounded-full bg-white text-palette-canvas flex items-center justify-center text-[10px] font-bold">
+            DO
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span id="showcase-badge-title" class="text-xs font-bold text-white">Destiny</span>
+            <i class="fa-solid fa-circle-check text-[11px] text-sky-400"></i>
+          </div>
+        </div>
+
+        <!-- Botones de Acción Circulares Flotantes -->
+        <div class="absolute top-6 right-6 flex flex-col gap-3 z-20">
+          <!-- Botón Cerrar si estamos en Modalidad -->
+          <button id="btn-close-showcase" onclick="closeModalidadProfile()" title="Cerrar vista de perfil" class="floating-circle-btn hidden text-rose-300 hover:text-white">
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
+          <button onclick="toggleAutoRotate()" title="Activar/Detener giro automático" id="btn-autorotate" class="floating-circle-btn">
+            <i class="fa-solid fa-rotate text-xs"></i>
+          </button>
+          <button onclick="copyServerIP()" title="Copiar IP del Servidor" class="floating-circle-btn">
+            <i class="fa-solid fa-copy text-xs"></i>
+          </button>
+        </div>
+
+        <!-- PRESENTACIÓN VISUAL EN PEDESTAL CON GIRO 3D INTERACTIVO -->
+        <div class="pedestal-glow flex flex-col items-center justify-center pt-10 pb-4">
+          
+          <!-- Contenedor 3D que se puede arrastrar para girar -->
+          <div id="skin-turntable-container" class="skin-turntable relative w-60 h-80 flex items-center justify-center">
+            <img id="player-3d-skin" src="https://visage.surgeplay.com/full/512/f4aa6afad90c4dd297b2ed453b8c99fe?tilt=0&yaw=20" alt="Personaje 3D" class="skin-3d-model max-h-full object-contain filter drop-shadow-[0_24px_30px_rgba(0,0,0,0.5)] pointer-events-none">
+          </div>
+
+          <!-- Controles de Giro Suaves -->
+          <div class="flex items-center gap-3 mt-3 text-xs font-medium text-palette-muted">
+            <button onclick="rotateSkinStep(-30)" class="px-3 py-1.5 rounded-full bg-palette-inner hover:bg-palette-card border border-palette-border text-white text-[11px] transition-all">
+              <i class="fa-solid fa-chevron-left mr-1"></i> -30°
+            </button>
+            <span class="text-[11px] tracking-wide text-palette-muted select-none flex items-center gap-1.5 font-medium">
+              <i class="fa-solid fa-arrows-left-right text-[10px]"></i> Arrastra para girar
+            </span>
+            <button onclick="rotateSkinStep(30)" class="px-3 py-1.5 rounded-full bg-palette-inner hover:bg-palette-card border border-palette-border text-white text-[11px] transition-all">
+              +30° <i class="fa-solid fa-chevron-right ml-1"></i>
+            </button>
+          </div>
+
+          <!-- Título del Showcase -->
+          <div class="text-center mt-4">
+            <h3 id="showcase-hero-name" class="text-3xl sm:text-4xl font-black text-white tracking-tight font-display">The Towers</h3>
+            <div class="flex items-center justify-center gap-2 mt-1">
+              <span id="showcase-hero-role" class="text-xs text-palette-muted font-medium">Modalidad Oficial</span>
+              <span class="text-palette-muted">•</span>
+              <span id="showcase-hero-tag" class="text-xs font-bold text-palette-accentGold">Temporada 2026</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Píldora Inferior Simple (10 Puntos) -->
+        <div class="flex items-center justify-center mt-3 pt-5 border-t border-palette-border">
+          <div class="w-full bg-white/10 border border-white/15 rounded-full py-3 px-5 flex items-center justify-center gap-2.5 text-xs font-bold text-white shadow-sm">
+            <i class="fa-solid fa-bullseye text-palette-accentGold text-sm"></i>
+            <span id="showcase-pill-left">10 Puntos para Ganar</span>
+          </div>
+        </div>
+
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- PIE DE PÁGINA LIMPIO (INTEGRADO EN TODA LA PÁGINA)           -->
+  <!-- ============================================================ -->
+  <footer class="w-full max-w-[1780px] mx-auto pt-6 border-t border-palette-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-palette-muted">
+    <div class="flex items-center gap-2 font-medium">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span class="text-white font-bold font-display">DESTINY</span>
+      <span>• Servidor en línea</span>
+    </div>
+    <span class="font-medium">play.destinyowners.com</span>
+  </footer>
 
   <!-- ============================================================ -->
   <!-- LÓGICA DE CONTROL, ROTACIÓN 3D Y NAVEGACIÓN DINÁMICA        -->
@@ -680,9 +591,8 @@
     let currentTilt = 0;
     let isDragging = false;
     let previousMouseX = 0;
-    let activePlayerUuid = 'f4aa6afad90c4dd297b2ed453b8c99fe';
 
-    // Conmutador de Pestañas con animación y visibilidad dinámica del panel derecho
+    // Conmutador de Pestañas con transiciones y visibilidad condicional del panel lateral
     function switchTab(tabId) {
       currentTab = tabId;
       document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
@@ -695,7 +605,7 @@
         const btn = document.getElementById(`nav-btn-${t}`);
         if (btn) {
           if (t === tabId) {
-            btn.className = 'px-7 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 bg-white text-palette-window shadow-md flex items-center gap-2';
+            btn.className = 'px-7 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 bg-white text-palette-canvas shadow-md flex items-center gap-2';
           } else {
             btn.className = 'px-7 py-2.5 rounded-full text-sm font-medium text-palette-muted hover:text-white transition-all duration-200 flex items-center gap-2';
           }
@@ -733,7 +643,6 @@
 
     // Inspeccionar perfil al hacer click en los jugadores en Modalidad
     function inspectPlayerProfile(nick, uuid, role, team) {
-      activePlayerUuid = uuid;
       const leftCol = document.getElementById('left-content-area');
       const rightPanel = document.getElementById('right-showcase-panel');
       const btnClose = document.getElementById('btn-close-showcase');
@@ -755,35 +664,12 @@
       document.getElementById('showcase-hero-tag').textContent = team === 'RED' ? 'Equipo Rojo' : 'Equipo Azul';
       document.getElementById('showcase-hero-tag').className = `text-xs font-bold ${team === 'RED' ? 'text-rose-400' : 'text-sky-400'}`;
 
-      document.getElementById('showcase-pill-left').textContent = team === 'RED' ? 'Red Team' : 'Blue Team';
-      document.getElementById('showcase-pill-right').textContent = 'Listo en Lobby';
-
-      document.getElementById('showcase-panel-title').textContent = 'Perfil de Jugador';
-      document.getElementById('showcase-panel-status').textContent = 'Conectado';
-
-      document.getElementById('showcase-grid-content').innerHTML = `
-        <div class="bg-palette-card p-2.5 rounded-xl border border-palette-border">
-          <div class="text-palette-muted text-[11px] font-medium uppercase tracking-wider">Equipo</div>
-          <div class="font-bold mt-0.5 ${team === 'RED' ? 'text-rose-400' : 'text-sky-400'}">${team === 'RED' ? 'Rojo' : 'Azul'}</div>
-        </div>
-        <div class="bg-palette-card p-2.5 rounded-xl border border-palette-border">
-          <div class="text-palette-muted text-[11px] font-medium uppercase tracking-wider">Rol</div>
-          <div class="text-white font-bold mt-0.5">${role}</div>
-        </div>
-        <div class="bg-palette-card p-2.5 rounded-xl border border-palette-border">
-          <div class="text-palette-muted text-[11px] font-medium uppercase tracking-wider">Vidas</div>
-          <div class="text-emerald-400 font-bold mt-0.5">100% (20.0 HP)</div>
-        </div>
-        <div class="bg-palette-card p-2.5 rounded-xl border border-palette-border">
-          <div class="text-palette-muted text-[11px] font-medium uppercase tracking-wider">Latencia</div>
-          <div class="text-white font-bold mt-0.5">18 ms</div>
-        </div>
-      `;
+      document.getElementById('showcase-pill-left').textContent = team === 'RED' ? 'Red Team • Listo en Base' : 'Blue Team • Listo en Base';
 
       updateSkinVisual();
     }
 
-    // Cerrar panel de perfil en Modalidad y regresar a vista extendida
+    // Cerrar panel de perfil en Modalidad y regresar a vista de ancho completo
     function closeModalidadProfile() {
       const leftCol = document.getElementById('left-content-area');
       const rightPanel = document.getElementById('right-showcase-panel');
@@ -797,37 +683,13 @@
     }
 
     function resetToDefaultShowcase() {
-      activePlayerUuid = 'f4aa6afad90c4dd297b2ed453b8c99fe';
       document.getElementById('showcase-badge-title').textContent = 'Destiny';
       document.getElementById('showcase-hero-name').textContent = 'The Towers';
       document.getElementById('showcase-hero-role').textContent = 'Modalidad Oficial';
       document.getElementById('showcase-hero-tag').textContent = 'Temporada 2026';
       document.getElementById('showcase-hero-tag').className = 'text-xs font-bold text-palette-accentGold';
 
-      document.getElementById('showcase-pill-left').textContent = '10 Puntos';
-      document.getElementById('showcase-pill-right').textContent = 'Paper 26.3';
-
-      document.getElementById('showcase-panel-title').textContent = 'Estado Técnico';
-      document.getElementById('showcase-panel-status').textContent = 'En Línea';
-
-      document.getElementById('showcase-grid-content').innerHTML = `
-        <div class="bg-palette-card p-2.5 rounded-xl border border-palette-border">
-          <div class="text-palette-muted text-[11px] font-medium uppercase tracking-wider">Motor</div>
-          <div class="text-white font-bold mt-0.5">Paper 26.3</div>
-        </div>
-        <div class="bg-palette-card p-2.5 rounded-xl border border-palette-border">
-          <div class="text-palette-muted text-[11px] font-medium uppercase tracking-wider">Plataforma</div>
-          <div class="text-white font-bold mt-0.5">HolyHosting</div>
-        </div>
-        <div class="bg-palette-card p-2.5 rounded-xl border border-palette-border">
-          <div class="text-palette-muted text-[11px] font-medium uppercase tracking-wider">Java</div>
-          <div class="text-white font-bold mt-0.5">Java 25 LTS</div>
-        </div>
-        <div class="bg-palette-card p-2.5 rounded-xl border border-palette-border">
-          <div class="text-palette-muted text-[11px] font-medium uppercase tracking-wider">Jugadores</div>
-          <div class="text-white font-bold mt-0.5">0 / 16 en Espera</div>
-        </div>
-      `;
+      document.getElementById('showcase-pill-left').textContent = '10 Puntos para Ganar';
 
       updateSkinVisual();
     }
@@ -837,7 +699,6 @@
     const skinModel = document.getElementById('player-3d-skin');
 
     function updateSkinVisual() {
-      // Rotación 3D fluida combinando Visage yaw y CSS 3D matrix
       skinModel.style.transform = `rotateY(${currentYaw}deg) rotateX(${currentTilt}deg)`;
     }
 
@@ -850,12 +711,12 @@
       isAutoRotating = !isAutoRotating;
       const btn = document.getElementById('btn-autorotate');
       if (isAutoRotating) {
-        btn.classList.add('bg-palette-accentGold', 'text-palette-window');
+        btn.classList.add('bg-palette-accentGold', 'text-palette-canvas');
         autoRotateInterval = setInterval(() => {
           rotateSkinStep(2);
         }, 30);
       } else {
-        btn.classList.remove('bg-palette-accentGold', 'text-palette-window');
+        btn.classList.remove('bg-palette-accentGold', 'text-palette-canvas');
         clearInterval(autoRotateInterval);
       }
     }
@@ -878,7 +739,7 @@
       updateSkinVisual();
     });
 
-    // Soporte táctil en dispositivos móviles
+    // Soporte táctil en móviles
     turntable.addEventListener('touchstart', (e) => {
       isDragging = true;
       previousMouseX = e.touches[0].clientX;
