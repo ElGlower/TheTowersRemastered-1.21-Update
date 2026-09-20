@@ -127,6 +127,9 @@ public class WebStatsManager {
         // Jugadores activos
         List<Map<String, Object>> players = new ArrayList<>();
         for (Player p : Bukkit.getOnlinePlayers()) {
+            Map<String, Object> pStats = playerStats.computeIfAbsent(p.getUniqueId(), k -> createDefaultPlayerStats(p.getName()));
+            pStats.put("name", p.getName());
+
             Map<String, Object> pData = new LinkedHashMap<>();
             pData.put("name", p.getName());
             pData.put("uuid", p.getUniqueId().toString());

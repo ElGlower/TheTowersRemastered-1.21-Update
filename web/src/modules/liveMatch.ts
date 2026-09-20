@@ -53,6 +53,7 @@ export interface PlayerStatsData {
 const FIREBASE_RTDB_BASE = 'https://destinyowners-23-default-rtdb.firebaseio.com';
 let syncInterval: any = null;
 let lastLiveState: LiveMatchData | null = null;
+let lastLeaderboardMap: Record<string, PlayerStatsData> = {};
 
 /**
  * Inicia la sincronización periódica con Firebase Realtime Database
@@ -62,12 +63,12 @@ export function startLiveSync(): void {
   fetchLiveState();
   fetchLeaderboardState();
 
-  // Polling regular cada 2.5 segundos
+  // Polling regular cada 2 segundos
   if (syncInterval) clearInterval(syncInterval);
   syncInterval = setInterval(() => {
     fetchLiveState();
     fetchLeaderboardState();
-  }, 2500);
+  }, 2000);
 }
 
 /**
@@ -80,10 +81,10 @@ async function fetchLiveState(): Promise<void> {
     const data = await res.json();
     if (!data || typeof data !== 'object') return;
 
-    // Si es el objeto de prueba o no tiene status, ignorar
     if (data.status && typeof data.status === 'string') {
       lastLiveState = data as LiveMatchData;
       renderLiveMatchUI(lastLiveState);
+      syncLeaderboardWithLivePlayers();
     }
   } catch (err) {
     // Si falla la red temporalmente, no romper la UI
@@ -98,18 +99,54 @@ async function fetchLeaderboardState(): Promise<void> {
     const res = await fetch(`${FIREBASE_RTDB_BASE}/leaderboard.json`, { cache: 'no-store' });
     if (!res.ok) return;
     const data = await res.json();
-    if (!data || typeof data !== 'object') return;
-
-    renderRealLeaderboard(data as Record<string, PlayerStatsData>);
+    if (data && typeof data === 'object') {
+      lastLeaderboardMap = data as Record<string, PlayerStatsData>;
+    }
+    syncLeaderboardWithLivePlayers();
   } catch (err) {
     // Ignorar temporalmente
   }
 }
 
 /**
+ * Sincroniza y fusiona los jugadores conectados con la tabla de clasificación
+ */
+function syncLeaderboardWithLivePlayers(): void {
+  const mergedMap: Record<string, PlayerStatsData> = { ...lastLeaderboardMap };
+
+  // Incorporar a todos los jugadores online detectados en vivo
+  if (lastLiveState && lastLiveState.players && Array.isArray(lastLiveState.players)) {
+    for (const p of lastLiveState.players) {
+      if (!p.name || p.name === 'Vacío/Entorno') continue;
+      const foundEntry = Object.values(mergedMap).find(s => s && s.name && s.name.toLowerCase() === p.name.toLowerCase());
+      if (!foundEntry) {
+        const key = p.uuid || p.name;
+        mergedMap[key] = {
+          name: p.name,
+          kills: 0,
+          deaths: 0,
+          goals: 0,
+          wins: 0
+        };
+      }
+    }
+  }
+
+  renderRealLeaderboard(mergedMap);
+}
+
+/**
  * Renderiza el estado de la partida y equipos en la UI
  */
 function renderLiveMatchUI(data: LiveMatchData): void {
+  const allPlayers = data.players || [];
+
+  // Actualizar badge en la cabecera si existe
+  const headerStatus = document.getElementById('header-server-status');
+  if (headerStatus) {
+    headerStatus.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-[#48BB78] animate-pulse"></span><span>En Línea (${allPlayers.length}/67)</span>`;
+  }
+
   // 1. Badge de Estado de la Partida
   const statusBadge = document.getElementById('live-match-status-badge');
   const statusText = document.getElementById('live-status-text');
@@ -119,12 +156,17 @@ function renderLiveMatchUI(data: LiveMatchData): void {
     const status = data.status || 'STOPPED';
     switch (status) {
       case 'RUNNING':
+      case 'INGAME':
         statusBadge.className = 'flex items-center gap-2 bg-[#E7F5ED]/90 border border-[#A8DAC0] px-3 py-1.5 rounded-full text-xs font-bold text-[#2A6E4F] shadow-sm';
         statusText.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-[#48BB78] animate-pulse inline-block mr-1.5"></span>En Curso';
         break;
       case 'PREPARATION':
         statusBadge.className = 'flex items-center gap-2 bg-[#FEF3C7]/90 border border-[#FCD34D] px-3 py-1.5 rounded-full text-xs font-bold text-[#92400E] shadow-sm';
         statusText.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B] animate-pulse inline-block mr-1.5"></span>Preparación';
+        break;
+      case 'LOBBY':
+        statusBadge.className = 'flex items-center gap-2 bg-[#E0F2FE]/90 border border-[#7DD3FC] px-3 py-1.5 rounded-full text-xs font-bold text-[#0369A1] shadow-sm';
+        statusText.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-[#0284C7] animate-pulse inline-block mr-1.5"></span>Lobby (${allPlayers.length} Conectados)`;
         break;
       case 'ENDED':
         statusBadge.className = 'flex items-center gap-2 bg-[#EDE9FE]/90 border border-[#C4B5FD] px-3 py-1.5 rounded-full text-xs font-bold text-[#5B21B6] shadow-sm';
@@ -153,9 +195,9 @@ function renderLiveMatchUI(data: LiveMatchData): void {
   }
 
   // 3. Filtrar jugadores por equipo
-  const allPlayers = data.players || [];
   const redPlayers = allPlayers.filter(p => p.team === 'Red');
   const bluePlayers = allPlayers.filter(p => p.team === 'Blue');
+  const lobbyPlayers = allPlayers.filter(p => p.team === 'LOBBY' || (!p.team || (p.team !== 'Red' && p.team !== 'Blue')));
 
   // Contadores
   const redCountEl = document.getElementById('live-red-count');
@@ -166,30 +208,54 @@ function renderLiveMatchUI(data: LiveMatchData): void {
   // Renderizar jugadores de Red
   const redContainer = document.getElementById('live-red-players');
   if (redContainer) {
-    if (redPlayers.length === 0) {
+    if (redPlayers.length > 0) {
+      redContainer.innerHTML = redPlayers.map(p => createPlayerCardHtml(p, 'red')).join('');
+    } else if (lobbyPlayers.length > 0) {
+      // Si están en el lobby, mostrar los jugadores esperando
+      const half = Math.ceil(lobbyPlayers.length / 2);
+      const redHalf = lobbyPlayers.slice(0, half);
+      redContainer.innerHTML = `
+        <div class="text-[10px] text-pastel-plum/60 font-semibold mb-1 uppercase tracking-wider">Esperando en Lobby:</div>
+        ${redHalf.map(p => createPlayerCardHtml(p, 'red')).join('')}
+      `;
+    } else {
       redContainer.innerHTML = `
         <div class="py-4 flex flex-col items-center justify-center text-center gap-2">
           <i class="fa-solid fa-users text-2xl text-[#E79796]/50"></i>
           <p class="text-xs font-semibold text-pastel-plum/70">Esperando jugadores rojos...</p>
         </div>
       `;
-    } else {
-      redContainer.innerHTML = redPlayers.map(p => createPlayerCardHtml(p, 'red')).join('');
     }
   }
 
   // Renderizar jugadores de Blue
   const blueContainer = document.getElementById('live-blue-players');
   if (blueContainer) {
-    if (bluePlayers.length === 0) {
+    if (bluePlayers.length > 0) {
+      blueContainer.innerHTML = bluePlayers.map(p => createPlayerCardHtml(p, 'blue')).join('');
+    } else if (lobbyPlayers.length > 0) {
+      const half = Math.ceil(lobbyPlayers.length / 2);
+      const blueHalf = lobbyPlayers.slice(half);
+      if (blueHalf.length > 0) {
+        blueContainer.innerHTML = `
+          <div class="text-[10px] text-pastel-plum/60 font-semibold mb-1 uppercase tracking-wider">Esperando en Lobby:</div>
+          ${blueHalf.map(p => createPlayerCardHtml(p, 'blue')).join('')}
+        `;
+      } else {
+        blueContainer.innerHTML = `
+          <div class="py-4 flex flex-col items-center justify-center text-center gap-2">
+            <i class="fa-solid fa-users text-2xl text-pastel-denim/50"></i>
+            <p class="text-xs font-semibold text-pastel-plum/70">Esperando selección de equipo...</p>
+          </div>
+        `;
+      }
+    } else {
       blueContainer.innerHTML = `
         <div class="py-4 flex flex-col items-center justify-center text-center gap-2">
           <i class="fa-solid fa-users text-2xl text-pastel-denim/50"></i>
           <p class="text-xs font-semibold text-pastel-plum/70">Esperando jugadores azules...</p>
         </div>
       `;
-    } else {
-      blueContainer.innerHTML = bluePlayers.map(p => createPlayerCardHtml(p, 'blue')).join('');
     }
   }
 

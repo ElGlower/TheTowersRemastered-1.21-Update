@@ -95,6 +95,11 @@ public class GameJoinListener implements Listener {
 
                 // Verificar autostart
                 plugin.getAutoStarter().addPlayerToQueue(player);
+
+                // Iniciar scoreboard inmediatamente para el jugador
+                if (plugin.getScoreboard() != null) {
+                    plugin.getScoreboard().update(player);
+                }
             }
         }.runTaskLater(plugin, 2L);
     }

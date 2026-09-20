@@ -117,6 +117,8 @@ public class TTRCore extends JavaPlugin {
         }
 
         this.scoreboard = new ScoreboardHandler(this);
+        this.scoreboard.startScoreboardTask();
+        this.scoreboard.updateAll();
         new TTRCustomTab(this).runTaskTimer(this, 0L, 20L);
         me.PauMAVA.TTR.web.WebStatsManager.getInstance().startSyncTask();
 
