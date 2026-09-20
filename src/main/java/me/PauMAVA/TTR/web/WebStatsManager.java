@@ -188,6 +188,19 @@ public class WebStatsManager {
         return "\"" + obj.toString() + "\"";
     }
 
+    public Map<String, Object> getPlayerStats(UUID uuid) {
+        return playerStats.get(uuid);
+    }
+
+    public Map<String, Object> getPlayerStatsByName(String name) {
+        for (Map<String, Object> s : playerStats.values()) {
+            if (name.equalsIgnoreCase((String) s.get("name"))) {
+                return s;
+            }
+        }
+        return null;
+    }
+
     private Map<String, Object> createDefaultPlayerStats(String name) {
         Map<String, Object> stats = new LinkedHashMap<>();
         stats.put("name", name);

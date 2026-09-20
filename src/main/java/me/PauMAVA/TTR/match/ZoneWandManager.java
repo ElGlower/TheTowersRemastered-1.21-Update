@@ -188,44 +188,34 @@ public class ZoneWandManager {
         Location loc = clickedBlock.getLocation();
         String currentTeam = TTRCore.getInstance().getConfigManager().getTeamForChest(loc);
 
-        if (isSneaking) {
-            String newTeam;
-            if (currentTeam == null) {
-                newTeam = "Red";
-            } else if (currentTeam.equalsIgnoreCase("Red")) {
-                newTeam = "Blue";
-            } else {
-                newTeam = null;
-            }
-
-            if (newTeam != null) {
-                TTRCore.getInstance().getConfigManager().toggleTeamChest(newTeam, loc);
-                ChatColor color = newTeam.equalsIgnoreCase("Red") ? ChatColor.RED : ChatColor.BLUE;
-                player.sendMessage(TTRPrefix.TTR_ADMIN + TextUtil.toTiny("Cofre asignado al equipo: ") + color + "" + ChatColor.BOLD + TextUtil.toTiny(newTeam) +
-                        ChatColor.GRAY + " (" + TextUtil.toTiny("Protegido contra enemigos") + ")");
-                player.playSound(loc, Sound.BLOCK_COPPER_BULB_TURN_ON, 1f, newTeam.equalsIgnoreCase("Red") ? 1.0f : 1.5f);
-                spawnSingleBlockOutline(loc, newTeam.equalsIgnoreCase("Red") ? Particle.FLAME : Particle.SOUL_FIRE_FLAME);
-                showFloatingChestHologram(loc, (newTeam.equalsIgnoreCase("Red") ? "§c§l[COFRE ROJO]" : "§9§l[COFRE AZUL]"));
-            } else {
-                TTRCore.getInstance().getConfigManager().toggleTeamChest("Red", loc);
-                TTRCore.getInstance().getConfigManager().toggleTeamChest("Blue", loc);
-                player.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Cofre desasignado (Neutro / Libre)."));
-                player.playSound(loc, Sound.BLOCK_COPPER_BULB_TURN_OFF, 1f, 1.0f);
-                spawnSingleBlockOutline(loc, Particle.SMOKE);
-                showFloatingChestHologram(loc, "§e§l[COFRE NEUTRO]");
-            }
+        String nextTeam;
+        if (currentTeam == null || currentTeam.equalsIgnoreCase("Neutral")) {
+            nextTeam = "Red";
+        } else if (currentTeam.equalsIgnoreCase("Red")) {
+            nextTeam = "Blue";
         } else {
-            if (currentTeam != null) {
-                ChatColor color = currentTeam.equalsIgnoreCase("Red") ? ChatColor.RED : ChatColor.BLUE;
-                player.sendMessage(TTRPrefix.TTR_ADMIN + TextUtil.toTiny("Estado del cofre: Asignado a ") + color + "" + ChatColor.BOLD + TextUtil.toTiny(currentTeam) +
-                        ChatColor.GRAY + " (" + TextUtil.toTiny("Shift + Clic para cambiar") + ")");
-                showFloatingChestHologram(loc, color + "§l[COFRE " + currentTeam.toUpperCase() + "]");
-            } else {
-                player.sendMessage(TTRPrefix.TTR_ADMIN + TextUtil.toTiny("Estado del cofre: ") + ChatColor.YELLOW + TextUtil.toTiny("Neutro / Libre") +
-                        ChatColor.GRAY + " (" + TextUtil.toTiny("Shift + Clic para asignar a Rojo") + ")");
-                showFloatingChestHologram(loc, "§e§l[COFRE NEUTRO]");
-            }
-            player.playSound(loc, Sound.BLOCK_NOTE_BLOCK_HAT, 1f, 1.2f);
+            nextTeam = "Neutral";
+        }
+
+        TTRCore.getInstance().getConfigManager().setTeamChest(nextTeam, loc);
+
+        if ("Red".equalsIgnoreCase(nextTeam)) {
+            player.sendMessage(TTRPrefix.TTR_ADMIN + TextUtil.toTiny("Cofre asignado al equipo: ") + ChatColor.RED + "" + ChatColor.BOLD + TextUtil.toTiny("Rojo") +
+                    ChatColor.GRAY + " (" + TextUtil.toTiny("Protegido contra azules") + ")");
+            player.playSound(loc, Sound.BLOCK_COPPER_BULB_TURN_ON, 1f, 1.0f);
+            spawnSingleBlockOutline(loc, Particle.FLAME);
+            showFloatingChestHologram(loc, "§c§l[COFRE ROJO]");
+        } else if ("Blue".equalsIgnoreCase(nextTeam)) {
+            player.sendMessage(TTRPrefix.TTR_ADMIN + TextUtil.toTiny("Cofre asignado al equipo: ") + ChatColor.BLUE + "" + ChatColor.BOLD + TextUtil.toTiny("Azul") +
+                    ChatColor.GRAY + " (" + TextUtil.toTiny("Protegido contra rojos") + ")");
+            player.playSound(loc, Sound.BLOCK_COPPER_BULB_TURN_ON, 1f, 1.5f);
+            spawnSingleBlockOutline(loc, Particle.SOUL_FIRE_FLAME);
+            showFloatingChestHologram(loc, "§9§l[COFRE AZUL]");
+        } else {
+            player.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Cofre desasignado (Neutro / Libre)."));
+            player.playSound(loc, Sound.BLOCK_COPPER_BULB_TURN_OFF, 1f, 1.0f);
+            spawnSingleBlockOutline(loc, Particle.SMOKE);
+            showFloatingChestHologram(loc, "§e§l[COFRE NEUTRO]");
         }
     }
 

@@ -19,6 +19,9 @@ commands:
   bid:
     description: Pujar en la subasta activa
     aliases: [dtbid, puja]
+  stats:
+    description: Ver estadísticas del jugador
+    aliases: [estadisticas, dtstats]
   setlobby:
     description: Establece el punto de aparición del Lobby
     permission: destinytowers.admin

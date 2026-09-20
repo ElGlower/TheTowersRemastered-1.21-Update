@@ -139,6 +139,7 @@ public class TTRCore extends JavaPlugin {
         registerCmd("dt", mainCmd);
         registerCmd("ttr", mainCmd);
         registerCmd("bid", new me.PauMAVA.TTR.commands.BidCommand());
+        registerCmd("stats", new me.PauMAVA.TTR.commands.StatsCommand());
 
         // Comandos de partida y control
         registerCmd("ttrstart", new StartCommand());
@@ -252,11 +253,19 @@ public class TTRCore extends JavaPlugin {
             this.currentMatch.giveLobbyItems(p);
 
             Location lobby = this.configManager.getLobbyLocation();
-            if (lobby != null) p.teleport(lobby);
+            if (lobby != null && lobby.getWorld() != null) {
+                // Solo teletransportar si el jugador no está ya en el lobby para evitar doble teletransporte
+                if (!p.getWorld().equals(lobby.getWorld()) || p.getLocation().distanceSquared(lobby) > 36.0) {
+                    p.teleport(lobby);
+                }
+            }
 
             if (this.scoreboard != null) this.scoreboard.update(p);
         }
-        if (this.scoreboard != null) this.scoreboard.updateAll();
+        if (this.scoreboard != null) {
+            this.scoreboard.startScoreboardTask();
+            this.scoreboard.updateAll();
+        }
     }
 
     public boolean isCounting() { return counting; }

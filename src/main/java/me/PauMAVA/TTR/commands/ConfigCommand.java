@@ -63,11 +63,135 @@ public class ConfigCommand implements CommandExecutor {
             }
             TTRCore.getInstance().getConfig().set("match.duration", value);
             TTRCore.getInstance().saveConfig();
+            TTRCore.getInstance().getConfigManager().reload();
 
             if (TTRCore.getInstance().getCurrentMatch() != null) {
                 TTRCore.getInstance().getCurrentMatch().setRemainingTime(value);
             }
-            sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Duración establecida a: ") + ChatColor.YELLOW + value + "s (" + (value / 60) + "m)");
+            sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Duración de partida establecida a: ") + ChatColor.YELLOW + value + "s (" + (value / 60) + "m)");
+            return true;
+        }
+
+        if (sub.equals("prep") || sub.equals("prestart") || sub.equals("preparacion")) {
+            if (args.length < 2) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Uso: /ttr config prep <segundos>"));
+                return true;
+            }
+            int value;
+            try {
+                value = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("El valor debe ser un número entero válido."));
+                return true;
+            }
+            TTRCore.getInstance().getConfig().set("match.prestart_countdown", value);
+            TTRCore.getInstance().saveConfig();
+            TTRCore.getInstance().getConfigManager().reload();
+
+            if (TTRCore.getInstance().getCurrentMatch() != null) {
+                TTRCore.getInstance().getCurrentMatch().setPrepRemaining(value);
+            }
+            sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Tiempo de preparación establecido a: ") + ChatColor.YELLOW + value + "s");
+            return true;
+        }
+
+        if (sub.equals("autostart-time") || sub.equals("autocountdown") || sub.equals("lobby-time")) {
+            if (args.length < 2) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Uso: /ttr config autostart-time <segundos>"));
+                return true;
+            }
+            int value;
+            try {
+                value = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("El valor debe ser un número entero válido."));
+                return true;
+            }
+            TTRCore.getInstance().getConfig().set("autostart.countdown", value);
+            TTRCore.getInstance().saveConfig();
+            TTRCore.getInstance().getConfigManager().reload();
+
+            sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Conteo de auto-inicio establecido a: ") + ChatColor.YELLOW + value + "s");
+            return true;
+        }
+
+        if (sub.equals("autostart-players") || sub.equals("minplayers") || sub.equals("jugadores")) {
+            if (args.length < 2) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Uso: /ttr config autostart-players <cantidad>"));
+                return true;
+            }
+            int value;
+            try {
+                value = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("El valor debe ser un número entero válido."));
+                return true;
+            }
+            TTRCore.getInstance().getConfig().set("autostart.count", value);
+            TTRCore.getInstance().saveConfig();
+            TTRCore.getInstance().getConfigManager().reload();
+
+            sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Jugadores mínimos para auto-inicio: ") + ChatColor.YELLOW + value);
+            return true;
+        }
+
+        if (sub.equals("vote-time") || sub.equals("votacion")) {
+            if (args.length < 2) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Uso: /ttr config vote-time <segundos>"));
+                return true;
+            }
+            int value;
+            try {
+                value = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("El valor debe ser un número entero válido."));
+                return true;
+            }
+            TTRCore.getInstance().getConfig().set("voting.round_seconds", value);
+            TTRCore.getInstance().saveConfig();
+            TTRCore.getInstance().getConfigManager().reload();
+
+            sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Ronda de votación establecida a: ") + ChatColor.YELLOW + value + "s");
+            return true;
+        }
+
+        if (sub.equals("rules-time") || sub.equals("reglas") || sub.equals("explanation")) {
+            if (args.length < 2) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Uso: /ttr config rules-time <segundos>"));
+                return true;
+            }
+            int value;
+            try {
+                value = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("El valor debe ser un número entero válido."));
+                return true;
+            }
+            TTRCore.getInstance().getConfig().set("modes.explanation_seconds", value);
+            TTRCore.getInstance().saveConfig();
+            TTRCore.getInstance().getConfigManager().reload();
+
+            sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Tiempo para leer reglas establecido a: ") + ChatColor.YELLOW + value + "s");
+            return true;
+        }
+
+        if (sub.equals("auction-time") || sub.equals("subasta")) {
+            if (args.length < 2) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Uso: /ttr config auction-time <segundos>"));
+                return true;
+            }
+            int value;
+            try {
+                value = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("El valor debe ser un número entero válido."));
+                return true;
+            }
+            TTRCore.getInstance().getConfig().set("auction.turn_seconds", value);
+            TTRCore.getInstance().saveConfig();
+            TTRCore.getInstance().getConfigManager().reload();
+
+            sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Turno de subasta establecido a: ") + ChatColor.YELLOW + value + "s");
             return true;
         }
 
@@ -85,6 +209,7 @@ public class ConfigCommand implements CommandExecutor {
             }
             TTRCore.getInstance().getConfig().set("match.maxpoints", value);
             TTRCore.getInstance().saveConfig();
+            TTRCore.getInstance().getConfigManager().reload();
 
             if (TTRCore.getInstance().getCurrentMatch() != null) {
                 TTRCore.getInstance().getCurrentMatch().setMaxPointsToWin(value);
@@ -98,6 +223,7 @@ public class ConfigCommand implements CommandExecutor {
                 boolean cur = TTRCore.getInstance().getConfig().getBoolean("autostart.enabled", true);
                 TTRCore.getInstance().getConfig().set("autostart.enabled", !cur);
                 TTRCore.getInstance().saveConfig();
+                TTRCore.getInstance().getConfigManager().reload();
                 sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Auto-inicio: ") + (!cur ? ChatColor.GREEN + TextUtil.toTiny("Activado") : ChatColor.RED + TextUtil.toTiny("Desactivado")));
                 return true;
             }
@@ -105,12 +231,13 @@ public class ConfigCommand implements CommandExecutor {
                 int cnt = Integer.parseInt(args[2]);
                 TTRCore.getInstance().getConfig().set("autostart.count", cnt);
                 TTRCore.getInstance().saveConfig();
+                TTRCore.getInstance().getConfigManager().reload();
                 sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Jugadores mínimos: ") + ChatColor.YELLOW + cnt);
                 return true;
             }
         }
 
-        sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Opción desconocida. Usa /ttr config <gui/screen/time/points/autostart>."));
+        sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Opciones: time, prep, autostart-time, autostart-players, vote-time, rules-time, auction-time, points, gui, screen."));
         return true;
     }
 }

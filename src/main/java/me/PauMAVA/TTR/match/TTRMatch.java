@@ -35,6 +35,7 @@ public class TTRMatch {
     private BossBar prepBar;
     private int remainingTime;
     private int maxPointsToWin;
+    private int locatorTaskID = -1;
 
     public TTRMatch(MatchStatus initialStatus) {
         status = initialStatus;
@@ -60,6 +61,7 @@ public class TTRMatch {
         TTRTeam blue = TTRCore.getInstance().getTeamHandler().getTeam("Blue");
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.getGameMode() == GameMode.SPECTATOR) continue;
+            if (TTRCore.isAdmin(p)) continue; // Administradores no se meten a la partida automáticamente
             if (TTRCore.getInstance().getTeamHandler().getPlayerTeam(p) == null) {
                 if (red != null && blue != null) {
                     if (red.getPlayers().size() <= blue.getPlayers().size()) {
@@ -225,6 +227,10 @@ public class TTRMatch {
         return this.prepRemaining;
     }
 
+    public void setPrepRemaining(int seconds) {
+        this.prepRemaining = seconds;
+    }
+
     public void addGameTime(int seconds) {
         if (this.status != MatchStatus.INGAME) return;
         this.remainingTime += seconds;
@@ -320,9 +326,7 @@ public class TTRMatch {
             player.sendTitle(TextUtil.color("&#55FF55§l¡A LUCHAR!"), TextUtil.color("&#FFFFFF" + TextUtil.toTiny("¡Anota 10 puntos en la jaula rival!")), 5, 50, 15);
         }
 
-        try {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gamerule locator_bar true");
-        } catch (Throwable ignored) {}
+        startLocatorTask();
     }
 
     public void joinPlayerToMatch(Player player) {
@@ -390,15 +394,16 @@ public class TTRMatch {
                     meta.addEnchant(Enchantment.PROTECTION, protLevel, true);
                 }
 
-                // Armor Trim nativo por equipo (Paper 26.3)
+                // Armor Trim nativo por equipo de alto contraste (Paper 26.3)
                 try {
                     boolean isRed = (chatColor == ChatColor.RED);
-                    org.bukkit.inventory.meta.trim.TrimMaterial trimMat = (team != null && team.isLeader(player.getUniqueId())) ?
+                    boolean isLeader = (team != null && team.isLeader(player.getUniqueId()));
+                    org.bukkit.inventory.meta.trim.TrimMaterial trimMat = isLeader ?
                             org.bukkit.inventory.meta.trim.TrimMaterial.GOLD :
-                            (isRed ? org.bukkit.inventory.meta.trim.TrimMaterial.REDSTONE : org.bukkit.inventory.meta.trim.TrimMaterial.LAPIS);
-                    org.bukkit.inventory.meta.trim.TrimPattern trimPattern = isRed ?
-                            org.bukkit.inventory.meta.trim.TrimPattern.SNOUT :
-                            org.bukkit.inventory.meta.trim.TrimPattern.VEX;
+                            (isRed ? org.bukkit.inventory.meta.trim.TrimMaterial.QUARTZ : org.bukkit.inventory.meta.trim.TrimMaterial.DIAMOND);
+                    org.bukkit.inventory.meta.trim.TrimPattern trimPattern = isLeader ?
+                            org.bukkit.inventory.meta.trim.TrimPattern.WARD :
+                            (isRed ? org.bukkit.inventory.meta.trim.TrimPattern.SNOUT : org.bukkit.inventory.meta.trim.TrimPattern.VEX);
                     if (meta instanceof org.bukkit.inventory.meta.ArmorMeta armorMeta) {
                         armorMeta.setTrim(new org.bukkit.inventory.meta.trim.ArmorTrim(trimMat, trimPattern));
                     }
@@ -410,7 +415,7 @@ public class TTRMatch {
         player.getInventory().setArmorContents(armor);
 
         try {
-            player.setGlowing(true);
+            player.setGlowing(false);
         } catch (Throwable ignored) {}
 
         player.getInventory().addItem(new ItemStack(Material.STONE_SWORD));
@@ -510,6 +515,11 @@ public class TTRMatch {
             this.prepTaskID = -1;
         }
 
+        if (this.locatorTaskID != -1) {
+            Bukkit.getScheduler().cancelTask(this.locatorTaskID);
+            this.locatorTaskID = -1;
+        }
+
         if (this.lootSpawner != null) this.lootSpawner.stopSpawning();
         if (this.checker != null) this.checker.stopChecking();
 
@@ -521,7 +531,7 @@ public class TTRMatch {
             TTRCore.getInstance().getEventManager().stopCurrentEvent();
         }
 
-        TTRCore.getInstance().getScoreboard().stopScoreboardTask();
+        // El Scoreboard no se detiene para mantener animaciones fluidas permanentes en el lobby
         if (this.gameBar != null) this.gameBar.removeAll();
         if (this.prepBar != null) {
             this.prepBar.removeAll();
@@ -544,15 +554,11 @@ public class TTRMatch {
             TTRCore.getInstance().getRollbackManager().stopTracking();
         }
 
-        TTRCore.getInstance().getTeamHandler().clearTeams();
-
-        // Registrar telemetría web
+        // Registrar telemetría web antes de limpiar equipos para preservar puntuaciones exactas
         int duration = (TTRCore.getInstance().getConfigManager().getMatchDuration() - remainingTime);
         me.PauMAVA.TTR.web.WebStatsManager.getInstance().recordMatchEnd(team, duration);
 
-        try {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gamerule locator_bar false");
-        } catch (Throwable ignored) {}
+        TTRCore.getInstance().getTeamHandler().clearTeams();
 
         ChatColor teamColor = (team != null) ? TTRCore.getInstance().getConfigManager().getTeamColor(team.getIdentifier()) : ChatColor.WHITE;
         String teamName = (team != null) ? team.getIdentifier() : "Empate";
@@ -562,25 +568,33 @@ public class TTRMatch {
                 .limit(3)
                 .toList();
 
+        String divider = ChatColor.DARK_GRAY + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             String titleWinner = teamColor + "" + ChatColor.BOLD + TextUtil.toTiny("GANADOR: " + teamName.toUpperCase());
             player.sendTitle(titleWinner, ChatColor.AQUA + TextUtil.toTiny("¡Partida Finalizada!"), 10, 100, 20);
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 10, 1);
 
+            player.sendMessage(divider);
+            player.sendMessage(centerText(ChatColor.WHITE + "" + ChatColor.BOLD + TextUtil.toTiny("RESUMEN DE LA PARTIDA")));
+            player.sendMessage(centerText(ChatColor.GRAY + TextUtil.toTiny("Equipo Vencedor: ") + teamColor + "" + ChatColor.BOLD + TextUtil.toTiny(teamName.toUpperCase())));
             player.sendMessage(" ");
-            player.sendMessage(centerText(ChatColor.GOLD + "" + ChatColor.BOLD + TextUtil.toTiny("FIN DE LA PARTIDA")));
-            player.sendMessage(centerText(ChatColor.GRAY + TextUtil.toTiny("Ganador: ") + teamColor + TextUtil.toTiny(teamName)));
 
             if (!topKillers.isEmpty()) {
-                player.sendMessage(centerText(ChatColor.AQUA + "--- " + TextUtil.toTiny("TOP ASESINOS") + " ---"));
-                int i = 1;
+                player.sendMessage(centerText(ChatColor.RED + "⚔ " + ChatColor.BOLD + TextUtil.toTiny("TOP ASESINOS")));
+                int rank = 1;
                 for (Map.Entry<Player, Integer> entry : topKillers) {
-                    player.sendMessage(centerText(ChatColor.YELLOW + "#" + TextUtil.toTiny(String.valueOf(i)) + " " + ChatColor.WHITE + TextUtil.toTiny(entry.getKey().getName()) + ": " + ChatColor.RED + TextUtil.toTiny(String.valueOf(entry.getValue()))));
-                    i++;
+                    String medal = (rank == 1) ? "🥇" : ((rank == 2) ? "🥈" : "🥉");
+                    player.sendMessage(centerText(medal + " " + ChatColor.YELLOW + "#" + rank + " " + ChatColor.WHITE + entry.getKey().getName() +
+                            ChatColor.DARK_GRAY + " » " + ChatColor.RED + "" + ChatColor.BOLD + entry.getValue() + " " + ChatColor.GRAY + TextUtil.toTiny("bajas")));
+                    rank++;
                 }
+            } else {
+                player.sendMessage(centerText(ChatColor.GRAY + TextUtil.toTiny("No se registraron bajas en esta partida.")));
             }
 
             player.sendMessage(" ");
+            player.sendMessage(centerText(ChatColor.GRAY + TextUtil.toTiny("¡Gracias por jugar en ") + ChatColor.WHITE + TextUtil.toTiny("Destiny Towers") + ChatColor.GRAY + "!"));
+            player.sendMessage(divider);
 
             player.getInventory().clear();
             player.getInventory().setArmorContents(null);
@@ -617,6 +631,82 @@ public class TTRMatch {
                 TTRCore.getInstance().resetMatchLogic();
             }
         }.runTaskLater(TTRCore.getInstance(), 100L);
+    }
+
+    public void startLocatorTask() {
+        if (this.locatorTaskID != -1) {
+            Bukkit.getScheduler().cancelTask(this.locatorTaskID);
+        }
+        this.locatorTaskID = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (status != MatchStatus.INGAME) {
+                    cancel();
+                    locatorTaskID = -1;
+                    return;
+                }
+
+                TTRTeam redTeam = TTRCore.getInstance().getTeamHandler().getTeam("Red");
+                TTRTeam blueTeam = TTRCore.getInstance().getTeamHandler().getTeam("Blue");
+                List<Location> redCages = TTRCore.getInstance().getConfigManager().getTeamCages("Red");
+                List<Location> blueCages = TTRCore.getInstance().getConfigManager().getTeamCages("Blue");
+                Location redTarget = (redCages != null && !redCages.isEmpty()) ? redCages.get(0) : TTRCore.getInstance().getConfigManager().getTeamSpawn("Red");
+                Location blueTarget = (blueCages != null && !blueCages.isEmpty()) ? blueCages.get(0) : TTRCore.getInstance().getConfigManager().getTeamSpawn("Blue");
+
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    TTRTeam team = TTRCore.getInstance().getTeamHandler().getPlayerTeam(p);
+                    if (team == null) {
+                        String specMsg = TextUtil.color("&#FFFFFF⚔ " + TextUtil.toTiny("Tiempo: ") + "&#55FF55§l" + getFormattedTime() +
+                                "  &#888888▪  &#FF5555" + TextUtil.toTiny("Rojo: ") + "&#FFFFFF§l" + (redTeam != null ? redTeam.getPoints() : 0) +
+                                "  &#888888▪  &#5555FF" + TextUtil.toTiny("Azul: ") + "&#FFFFFF§l" + (blueTeam != null ? blueTeam.getPoints() : 0));
+                        p.sendActionBar(net.kyori.adventure.text.Component.text(specMsg));
+                        continue;
+                    }
+
+                    boolean isRed = team.getIdentifier().equalsIgnoreCase("Red");
+                    Location enemyTarget = isRed ? blueTarget : redTarget;
+                    Location ownTarget = isRed ? redTarget : blueTarget;
+
+                    String enemyPart = "";
+                    if (enemyTarget != null && enemyTarget.getWorld() != null && enemyTarget.getWorld().equals(p.getWorld())) {
+                        int distEnemy = (int) p.getLocation().distance(enemyTarget);
+                        String arrowEnemy = getDirectionArrow(p.getLocation(), enemyTarget);
+                        ChatColor enemyColor = isRed ? ChatColor.BLUE : ChatColor.RED;
+                        enemyPart = enemyColor + "⚔ " + TextUtil.toTiny("Meta Rival: ") + ChatColor.WHITE + "" + ChatColor.BOLD + arrowEnemy + " " + distEnemy + "m";
+                    }
+
+                    String ownPart = "";
+                    if (ownTarget != null && ownTarget.getWorld() != null && ownTarget.getWorld().equals(p.getWorld())) {
+                        int distOwn = (int) p.getLocation().distance(ownTarget);
+                        String arrowOwn = getDirectionArrow(p.getLocation(), ownTarget);
+                        ChatColor ownColor = isRed ? ChatColor.RED : ChatColor.BLUE;
+                        ownPart = ownColor + "🛡 " + TextUtil.toTiny("Tu Base: ") + ChatColor.WHITE + "" + ChatColor.BOLD + arrowOwn + " " + distOwn + "m";
+                    }
+
+                    String bar = enemyPart + (ownPart.isEmpty() ? "" : ChatColor.DARK_GRAY + "  ▪  " + ownPart);
+                    p.sendActionBar(net.kyori.adventure.text.Component.text(bar));
+                }
+            }
+        }.runTaskTimer(TTRCore.getInstance(), 0L, 20L).getTaskId();
+    }
+
+    private String getDirectionArrow(Location playerLoc, Location targetLoc) {
+        double dx = targetLoc.getX() - playerLoc.getX();
+        double dz = targetLoc.getZ() - playerLoc.getZ();
+        double targetAngle = Math.toDegrees(Math.atan2(-dx, dz));
+        double playerYaw = playerLoc.getYaw();
+        double diff = (targetAngle - playerYaw) % 360.0;
+        if (diff < -180.0) diff += 360.0;
+        if (diff > 180.0) diff -= 360.0;
+
+        if (diff >= -22.5 && diff < 22.5) return "▲";
+        if (diff >= 22.5 && diff < 67.5) return "↗";
+        if (diff >= 67.5 && diff < 112.5) return "➡";
+        if (diff >= 112.5 && diff < 157.5) return "↘";
+        if (diff >= 157.5 || diff < -157.5) return "▼";
+        if (diff >= -157.5 && diff < -112.5) return "↙";
+        if (diff >= -112.5 && diff < -67.5) return "⬅";
+        return "↖";
     }
 
     private String centerText(String text) {

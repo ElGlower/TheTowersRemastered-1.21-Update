@@ -168,17 +168,58 @@ public class TTRConfigManager {
 
     public String getTeamForChest(Location loc) {
         if (loc == null || loc.getWorld() == null) return null;
+        String key = loc.getWorld().getName() + "," + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
+
+        // 1. Comprobar etiqueta explícita de Neutro
+        List<String> neutralList = config.getStringList("tagged_neutral_chests");
+        if (neutralList != null && neutralList.contains(key)) {
+            return "Neutral";
+        }
+
+        // 2. Comprobar etiquetas explícitas por equipo
         Set<String> names = getTeamNames();
         if (names != null) {
             for (String team : names) {
                 List<String> list = config.getStringList("teams." + team + ".tagged_chests");
-                String key = loc.getWorld().getName() + "," + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
                 if (list != null && list.contains(key)) {
                     return team;
                 }
             }
         }
+
+        // 3. Si no tiene etiqueta explícita, se usa la base
         return getTeamBaseAt(loc);
+    }
+
+    public void setTeamChest(String team, Location loc) {
+        if (loc == null || loc.getWorld() == null) return;
+        String key = loc.getWorld().getName() + "," + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
+
+        Set<String> names = getTeamNames();
+        if (names != null) {
+            for (String other : names) {
+                List<String> otherList = new ArrayList<>(config.getStringList("teams." + other + ".tagged_chests"));
+                if (otherList.remove(key)) {
+                    config.set("teams." + other + ".tagged_chests", otherList);
+                }
+            }
+        }
+
+        List<String> neutralList = new ArrayList<>(config.getStringList("tagged_neutral_chests"));
+        neutralList.remove(key);
+
+        if (team != null && !team.equalsIgnoreCase("Neutral") && !team.equalsIgnoreCase("None")) {
+            List<String> teamList = new ArrayList<>(config.getStringList("teams." + team + ".tagged_chests"));
+            if (!teamList.contains(key)) {
+                teamList.add(key);
+            }
+            config.set("teams." + team + ".tagged_chests", teamList);
+        } else {
+            neutralList.add(key);
+        }
+
+        config.set("tagged_neutral_chests", neutralList);
+        TTRCore.getInstance().saveConfig();
     }
 
     public boolean toggleTeamChest(String team, Location loc) {

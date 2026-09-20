@@ -486,7 +486,6 @@ public class EventListener implements Listener {
                 } else {
                     event.setDeathMessage(ChatColor.DARK_GRAY + "☠ " + vName + ChatColor.GRAY + TextUtil.toTiny(" fue asesinado por ") + kName + ChatColor.GRAY + ".");
                 }
-                killer.playSound(killer.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.6f, 1.5f);
             } else {
                 if (victim.getLastDamageCause() != null && victim.getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.VOID) {
                     event.setDeathMessage(ChatColor.DARK_GRAY + "☠ " + vName + ChatColor.GRAY + TextUtil.toTiny(" cayó al vacío."));

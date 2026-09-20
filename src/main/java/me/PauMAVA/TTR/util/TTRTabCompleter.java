@@ -18,11 +18,11 @@ public class TTRTabCompleter implements TabCompleter {
     private static final List<String> ADMIN_MAIN_SUBS = Arrays.asList(
             "start", "stop", "cancel", "next", "skipphase", "time", "resetmap", "edit", "savemap", "wand", "parkour", "reroll", "credits", "restock",
             "set", "config", "screen", "gui", "leaders", "voteleader", "auction", "shop",
-            "event", "forcejoin", "revive", "spectate", "play", "join", "bid", "reload"
+            "event", "forcejoin", "revive", "spectate", "play", "join", "bid", "stats", "estadisticas", "reload"
     );
 
     private static final List<String> PLAYER_MAIN_SUBS = Arrays.asList(
-            "join", "play", "spectate", "bid"
+            "join", "play", "spectate", "bid", "stats", "estadisticas"
     );
 
     private static final List<String> SET_SUBS = Arrays.asList(
@@ -30,7 +30,7 @@ public class TTRTabCompleter implements TabCompleter {
     );
 
     private static final List<String> CONFIG_SUBS = Arrays.asList(
-            "time", "points", "duration", "maxpoints"
+            "time", "points", "prep", "autostart-time", "autostart-players", "vote-time", "rules-time", "auction-time", "gui", "screen"
     );
 
     private static final List<String> EVENT_SUBS = Arrays.asList(
@@ -79,6 +79,11 @@ public class TTRTabCompleter implements TabCompleter {
             return new ArrayList<>();
         }
 
+        if (cmdName.equals("stats") || cmdName.equals("estadisticas") || cmdName.equals("dtstats")) {
+            if (args.length == 1) return filterStartingWith(getOnlinePlayerNames(), args[0]);
+            return new ArrayList<>();
+        }
+
         if (cmdName.equals("dt") || cmdName.equals("destinytowers") || cmdName.equals("ttr") || cmdName.equals("thetowers") || cmdName.equals("towers")) {
             if (args.length == 1) {
                 List<String> pool = isAdmin ? ADMIN_MAIN_SUBS : PLAYER_MAIN_SUBS;
@@ -89,6 +94,7 @@ public class TTRTabCompleter implements TabCompleter {
                 String sub = args[0].toLowerCase();
                 if (sub.equals("join")) return filterStartingWith(TEAMS, args[1]);
                 if (sub.equals("bid")) return filterStartingWith(COMMON_AMOUNTS, args[1]);
+                if (sub.equals("stats") || sub.equals("estadisticas")) return filterStartingWith(getOnlinePlayerNames(), args[1]);
 
                 if (!isAdmin) return new ArrayList<>();
 

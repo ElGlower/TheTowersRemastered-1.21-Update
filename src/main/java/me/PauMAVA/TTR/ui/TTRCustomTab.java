@@ -42,10 +42,12 @@ public class TTRCustomTab extends BukkitRunnable {
                 getMatchStatus() + "\n";
 
         int playingCount = Bukkit.getOnlinePlayers().size();
+        int maxPlayers = Bukkit.getMaxPlayers();
         int ping = player.getPing();
 
         String footer = "\n" +
                 ChatColor.GRAY + TextUtil.toTiny("Jugadores: ") + ChatColor.AQUA + TextUtil.toTiny(String.valueOf(playingCount)) +
+                ChatColor.DARK_GRAY + "/" + ChatColor.GRAY + TextUtil.toTiny(String.valueOf(maxPlayers)) +
                 ChatColor.DARK_GRAY + "  ▪  " + ChatColor.GRAY + TextUtil.toTiny("Ping: ") + getPingDisplay(ping) + "\n" +
                 ChatColor.DARK_GRAY + "§m                             \n" +
                 animatedFooter + "\n";
@@ -55,23 +57,31 @@ public class TTRCustomTab extends BukkitRunnable {
     }
 
     private void updatePlayerNameAndSorting(Player player) {
-        TTRTeam team = plugin.getTeamHandler() != null ? plugin.getTeamHandler().getPlayerTeam(player) : null;
-        boolean isStaff = TTRCore.isAdmin(player);
+        Scoreboard board = player.getScoreboard();
+        if (board == null) return;
+
+        for (Player target : Bukkit.getOnlinePlayers()) {
+            syncPlayerInScoreboard(board, player, target);
+        }
+    }
+
+    private void syncPlayerInScoreboard(Scoreboard board, Player viewer, Player target) {
+        TTRTeam team = plugin.getTeamHandler() != null ? plugin.getTeamHandler().getPlayerTeam(target) : null;
+        boolean isStaff = TTRCore.isAdmin(target);
         String formattedName;
 
         String killsInfo = "";
         if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().getStatus() == MatchStatus.INGAME) {
-            int kills = plugin.getCurrentMatch().getKills(player);
+            int kills = plugin.getCurrentMatch().getKills(target);
             killsInfo = ChatColor.DARK_GRAY + " [" + ChatColor.YELLOW + TextUtil.toTiny(String.valueOf(kills)) + ChatColor.DARK_GRAY + "]";
         }
 
-        // Determinar prefijo y equipo de scoreboard para ordenamiento estricto
         String teamKey;
         if (isStaff && (team == null || plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME)) {
             teamKey = "00_destiny";
-            formattedName = DestinyTheme.DESTINY_ROLE_BADGE + " " + ChatColor.WHITE + player.getName();
+            formattedName = DestinyTheme.DESTINY_ROLE_BADGE + " " + ChatColor.WHITE + target.getName();
         } else if (team != null) {
-            boolean isLeader = team.isLeader(player.getUniqueId());
+            boolean isLeader = team.isLeader(target.getUniqueId());
             ChatColor color = team.getColor();
             boolean isRed = team.getIdentifier().equalsIgnoreCase("Red");
 
@@ -84,20 +94,18 @@ public class TTRCustomTab extends BukkitRunnable {
             String staffPrefix = isStaff ? DestinyTheme.DESTINY_ROLE_BADGE + " " : "";
             String leaderStar = isLeader ? ChatColor.GOLD + "★ " : "";
             String teamTag = color + "[" + TextUtil.toTiny(team.getIdentifier().toUpperCase()) + "] ";
-            formattedName = staffPrefix + leaderStar + teamTag + color + player.getName() + killsInfo;
+            formattedName = staffPrefix + leaderStar + teamTag + color + target.getName() + killsInfo;
         } else {
             teamKey = isStaff ? "00_destiny" : "90_spec";
             String prefix = isStaff ? DestinyTheme.DESTINY_ROLE_BADGE + " " : ChatColor.GRAY + "[" + TextUtil.toTiny("Espec") + "] ";
-            formattedName = prefix + ChatColor.WHITE + player.getName();
+            formattedName = prefix + ChatColor.WHITE + target.getName();
         }
 
-        player.setPlayerListName(formattedName);
-
-        // Asignar al equipo del Scoreboard para forzar el ordenamiento nativo en Tab
-        Scoreboard board = player.getScoreboard();
-        if (board != null) {
-            assignToScoreboardTeam(board, player, teamKey);
+        if (viewer.equals(target)) {
+            target.setPlayerListName(formattedName);
         }
+
+        assignToScoreboardTeam(board, target, teamKey);
     }
 
     private void assignToScoreboardTeam(Scoreboard board, Player p, String teamKey) {
@@ -105,18 +113,27 @@ public class TTRCustomTab extends BukkitRunnable {
             Team tabTeam = board.getTeam(teamKey);
             if (tabTeam == null) {
                 tabTeam = board.registerNewTeam(teamKey);
-                if (teamKey.startsWith("10") || teamKey.startsWith("11")) {
+                if (teamKey.startsWith("10")) {
                     tabTeam.color(NamedTextColor.RED);
-                } else if (teamKey.startsWith("20") || teamKey.startsWith("21")) {
+                    tabTeam.prefix(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize("§6★ §c[" + TextUtil.toTiny("Rojo") + "] "));
+                } else if (teamKey.startsWith("11")) {
+                    tabTeam.color(NamedTextColor.RED);
+                    tabTeam.prefix(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize("§c[" + TextUtil.toTiny("Rojo") + "] "));
+                } else if (teamKey.startsWith("20")) {
                     tabTeam.color(NamedTextColor.BLUE);
+                    tabTeam.prefix(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize("§6★ §9[" + TextUtil.toTiny("Azul") + "] "));
+                } else if (teamKey.startsWith("21")) {
+                    tabTeam.color(NamedTextColor.BLUE);
+                    tabTeam.prefix(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize("§9[" + TextUtil.toTiny("Azul") + "] "));
                 } else if (teamKey.startsWith("00")) {
                     tabTeam.color(NamedTextColor.WHITE);
+                    tabTeam.prefix(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(DestinyTheme.DESTINY_ROLE_BADGE + " "));
                 } else {
                     tabTeam.color(NamedTextColor.GRAY);
+                    tabTeam.prefix(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize("§7[" + TextUtil.toTiny("Espec") + "] "));
                 }
             }
             if (!tabTeam.hasEntry(p.getName())) {
-                // Remover de otros equipos antes de reasignar
                 for (Team t : board.getTeams()) {
                     if (t.getName().matches("\\d{2}_.*") && t.hasEntry(p.getName())) {
                         t.removeEntry(p.getName());

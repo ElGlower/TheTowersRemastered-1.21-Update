@@ -76,6 +76,9 @@ public class MainCommand implements CommandExecutor {
                 return new SpectateCommand().onCommand(sender, command, label, subArgs);
             case "bid":
                 return new BidCommand().onCommand(sender, command, label, subArgs);
+            case "stats":
+            case "estadisticas":
+                return new StatsCommand().onCommand(sender, command, label, subArgs);
         }
 
         // Subcomandos estrictamente administrativos
