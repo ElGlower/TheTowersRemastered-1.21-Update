@@ -59,12 +59,18 @@ export function openModalityDetail(modalityId: string, immediate: boolean = fals
 export function closeModalityDetail(): void {
   const selector = document.getElementById('modalidad-selector');
   const detail = document.getElementById('modalidad-detail');
+  const userProfile = document.getElementById('modalidad-user-profile');
   if (!selector || !detail) return;
 
   isDetailOpen = false;
 
   detail.style.opacity = '0';
   detail.style.transform = 'scale(0.98)';
+  if (userProfile) {
+    userProfile.style.opacity = '0';
+    userProfile.classList.add('hidden');
+    userProfile.style.display = 'none';
+  }
 
   setTimeout(() => {
     detail.classList.add('hidden');

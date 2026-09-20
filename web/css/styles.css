@@ -534,3 +534,36 @@ body.dark-mode .bg-illustration-moon {
   background-color: #4A3E5E !important;
   box-shadow: 0 0 40px rgba(185, 165, 215, 0.25) !important;
 }
+
+/* ==========================================================================
+   PERFIL EXPANDIDO & HISTORIAL (ESTILO DESTINY COMPETITIVO)
+   ========================================================================== */
+.animate-fadeIn {
+  animation: fadeInProfile 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInProfile {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.match-history-row {
+  transition: all 0.25s ease;
+}
+.match-history-row:hover {
+  transform: translateX(4px);
+}
+body.dark-mode .match-history-row {
+  background: rgba(36, 28, 54, 0.70) !important;
+  border-color: rgba(185, 165, 215, 0.20) !important;
+}
+body.dark-mode .match-history-row:hover {
+  background: rgba(48, 38, 72, 0.90) !important;
+  border-color: #8FA4D1 !important;
+}

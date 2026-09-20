@@ -20,7 +20,9 @@ import {
   inspectMinecraftPlayer, 
   filterLeaderboard, 
   copyCurrentPlayerName, 
-  openNameMCProfile 
+  openNameMCProfile,
+  openFullUserProfile,
+  closeFullUserProfile 
 } from './modules/liveMatch';
 import { TabId, ModalitySubTab } from './types';
 
@@ -36,6 +38,8 @@ const app = {
   filterLeaderboard: (query: string) => filterLeaderboard(query),
   copyCurrentPlayerName: (name?: string) => copyCurrentPlayerName(name),
   openNameMCProfile: (name?: string) => openNameMCProfile(name),
+  openFullUserProfile: (username?: string) => openFullUserProfile(username),
+  closeFullUserProfile: () => closeFullUserProfile(),
   showRightShowcase: () => showRightShowcase(),
   hideRightShowcase: () => hideRightShowcase(),
   toggleAutoRotate: () => toggleAutoRotate(),
@@ -54,6 +58,8 @@ const app = {
 (window as any).filterLeaderboard = app.filterLeaderboard;
 (window as any).copyCurrentPlayerName = app.copyCurrentPlayerName;
 (window as any).openNameMCProfile = app.openNameMCProfile;
+(window as any).openFullUserProfile = app.openFullUserProfile;
+(window as any).closeFullUserProfile = app.closeFullUserProfile;
 (window as any).toggleAutoRotate = app.toggleAutoRotate;
 (window as any).copyServerIP = app.copyServerIP;
 (window as any).showToast = app.showToast;
@@ -72,10 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. Iniciar sincronización en tiempo real de Partida y Leaderboard con Firebase RTDB
   startLiveSync();
 
-  // 5. Procesar parámetros de URL (?tab=...&modality=...&sub=...)
+  // 5. Procesar parámetros de URL (?tab=...&modality=...&sub=...&profile=...)
   const params = new URLSearchParams(window.location.search);
   const tabParam = params.get('tab') as TabId | null;
   const modalityParam = params.get('modality');
+  const profileParam = params.get('profile');
 
   if (tabParam && ['inicio', 'modalidad', 'miembros'].includes(tabParam)) {
     if (tabParam === 'modalidad' && modalityParam === 'the-towers') {
@@ -83,6 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const subParam = (params.get('sub') as ModalitySubTab) || 'partida';
       openModalityDetail('the-towers', true);
       switchModalitySubTab(subParam);
+
+      if (profileParam) {
+        setTimeout(() => {
+          openFullUserProfile(profileParam);
+        }, 350);
+      }
     } else {
       switchTab(tabParam);
     }

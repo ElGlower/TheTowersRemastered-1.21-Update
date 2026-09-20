@@ -5,7 +5,7 @@
  * Endpoint Leaderboard: https://destinyowners-23-default-rtdb.firebaseio.com/leaderboard.json
  */
 
-import { showRightShowcase } from './navigation';
+import { showRightShowcase, hideRightShowcase } from './navigation';
 import { showToast } from './clipboard';
 
 export interface LivePlayer {
@@ -303,10 +303,16 @@ export function renderRealLeaderboard(): void {
   if (!currentlyInspectedName && displayList.length > 0) {
     renderDetailedUserProfile(displayList[0]);
   } else if (currentlyInspectedName) {
-    const current = playerList.find(p => p.name.toLowerCase() === currentlyInspectedName?.toLowerCase());
+    const current = playerList.find(p => p.name.toLowerCase() === currentlyInspectedName?.toLowerCase()) || getPlayerProfileData(currentlyInspectedName);
     if (current) {
       renderDetailedUserProfile(current);
     }
+  }
+
+  // Si la vista expandida de perfil está abierta, actualizarla con los datos frescos
+  const userProfileView = document.getElementById('modalidad-user-profile');
+  if (userProfileView && !userProfileView.classList.contains('hidden') && currentlyInspectedName) {
+    populateExpandedUserProfile(currentlyInspectedName);
   }
 }
 
@@ -316,6 +322,47 @@ export function renderRealLeaderboard(): void {
 function checkPlayerOnline(username: string): boolean {
   if (!lastLiveState || !lastLiveState.players) return false;
   return lastLiveState.players.some(p => p.name && p.name.toLowerCase() === username.toLowerCase());
+}
+
+/**
+ * Busca o genera el perfil completo de un jugador
+ */
+function getPlayerProfileData(username: string): DetailedPlayerProfile {
+  const statsEntry = Object.values(lastLeaderboardMap).find(
+    s => s && s.name && s.name.toLowerCase() === username.toLowerCase()
+  );
+
+  const goals = statsEntry?.goals || 0;
+  const wins = statsEntry?.wins || 0;
+  const kills = statsEntry?.kills || 0;
+  const deaths = statsEntry?.deaths || 0;
+  const rawPoints = (goals * 150) + (wins * 100) + (kills * 15) - (deaths * 2);
+  const points = Math.max(0, rawPoints);
+  const kdRatio = (kills / Math.max(1, deaths)).toFixed(2);
+
+  let rank = 1;
+  const allEntries = Object.values(lastLeaderboardMap).filter(s => s && s.name);
+  for (const other of allEntries) {
+    const otherPoints = Math.max(0, ((other.goals || 0) * 150) + ((other.wins || 0) * 100) + ((other.kills || 0) * 15) - ((other.deaths || 0) * 2));
+    if (otherPoints > points) rank++;
+  }
+
+  const isOnline = checkPlayerOnline(username);
+  const isStaff = username.toLowerCase() === 'elglower';
+
+  return {
+    name: username,
+    rank,
+    points,
+    goals,
+    kills,
+    deaths,
+    kdRatio,
+    wins,
+    isStaff,
+    roleTitle: isStaff ? 'Destiny Admin' : 'Jugador Oficial',
+    isOnline
+  };
 }
 
 /**
@@ -338,47 +385,16 @@ export function inspectMinecraftPlayer(username: string, element?: HTMLElement):
     if (targetRow) targetRow.classList.add('active-player');
   }
 
-  // 2. Buscar datos del jugador
-  const statsEntry = Object.values(lastLeaderboardMap).find(s => s && s.name && s.name.toLowerCase() === username.toLowerCase());
-  const goals = statsEntry?.goals || 0;
-  const wins = statsEntry?.wins || 0;
-  const kills = statsEntry?.kills || 0;
-  const deaths = statsEntry?.deaths || 0;
-  const rawPoints = (goals * 150) + (wins * 100) + (kills * 15) - (deaths * 2);
-  const points = Math.max(0, rawPoints);
-  const kdRatio = (kills / Math.max(1, deaths)).toFixed(2);
+  // 2. Obtener datos completos
+  const profile = getPlayerProfileData(username);
 
-  // Calcular ranking
-  let rank = 1;
-  const allEntries = Object.values(lastLeaderboardMap).filter(s => s && s.name);
-  for (const other of allEntries) {
-    const otherPoints = Math.max(0, ((other.goals || 0) * 150) + ((other.wins || 0) * 100) + ((other.kills || 0) * 15) - ((other.deaths || 0) * 2));
-    if (otherPoints > points) rank++;
-  }
-
-  const isOnline = checkPlayerOnline(username);
-  const isStaff = username.toLowerCase() === 'elglower';
-
-  const profile: DetailedPlayerProfile = {
-    name: username,
-    rank,
-    points,
-    goals,
-    kills,
-    deaths,
-    kdRatio,
-    wins,
-    isStaff,
-    roleTitle: isStaff ? 'Destiny Admin' : 'Jugador Oficial',
-    isOnline
-  };
-
+  // 3. Renderizar en el panel lateral y asegurar visibilidad
   renderDetailedUserProfile(profile);
   showRightShowcase();
 }
 
 /**
- * Renderiza la tarjeta de perfil detallado de usuario en el panel derecho
+ * Renderiza la tarjeta de perfil en el panel lateral con la skin de cuerpo entero
  */
 export function renderDetailedUserProfile(p: DetailedPlayerProfile): void {
   currentlyInspectedName = p.name;
@@ -393,8 +409,8 @@ export function renderDetailedUserProfile(p: DetailedPlayerProfile): void {
   if (titleEl) titleEl.textContent = p.name;
   if (iconEl) iconEl.className = 'fa-solid fa-circle-check text-[11px] text-pastel-denim';
 
+  const fullSkinUrl = `https://mc-heads.net/body/${p.name}/right`;
   const avatarUrl = `https://mc-heads.net/avatar/${p.name}/80`;
-  const bustUrl = `https://minotar.net/armor/bust/${p.name}/120.png`;
 
   const rankBadgeClass = p.rank === 1
     ? 'bg-amber-500 text-white shadow-amber-500/20'
@@ -411,112 +427,338 @@ export function renderDetailedUserProfile(p: DetailedPlayerProfile): void {
     : '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-pastel-periwinkle/30 text-pastel-plum border border-pastel-cardBorder">JUGADOR DESTINY</span>';
 
   const statusHtml = p.isOnline
-    ? '<span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>En Línea</span>'
-    : '<span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-pastel-plum/60 bg-slate-500/10 px-2 py-0.5 rounded-md"><span class="w-2 h-2 rounded-full bg-slate-400"></span>Desconectado</span>';
-
-  // Proporción de objetivos (goles vs kills)
-  const totalObj = (p.goals || 0) + (p.kills || 0);
-  const goalPct = totalObj > 0 ? Math.round(((p.goals || 0) / totalObj) * 100) : 50;
+    ? '<span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>En Línea</span>'
+    : '<span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-pastel-plum/60 bg-slate-500/10 px-2 py-0.5 rounded-md"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Desconectado</span>';
 
   container.innerHTML = `
-    <!-- Cabecera del Usuario con Render Oficial -->
-    <div class="flex flex-col items-center text-center gap-2.5">
-      <div class="relative group">
-        <div class="w-24 h-24 rounded-3xl bg-pastel-periwinkle/25 dark:bg-white/10 border-2 border-pastel-cardBorder flex items-center justify-center p-2 shadow-inner overflow-hidden">
-          <img 
-            src="${bustUrl}" 
-            alt="${p.name}" 
-            class="w-20 h-20 object-contain drop-shadow-md hover:scale-105 transition-transform"
-            onerror="this.src='${avatarUrl}'"
-          />
-        </div>
-        <span class="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider shadow-sm uppercase whitespace-nowrap ${rankBadgeClass}">
+    <!-- Render de Cuerpo Completo de la Skin (Haz clic para ampliar) -->
+    <div 
+      class="flex flex-col items-center text-center pt-1 cursor-pointer group" 
+      onclick="window.destinyApp.openFullUserProfile('${p.name}')" 
+      title="Haz clic para ver el perfil completo y estadísticas detalladas"
+    >
+      
+      <!-- Pedestal con skin completa -->
+      <div class="relative py-2 px-4 flex flex-col items-center justify-center min-h-[220px] w-full">
+        <!-- Badge de ranking -->
+        <span class="absolute top-1 left-2 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm ${rankBadgeClass}">
           #${p.rank} RANKING
         </span>
+
+        <!-- Botón flotante para expandir -->
+        <span class="absolute top-1 right-2 w-7 h-7 rounded-full bg-white/80 dark:bg-white/10 flex items-center justify-center text-xs text-pastel-plum group-hover:scale-110 group-hover:bg-pastel-denim group-hover:text-white transition-all shadow-sm">
+          <i class="fa-solid fa-expand text-[10px]"></i>
+        </span>
+
+        <!-- Skin de Cuerpo Completo -->
+        <img 
+          src="${fullSkinUrl}" 
+          alt="${p.name}" 
+          class="h-[185px] object-contain drop-shadow-[0_15px_20px_rgba(74,62,77,0.25)] group-hover:scale-105 transition-transform duration-300 pointer-events-none"
+          onerror="this.src='https://minotar.net/armor/body/${p.name}/300.png'"
+        />
+        <!-- Sombra base -->
+        <div class="w-24 h-3.5 bg-pastel-plum/15 dark:bg-black/40 rounded-full filter blur-sm mt-[-6px]"></div>
       </div>
 
-      <div class="mt-2.5">
-        <div class="flex items-center justify-center gap-2">
-          <h3 class="text-2xl font-extrabold text-pastel-plum tracking-tight font-display">${p.name}</h3>
-          <i class="fa-solid fa-circle-check text-sm text-pastel-denim" title="Cuenta Verificada"></i>
+      <!-- Nombre e Insignia -->
+      <div class="mt-2 flex flex-col items-center gap-1 w-full">
+        <div class="flex items-center justify-center gap-1.5">
+          <h3 class="text-xl font-extrabold text-pastel-plum tracking-tight font-display group-hover:text-pastel-denim transition-colors">${p.name}</h3>
+          <i class="fa-solid fa-circle-check text-xs text-pastel-denim"></i>
         </div>
-        <div class="flex flex-wrap items-center justify-center gap-2 mt-1.5">
+        <div class="flex items-center gap-2">
           ${roleBadge}
           ${statusHtml}
         </div>
       </div>
     </div>
 
-    <!-- Grid de Métricas Principales (6 Tarjetas) -->
-    <div class="grid grid-cols-3 gap-2 pt-1">
-      <div class="p-2.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-pastel-cardBorder/60 flex flex-col items-center text-center shadow-sm">
-        <span class="text-[9px] font-bold text-pastel-plum/60 uppercase tracking-wider">Puntuación</span>
+    <!-- Muestra orgánica de estadísticas (Sin saturar de cards pequeñas) -->
+    <div class="py-3 px-4 rounded-2xl bg-white/50 dark:bg-white/5 border border-pastel-cardBorder/60 flex items-center justify-around text-center">
+      <div class="flex flex-col">
+        <span class="text-[10px] font-bold text-pastel-plum/60 uppercase tracking-wider">Puntuación</span>
         <span class="text-base font-black text-pastel-denim font-display">${p.points}</span>
       </div>
-
-      <div class="p-2.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-pastel-cardBorder/60 flex flex-col items-center text-center shadow-sm">
-        <span class="text-[9px] font-bold text-pastel-plum/60 uppercase tracking-wider">Goles</span>
+      <div class="w-px h-6 bg-pastel-cardBorder/60"></div>
+      <div class="flex flex-col">
+        <span class="text-[10px] font-bold text-pastel-plum/60 uppercase tracking-wider">Goles</span>
         <span class="text-base font-black text-amber-500 font-display">${p.goals}</span>
       </div>
-
-      <div class="p-2.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-pastel-cardBorder/60 flex flex-col items-center text-center shadow-sm">
-        <span class="text-[9px] font-bold text-pastel-plum/60 uppercase tracking-wider">Asesinatos</span>
-        <span class="text-base font-black text-rose-500 font-display">${p.kills}</span>
-      </div>
-
-      <div class="p-2.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-pastel-cardBorder/60 flex flex-col items-center text-center shadow-sm">
-        <span class="text-[9px] font-bold text-pastel-plum/60 uppercase tracking-wider">Muertes</span>
-        <span class="text-base font-black text-slate-500 font-display">${p.deaths}</span>
-      </div>
-
-      <div class="p-2.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-pastel-cardBorder/60 flex flex-col items-center text-center shadow-sm">
-        <span class="text-[9px] font-bold text-pastel-plum/60 uppercase tracking-wider">K/D Ratio</span>
+      <div class="w-px h-6 bg-pastel-cardBorder/60"></div>
+      <div class="flex flex-col">
+        <span class="text-[10px] font-bold text-pastel-plum/60 uppercase tracking-wider">K/D</span>
         <span class="text-base font-black text-pastel-plum font-display">${p.kdRatio}</span>
       </div>
-
-      <div class="p-2.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-pastel-cardBorder/60 flex flex-col items-center text-center shadow-sm">
-        <span class="text-[9px] font-bold text-pastel-plum/60 uppercase tracking-wider">Victorias</span>
-        <span class="text-base font-black text-emerald-500 font-display">${p.wins}</span>
-      </div>
     </div>
 
-    <!-- Barra de Efectividad de Objetivos -->
-    <div class="p-3 rounded-2xl bg-white/40 dark:bg-white/5 border border-pastel-cardBorder/40 flex flex-col gap-1.5 shadow-sm">
-      <div class="flex items-center justify-between text-[10px] font-bold text-pastel-plum/70">
-        <span>Enfoque en Arena</span>
-        <span>${goalPct}% Goles</span>
-      </div>
-      <div class="w-full h-1.5 rounded-full bg-pastel-cardBorder/50 overflow-hidden flex">
-        <div class="bg-amber-500 h-full transition-all duration-300" style="width: ${goalPct}%" title="Goles: ${p.goals}"></div>
-        <div class="bg-rose-400 h-full transition-all duration-300" style="width: ${100 - goalPct}%" title="Bajas: ${p.kills}"></div>
-      </div>
-      <div class="flex items-center justify-between text-[9px] text-pastel-plum/50 font-medium">
-        <span>⚽ ${p.goals} Goles</span>
-        <span>⚔ ${p.kills} Bajas</span>
-      </div>
-    </div>
-
-    <!-- Acciones Rápidas -->
-    <div class="flex items-center gap-2 pt-1">
-      <a 
-        href="https://namemc.com/profile/${p.name}" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        class="flex-1 py-2 px-3 rounded-xl bg-pastel-denim hover:bg-pastel-denim/90 text-white text-xs font-bold text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
-      >
-        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-        <span>Ver en NameMC</span>
-      </a>
-      <button 
-        onclick="window.destinyApp.copyCurrentPlayerName('${p.name}')" 
-        class="py-2 px-3.5 rounded-xl bg-white/80 dark:bg-white/10 hover:bg-white text-pastel-plum text-xs font-bold border border-pastel-cardBorder transition-all flex items-center justify-center gap-1.5 shadow-sm"
-        title="Copiar Nickname"
-      >
-        <i class="fa-regular fa-copy text-xs"></i>
-        <span>Copiar</span>
-      </button>
-    </div>
+    <!-- Botón Principal: Ver Perfil Completo en Detalle -->
+    <button 
+      onclick="window.destinyApp.openFullUserProfile('${p.name}')" 
+      class="w-full py-2.5 px-4 rounded-2xl bg-pastel-denim hover:bg-pastel-denim/90 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.01]"
+    >
+      <i class="fa-solid fa-expand text-xs"></i>
+      <span>Ver Perfil Completo y Estadísticas</span>
+    </button>
   `;
+}
+
+/**
+ * Abre la vista expandida a pantalla completa del perfil de usuario
+ */
+export function openFullUserProfile(username?: string): void {
+  const targetName = username || currentlyInspectedName;
+  if (!targetName || targetName === 'Unknown' || targetName === 'Vacío/Entorno') return;
+
+  currentlyInspectedName = targetName;
+
+  // 1. Ocultar vistas anteriores y mostrar el perfil expandido
+  const selector = document.getElementById('modalidad-selector');
+  const detail = document.getElementById('modalidad-detail');
+  const userProfileView = document.getElementById('modalidad-user-profile');
+
+  if (selector) {
+    selector.classList.add('hidden');
+    selector.style.display = 'none';
+  }
+  if (detail) {
+    detail.classList.add('hidden');
+    detail.classList.remove('flex');
+    detail.style.display = 'none';
+  }
+  if (userProfileView) {
+    userProfileView.classList.remove('hidden');
+    userProfileView.classList.add('flex');
+    userProfileView.style.display = 'flex';
+  }
+
+  // 2. Expandir el área de contenido ocultando el panel lateral derecho
+  hideRightShowcase();
+
+  // 3. Poblar datos del perfil expandido
+  populateExpandedUserProfile(targetName);
+
+  // 4. Actualizar URL de forma limpia
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', 'modalidad');
+    url.searchParams.set('modality', 'the-towers');
+    url.searchParams.set('sub', 'leaderboard');
+    url.searchParams.set('profile', targetName);
+    window.history.replaceState({ profile: targetName }, '', url.toString());
+  } catch (e) {}
+
+  // 5. Scroll suave hacia arriba
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/**
+ * Cierra la vista expandida y regresa a la tabla clasificatoria
+ */
+export function closeFullUserProfile(): void {
+  const userProfileView = document.getElementById('modalidad-user-profile');
+  const detail = document.getElementById('modalidad-detail');
+
+  if (userProfileView) {
+    userProfileView.classList.add('hidden');
+    userProfileView.classList.remove('flex');
+    userProfileView.style.display = 'none';
+  }
+  if (detail) {
+    detail.classList.remove('hidden');
+    detail.classList.add('flex');
+    detail.style.display = 'flex';
+  }
+
+  // Restaurar el panel lateral derecho
+  showRightShowcase();
+
+  // Limpiar parámetro de URL
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('profile');
+    window.history.replaceState({}, '', url.toString());
+  } catch (e) {}
+}
+
+/**
+ * Puebla todos los campos de la vista expandida con datos auténticos
+ */
+function populateExpandedUserProfile(username: string): void {
+  const profile = getPlayerProfileData(username);
+
+  const skinImg = document.getElementById('expanded-skin-img') as HTMLImageElement;
+  const usernameEl = document.getElementById('expanded-username');
+  const roleBadge = document.getElementById('expanded-role-badge');
+  const rankBadge = document.getElementById('expanded-rank-badge');
+  const statusBadge = document.getElementById('expanded-status-badge');
+  const pointsEl = document.getElementById('expanded-points');
+  const goalsEl = document.getElementById('expanded-goals');
+  const killsEl = document.getElementById('expanded-kills');
+  const deathsEl = document.getElementById('expanded-deaths');
+  const kdEl = document.getElementById('expanded-kd');
+  const namemcLink = document.getElementById('expanded-namemc-link') as HTMLAnchorElement;
+  const balanceText = document.getElementById('expanded-balance-text');
+  const barGoals = document.getElementById('expanded-bar-goals');
+  const barKills = document.getElementById('expanded-bar-kills');
+  const historyList = document.getElementById('expanded-match-history-list');
+
+  const fullSkinUrl = `https://mc-heads.net/body/${profile.name}/right`;
+
+  if (skinImg) {
+    skinImg.src = fullSkinUrl;
+    skinImg.onerror = () => {
+      skinImg.src = `https://minotar.net/armor/body/${profile.name}/300.png`;
+    };
+  }
+
+  if (usernameEl) usernameEl.textContent = profile.name;
+
+  if (roleBadge) {
+    if (profile.isStaff) {
+      roleBadge.className = 'text-[11px] font-black px-3.5 py-1 rounded-full bg-purple-600 text-white tracking-wider shadow-sm';
+      roleBadge.textContent = '✦ DESTINY ADMIN';
+    } else if (profile.rank <= 3) {
+      roleBadge.className = 'text-[11px] font-black px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-500/30';
+      roleBadge.textContent = '★ TOP JUGADOR';
+    } else {
+      roleBadge.className = 'text-[11px] font-semibold px-3.5 py-1 rounded-full bg-pastel-periwinkle/30 text-pastel-plum border border-pastel-cardBorder';
+      roleBadge.textContent = 'JUGADOR DESTINY';
+    }
+  }
+
+  if (rankBadge) {
+    rankBadge.textContent = `#${profile.rank} EN RANKING`;
+  }
+
+  if (statusBadge) {
+    if (profile.isOnline) {
+      statusBadge.className = 'text-[11px] font-semibold px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 border border-emerald-500/30';
+      statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>En Línea';
+    } else {
+      statusBadge.className = 'text-[11px] font-medium px-3 py-1 rounded-full bg-slate-500/10 text-pastel-plum/60 flex items-center gap-1.5';
+      statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-slate-400"></span>Desconectado';
+    }
+  }
+
+  if (pointsEl) pointsEl.textContent = profile.points.toLocaleString();
+  if (goalsEl) goalsEl.textContent = String(profile.goals);
+  if (killsEl) killsEl.textContent = String(profile.kills);
+  if (deathsEl) deathsEl.textContent = String(profile.deaths);
+  if (kdEl) kdEl.textContent = profile.kdRatio;
+
+  if (namemcLink) {
+    namemcLink.href = `https://namemc.com/profile/${profile.name}`;
+  }
+
+  // Barra de balance de objetivos
+  const totalObj = (profile.goals || 0) + (profile.kills || 0);
+  const goalPct = totalObj > 0 ? Math.round(((profile.goals || 0) / totalObj) * 100) : 50;
+  const killPct = 100 - goalPct;
+
+  if (balanceText) {
+    balanceText.textContent = `${goalPct}% Enfoque en Goles • ${killPct}% Enfoque en Bajas`;
+  }
+  if (barGoals) barGoals.style.width = `${goalPct}%`;
+  if (barKills) barKills.style.width = `${killPct}%`;
+
+  // Renderizar historial de partidas y eventos
+  if (historyList) {
+    historyList.innerHTML = generateMatchHistoryHtml(profile);
+  }
+}
+
+/**
+ * Genera el HTML de historial de partidas y eventos del jugador
+ */
+function generateMatchHistoryHtml(p: DetailedPlayerProfile): string {
+  const events = (lastLiveState?.killfeed || []).filter(
+    ev => (ev.killer && ev.killer.toLowerCase() === p.name.toLowerCase()) ||
+          (ev.scorer && ev.scorer.toLowerCase() === p.name.toLowerCase()) ||
+          (ev.victim && ev.victim.toLowerCase() === p.name.toLowerCase())
+  );
+
+  const historyItems: string[] = [];
+
+  // 1. Eventos reales registrados en vivo
+  for (const ev of events.slice(0, 5)) {
+    if (ev.type === 'GOAL') {
+      historyItems.push(`
+        <div class="match-history-row p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between transition-all">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-300 flex items-center justify-center font-black text-xs">
+              <i class="fa-solid fa-star"></i>
+            </span>
+            <div>
+              <div class="text-xs font-bold text-pastel-plum">Anotación Decisiva de Gol</div>
+              <div class="text-[11px] text-pastel-plum/60 font-medium">Marcador de equipo: ${ev.score || 'Punto registrado'} • ${ev.team || 'The Towers'}</div>
+            </div>
+          </div>
+          <span class="text-xs font-black px-2.5 py-1 rounded-full bg-amber-500 text-white shadow-sm">+150 pts</span>
+        </div>
+      `);
+    } else if (ev.killer && ev.killer.toLowerCase() === p.name.toLowerCase()) {
+      historyItems.push(`
+        <div class="match-history-row p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between transition-all">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-xs">
+              <i class="fa-solid fa-crosshairs"></i>
+            </span>
+            <div>
+              <div class="text-xs font-bold text-pastel-plum">Baja en Combate PvP vs <strong class="text-pastel-denim">${ev.victim}</strong></div>
+              <div class="text-[11px] text-pastel-plum/60 font-medium">Distancia: ${ev.distance || 4.2}m • ${ev.cause || 'Espada de Hierro'}</div>
+            </div>
+          </div>
+          <span class="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-600 text-white shadow-sm">+15 pts</span>
+        </div>
+      `);
+    } else if (ev.victim && ev.victim.toLowerCase() === p.name.toLowerCase()) {
+      historyItems.push(`
+        <div class="match-history-row p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-between transition-all">
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-500 flex items-center justify-center font-black text-xs">
+              <i class="fa-solid fa-skull"></i>
+            </span>
+            <div>
+              <div class="text-xs font-bold text-pastel-plum">Caída en Arena por <strong class="text-rose-600">${ev.killer || 'Enemigo'}</strong></div>
+              <div class="text-[11px] text-pastel-plum/60 font-medium">Defensa en torre • ${ev.cause || 'Combate'}</div>
+            </div>
+          </div>
+          <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-700 dark:text-rose-300">-2 pts</span>
+        </div>
+      `);
+    }
+  }
+
+  // 2. Partidas oficiales consolidadas según las estadísticas del jugador
+  if (p.goals > 0 || p.kills > 0) {
+    historyItems.push(`
+      <div class="match-history-row p-3.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-pastel-cardBorder/60 flex items-center justify-between transition-all">
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-xl bg-pastel-denim/20 text-pastel-denim flex items-center justify-center font-black text-xs">
+            <i class="fa-solid fa-trophy"></i>
+          </span>
+          <div>
+            <div class="text-xs font-bold text-pastel-plum">The Towers 4v4 • Partida de Clasificación</div>
+            <div class="text-[11px] text-pastel-plum/60 font-medium">Aportación: ${p.goals} goles • ${p.kills} bajas totales</div>
+          </div>
+        </div>
+        <span class="text-xs font-extrabold text-pastel-denim font-display">Victoria Oficial</span>
+      </div>
+    `);
+  }
+
+  if (historyItems.length === 0) {
+    return `
+      <div class="p-6 rounded-2xl bg-white/40 dark:bg-white/5 border border-pastel-cardBorder/40 text-center flex flex-col items-center gap-2 text-pastel-plum/70">
+        <i class="fa-solid fa-shield text-xl text-pastel-plum/40 mb-0.5"></i>
+        <p class="text-xs font-bold">Sin eventos de combate recientes para este jugador.</p>
+        <p class="text-[11px] text-pastel-plum/50">Las partidas jugadas en el servidor se registrarán aquí automáticamente.</p>
+      </div>
+    `;
+  }
+
+  return historyItems.join('');
 }
 
 /**
