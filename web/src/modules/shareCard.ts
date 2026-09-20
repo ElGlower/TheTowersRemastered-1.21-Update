@@ -200,12 +200,7 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
   ctx.textAlign = 'left';
   ctx.font = '800 24px "Outfit", sans-serif';
   ctx.fillStyle = '#FFFFFF';
-  ctx.fillText('DESTINY OWNERS', 130, 96);
-
-  // Modalidad Oficial
-  ctx.font = '600 14px "Plus Jakarta Sans", sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fillText('THE TOWERS REMASTERED • TEMPORADA OFICIAL', 130, 116);
+  ctx.fillText('DESTINY OWNERS', 130, 97);
 
   // IP del servidor (derecha)
   drawRoundedRect(ctx, 890, 65, 240, 44, 22);
@@ -220,120 +215,126 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
   ctx.fillStyle = '#C1CFE6';
   ctx.fillText('play.destinyowners.com', 1010, 92);
 
-  // 3. Tarjeta de Skin (Izquierda)
-  drawRoundedRect(ctx, 70, 150, 380, 450, 28);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
+  // 3. Render de la Skin (Izquierda - Presentación limpia sin recuadro pesado)
   // Pedestal Sombra
   ctx.save();
   ctx.beginPath();
-  ctx.ellipse(260, 520, 110, 18, 0, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-  ctx.filter = 'blur(8px)';
+  ctx.ellipse(260, 535, 110, 18, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  ctx.filter = 'blur(10px)';
   ctx.fill();
   ctx.restore();
 
   // Cargar Render de la Skin
   try {
     const skinImg = await loadImage(`https://mc-heads.net/body/${p.name}/right`);
-    ctx.drawImage(skinImg, 120, 175, 280, 350);
+    ctx.drawImage(skinImg, 120, 175, 280, 360);
   } catch (err) {
     try {
       const fallbackImg = await loadImage(`https://minotar.net/armor/body/${p.name}/300.png`);
-      ctx.drawImage(fallbackImg, 150, 195, 220, 330);
+      ctx.drawImage(fallbackImg, 150, 195, 220, 340);
     } catch (e) {}
   }
 
   // Insignia de Ranking sobre la skin
-  const rankText = `#${p.rank} RANKING`;
-  drawRoundedRect(ctx, 95, 175, 120, 30, 15);
+  const rankText = `#${p.rank} EN RANKING`;
+  drawRoundedRect(ctx, 90, 160, 130, 30, 15);
   ctx.fillStyle = p.rank === 1 ? '#F59E0B' : p.rank === 2 ? '#94A3B8' : p.rank === 3 ? '#B45309' : '#6982B5';
   ctx.fill();
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '900 12px "Outfit", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(rankText, 155, 195);
+  ctx.fillText(rankText, 155, 180);
 
   // 4. Panel de Estadísticas y Credenciales (Derecha)
   // Nombre de Usuario
   ctx.textAlign = 'left';
   ctx.font = '900 44px "Outfit", sans-serif';
   ctx.fillStyle = '#FFFFFF';
-  ctx.fillText(p.name, 490, 205);
+  ctx.fillText(p.name, 480, 205);
 
   // Tag de Rol
   const roleText = p.isStaff ? '✦ DESTINY ADMIN' : p.rank <= 3 ? '★ TOP JUGADOR' : 'JUGADOR OFICIAL';
-  drawRoundedRect(ctx, 490, 225, 140, 28, 14);
+  const roleWidth = p.isStaff ? 140 : p.rank <= 3 ? 130 : 135;
+  drawRoundedRect(ctx, 480, 222, roleWidth, 26, 13);
   ctx.fillStyle = p.isStaff ? '#7C3AED' : p.rank <= 3 ? '#F59E0B' : 'rgba(255,255,255,0.12)';
   ctx.fill();
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '800 11px "Plus Jakarta Sans", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(roleText, 560, 243);
+  ctx.fillText(roleText, 480 + (roleWidth / 2), 239);
 
   // Puntos Elo Principales
   ctx.textAlign = 'left';
   ctx.font = '700 12px "Plus Jakarta Sans", sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-  ctx.fillText('PUNTUACIÓN DE TEMPORADA', 490, 290);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+  ctx.fillText('PUNTOS ELO DE TEMPORADA', 480, 285);
 
-  ctx.font = '900 60px "Outfit", sans-serif';
+  const ptsStr = p.points.toLocaleString();
+  ctx.font = '900 58px "Outfit", sans-serif';
   ctx.fillStyle = '#6982B5';
-  ctx.fillText(p.points.toLocaleString(), 490, 355);
+  ctx.fillText(ptsStr, 480, 345);
 
-  ctx.font = '700 16px "Plus Jakarta Sans", sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-  const ptsWidth = ctx.measureText(p.points.toLocaleString()).width;
-  ctx.fillText('PTS ELO', 490 + ptsWidth + 14, 345);
+  // Medición con la fuente del número para evitar traslapes
+  const ptsWidth = ctx.measureText(ptsStr).width;
+  ctx.font = '700 15px "Plus Jakarta Sans", sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.fillText('PTS ELO', 480 + ptsWidth + 14, 335);
 
-  // Grid de Métricas (4 Cajas Bento Estilizadas)
-  const metricBoxes = [
+  // 5. Franja Unificada de Métricas (Panel único elegante con divisores verticales en lugar de abuso de tarjetas)
+  const stripX = 480;
+  const stripY = 380;
+  const stripW = 650;
+  const stripH = 112;
+  const colW = stripW / 4;
+
+  // Fondo y borde del contenedor unificado
+  drawRoundedRect(ctx, stripX, stripY, stripW, stripH, 20);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.035)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  const metrics = [
     { label: 'GOLES EN TORRE', value: String(p.goals), sub: 'Puntos Decisivos', color: '#F59E0B' },
     { label: 'ASESINATOS PVP', value: String(p.kills), sub: 'Bajas en Arena', color: '#FB7185' },
     { label: 'MUERTES', value: String(p.deaths), sub: 'Caídas en Combate', color: '#94A3B8' },
     { label: 'RATIO K/D', value: p.kdRatio, sub: 'Eficiencia', color: '#6EE7B7' },
   ];
 
-  const startX = 490;
-  const startY = 385;
-  const boxW = 150;
-  const boxH = 120;
-  const gap = 16;
+  metrics.forEach((m, idx) => {
+    const colX = stripX + (idx * colW);
 
-  metricBoxes.forEach((m, idx) => {
-    const col = idx % 4;
-    const x = startX + (col * (boxW + gap));
-    const y = startY;
+    // Divisor vertical fino entre columnas
+    if (idx > 0) {
+      ctx.beginPath();
+      ctx.moveTo(colX, stripY + 16);
+      ctx.lineTo(colX, stripY + stripH - 16);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
 
-    drawRoundedRect(ctx, x, y, boxW, boxH, 20);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
+    // Contenido de la columna
     ctx.textAlign = 'left';
-    ctx.font = '700 10px "Plus Jakarta Sans", sans-serif';
+    ctx.font = '700 11px "Plus Jakarta Sans", sans-serif';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-    ctx.fillText(m.label, x + 16, y + 28);
+    ctx.fillText(m.label, colX + 18, stripY + 28);
 
     ctx.font = '900 32px "Outfit", sans-serif';
     ctx.fillStyle = m.color;
-    ctx.fillText(m.value, x + 16, y + 72);
+    ctx.fillText(m.value, colX + 18, stripY + 68);
 
-    ctx.font = '500 10px "Plus Jakarta Sans", sans-serif';
+    ctx.font = '500 11px "Plus Jakarta Sans", sans-serif';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.fillText(m.sub, x + 16, y + 98);
+    ctx.fillText(m.sub, colX + 18, stripY + 92);
   });
 
   // Pie de Tarjeta
   ctx.font = '600 12px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-  ctx.fillText('Clasificación Oficial Destiny Towers • Estadísticas sincronizadas en tiempo real con Firebase', 490, 560);
+  ctx.fillText('Clasificación Oficial Destiny Towers • Estadísticas sincronizadas en tiempo real con Firebase', 480, 535);
 
   return canvas;
 }
