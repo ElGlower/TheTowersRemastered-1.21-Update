@@ -15,10 +15,16 @@ import {
 } from './modules/modalities';
 import { renderTeamRoster } from './modules/roster';
 import { copyServerIP, showToast } from './modules/clipboard';
-import { startLiveSync, inspectMinecraftPlayer } from './modules/liveMatch';
+import { 
+  startLiveSync, 
+  inspectMinecraftPlayer, 
+  filterLeaderboard, 
+  copyCurrentPlayerName, 
+  openNameMCProfile 
+} from './modules/liveMatch';
 import { TabId, ModalitySubTab } from './types';
 
-// Puente global unificado para retrocompatibilidad con controladores HTML
+// Puente global unificado para controladores HTML
 const app = {
   switchTab: (tabId: TabId) => switchTab(tabId),
   toggleDarkMode: () => toggleDarkMode(),
@@ -27,6 +33,9 @@ const app = {
   switchModalitySubTab: (subTabId: ModalitySubTab) => switchModalitySubTab(subTabId),
   selectPlayer: (name: string, title: string, element?: HTMLElement) => selectLeaderboardPlayer(name, title, element),
   inspectMinecraftPlayer: (username: string, element?: HTMLElement) => inspectMinecraftPlayer(username, element),
+  filterLeaderboard: (query: string) => filterLeaderboard(query),
+  copyCurrentPlayerName: (name?: string) => copyCurrentPlayerName(name),
+  openNameMCProfile: (name?: string) => openNameMCProfile(name),
   showRightShowcase: () => showRightShowcase(),
   hideRightShowcase: () => hideRightShowcase(),
   toggleAutoRotate: () => toggleAutoRotate(),
@@ -42,6 +51,9 @@ const app = {
 (window as any).closeModalityDetail = app.closeModalityDetail;
 (window as any).switchModalitySubTab = app.switchModalitySubTab;
 (window as any).inspectMinecraftPlayer = app.inspectMinecraftPlayer;
+(window as any).filterLeaderboard = app.filterLeaderboard;
+(window as any).copyCurrentPlayerName = app.copyCurrentPlayerName;
+(window as any).openNameMCProfile = app.openNameMCProfile;
 (window as any).toggleAutoRotate = app.toggleAutoRotate;
 (window as any).copyServerIP = app.copyServerIP;
 (window as any).showToast = app.showToast;
@@ -54,11 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. Renderizar datos oficiales auténticos
   renderTeamRoster();
 
-  // 3. Inicializar visor 3D WebGL
+  // 3. Inicializar visor 3D WebGL (fallback / background)
   initSkinViewer();
 
-  // 4. Telemetría y Leaderboard apagados de momento por solicitud del usuario
-  // startLiveSync();
+  // 4. Iniciar sincronización en tiempo real de Partida y Leaderboard con Firebase RTDB
+  startLiveSync();
 
   // 5. Procesar parámetros de URL (?tab=...&modality=...&sub=...)
   const params = new URLSearchParams(window.location.search);

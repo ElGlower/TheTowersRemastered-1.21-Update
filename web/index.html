@@ -190,7 +190,7 @@
                     <i class="fa-solid fa-users text-pastel-denim mr-1.5"></i>8 Jugadores por Partida
                   </span>
                   <span class="font-bold text-pastel-denim group-hover:translate-x-1 transition-transform flex items-center gap-1.5">
-                    Ver Partida en Vivo <i class="fa-solid fa-arrow-right text-[11px]"></i>
+                    Ver Partida / Leaderboard <i class="fa-solid fa-arrow-right text-[11px]"></i>
                   </span>
                 </div>
               </div>
@@ -230,16 +230,29 @@
           <!-- B. VISTA DETALLADA DE LA MODALIDAD (THE TOWERS) -->
           <div id="modalidad-detail" class="hidden flex-col gap-6 w-full">
             
-            <!-- Barra de navegación y título -->
+            <!-- Barra de navegación y título con Selector de Subpestañas -->
             <div class="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-pastel-cardBorder/60">
               <div class="flex items-center gap-4">
-                <button onclick="closeModalityDetail()" class="px-4 py-2 rounded-full bg-white/80 hover:bg-white text-pastel-plum text-xs font-bold transition-all flex items-center gap-2 border border-pastel-cardBorder shadow-sm">
+                <button onclick="closeModalityDetail()" class="px-4 py-2 rounded-full bg-white/80 hover:bg-white dark:bg-white/10 dark:text-white dark:border-white/20 dark:hover:bg-white/20 text-pastel-plum text-xs font-bold transition-all flex items-center gap-2 border border-pastel-cardBorder shadow-sm">
                   <i class="fa-solid fa-arrow-left"></i>
                   <span>Volver a Modalidades</span>
                 </button>
                 <div>
-                  <h3 class="text-xl sm:text-2xl font-extrabold text-pastel-plum tracking-tight font-display">The Towers — Partida en Vivo</h3>
+                  <h3 class="text-xl sm:text-2xl font-extrabold text-pastel-plum tracking-tight font-display">The Towers</h3>
                 </div>
+              </div>
+
+              <!-- Píldora subpestañas: Partida vs Leaderboard -->
+              <div class="flex items-center p-1 rounded-full bg-white/70 dark:bg-white/10 border border-pastel-cardBorder shadow-inner">
+                <button id="subtab-btn-partida" onclick="switchModalitySubTab('partida')" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 bg-pastel-denim text-white shadow-sm flex items-center gap-2">
+                  <i class="fa-solid fa-gamepad text-xs"></i>
+                  <span>Partida en Vivo</span>
+                </button>
+                <button id="subtab-btn-leaderboard" onclick="switchModalitySubTab('leaderboard')" class="px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2">
+                  <i class="fa-solid fa-trophy text-xs text-pastel-denim"></i>
+                  <span>Leaderboard Oficial</span>
+                  <span id="leaderboard-badge-count" class="text-[10px] px-1.5 py-0.2 rounded-full bg-pastel-denim/20 font-black">31</span>
+                </button>
               </div>
             </div>
 
@@ -336,6 +349,45 @@
 
             </div>
 
+            <!-- SUB-VISTA 2: LEADERBOARD OFICIAL (TABLA CLASIFICATORIA CON BUSCADOR) -->
+            <div id="subview-leaderboard" class="hidden flex-col gap-4 flex-1 w-full">
+              
+              <div class="leaderboard-deck p-6 sm:p-7 flex flex-col gap-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-pastel-cardBorder/80">
+                  <div>
+                    <h4 class="text-xl font-bold text-pastel-plum font-display">Clasificación General</h4>
+                    <p class="text-xs text-pastel-plum/60 font-medium">Estadísticas auténticas del servidor registradas en Firebase</p>
+                  </div>
+
+                  <!-- Buscador en Tiempo Real -->
+                  <div class="relative min-w-[220px]">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-pastel-plum/40"></i>
+                    <input 
+                      type="text" 
+                      id="leaderboard-search-input" 
+                      placeholder="Buscar jugador..." 
+                      oninput="window.destinyApp.filterLeaderboard(this.value)"
+                      class="w-full pl-9 pr-3 py-1.5 rounded-xl text-xs bg-white/60 dark:bg-white/10 border border-pastel-cardBorder text-pastel-plum placeholder:text-pastel-plum/40 focus:outline-none focus:border-pastel-denim transition-all"
+                    />
+                  </div>
+                </div>
+
+                <!-- Cabecera de Columnas -->
+                <div class="px-4 py-2 flex items-center justify-between text-[11px] font-bold text-pastel-plum/60 uppercase tracking-wider">
+                  <span>Posición & Jugador</span>
+                  <span class="hidden sm:inline">Goles • Bajas • Muertes</span>
+                  <span>Puntuación</span>
+                </div>
+
+                <!-- Contenedor dinámico del Leaderboard poblado por TypeScript -->
+                <div id="leaderboard-list-container" class="space-y-2 max-h-[460px] overflow-y-auto pr-1">
+                  <!-- Inyectado dinámicamente -->
+                </div>
+
+              </div>
+
+            </div>
+
           </div>
 
         </section>
@@ -361,11 +413,11 @@
       </div>
 
       <!-- ============================================================ -->
-      <!-- COLUMNA DERECHA: PLINTH SHOWCASE CON MOTOR 3D WEBGL          -->
+      <!-- COLUMNA DERECHA: PERFIL DETALLADO DE USUARIO               -->
       <!-- ============================================================ -->
       <aside id="right-showcase-panel" class="lg:col-span-5 flex flex-col justify-stretch">
         
-        <div class="notch-container p-8 shadow-xl flex flex-col justify-center items-center h-full min-h-[540px] relative backdrop-blur-xl">
+        <div class="notch-container p-6 sm:p-7 shadow-xl flex flex-col h-full min-h-[540px] relative backdrop-blur-xl">
           
           <!-- Notch Cutout Cóncavo Superior Dinámico -->
           <div class="notch-cutout flex items-center gap-2.5">
@@ -373,30 +425,30 @@
               DO
             </div>
             <div class="flex items-center gap-1.5">
-              <span id="notch-player-title" class="text-xs font-bold text-pastel-plum">Destiny Owners</span>
+              <span id="notch-player-title" class="text-xs font-bold text-pastel-plum">Perfil Oficial</span>
               <i id="notch-player-icon" class="fa-solid fa-circle-check text-[11px] text-pastel-denim"></i>
             </div>
           </div>
 
           <!-- Botones de Acción Circulares Flotantes -->
-          <div class="absolute top-6 right-6 flex flex-col gap-3 z-20">
-            <button onclick="toggleAutoRotate()" title="Activar/Detener giro continuo" id="btn-autorotate" class="floating-circle-btn">
-              <i class="fa-solid fa-rotate text-xs"></i>
+          <div class="absolute top-6 right-6 flex items-center gap-2 z-20">
+            <button onclick="window.destinyApp.copyCurrentPlayerName()" title="Copiar nombre del jugador" class="floating-circle-btn">
+              <i class="fa-regular fa-copy text-xs"></i>
             </button>
-            <button onclick="copyServerIP()" title="Copiar IP del Servidor" class="floating-circle-btn">
-              <i class="fa-solid fa-copy text-xs"></i>
+            <button onclick="window.destinyApp.openNameMCProfile()" title="Ver en NameMC" class="floating-circle-btn">
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
             </button>
           </div>
 
-          <!-- PRESENTACIÓN VISUAL EN PEDESTAL HOLOGRÁFICO -->
-          <div class="pedestal-glow flex flex-col items-center justify-center pt-8 pb-6 my-auto w-full relative">
-            
-            <!-- Canvas 3D Real (skinview3d / WebGL) -->
-            <canvas id="skin-canvas" class="cursor-grab active:cursor-grabbing"></canvas>
-
-            <!-- Fallback visual de alta definición -->
-            <img id="skin-fallback-img" src="https://visage.surgeplay.com/full/512/f4aa6afad90c4dd297b2ed453b8c99fe?tilt=0&yaw=20" alt="Destiny Owners Skin" class="hidden max-h-[380px] object-contain drop-shadow-[0_20px_30px_rgba(105,130,181,0.25)] pointer-events-none">
-
+          <!-- CONTENIDO DEL PERFIL DETALLADO -->
+          <div id="player-profile-detail-container" class="flex flex-col gap-4 pt-6 pb-2 my-auto w-full">
+            <!-- Inyectado dinámicamente por renderDetailedUserProfile() -->
+            <div class="py-12 flex flex-col items-center justify-center text-center gap-3">
+              <div class="w-16 h-16 rounded-2xl bg-pastel-periwinkle/30 flex items-center justify-center text-pastel-denim text-2xl">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <p class="text-xs text-pastel-plum/60 font-medium">Selecciona un jugador del Leaderboard para inspeccionar su perfil completo</p>
+            </div>
           </div>
 
         </div>

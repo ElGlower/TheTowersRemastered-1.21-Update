@@ -1,13 +1,11 @@
 /**
- * Módulo de Modalidades y Leaderboard
+ * Módulo de Modalidades y Subpestañas (Partida vs Leaderboard)
  */
 
 import { ModalitySubTab } from '../types';
-import { OFFICIAL_LEADERBOARD } from '../data/leaderboardData';
 import { showRightShowcase, hideRightShowcase } from './navigation';
-import { getSkinViewer, loadSkinTexture } from './skinViewer';
 import { getIsDarkMode } from './theme';
-import { showToast } from './clipboard';
+import { renderRealLeaderboard, inspectMinecraftPlayer } from './liveMatch';
 
 let isDetailOpen = false;
 let currentSubTab: ModalitySubTab = 'partida';
@@ -86,19 +84,59 @@ export function closeModalityDetail(): void {
 }
 
 export function switchModalitySubTab(subTabId: ModalitySubTab): void {
-  currentSubTab = 'partida';
+  currentSubTab = subTabId;
+  const isDark = getIsDarkMode();
+  const btnPartida = document.getElementById('subtab-btn-partida');
+  const btnLeaderboard = document.getElementById('subtab-btn-leaderboard');
   const viewPartida = document.getElementById('subview-partida');
-  if (viewPartida) {
-    viewPartida.classList.remove('hidden');
-    viewPartida.classList.add('flex');
+  const viewLeaderboard = document.getElementById('subview-leaderboard');
+
+  if (subTabId === 'partida') {
+    if (btnPartida) {
+      btnPartida.className = 'px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 bg-pastel-denim text-white shadow-sm flex items-center gap-2';
+    }
+    if (btnLeaderboard) {
+      btnLeaderboard.className = isDark
+        ? 'px-4 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white transition-all duration-200 flex items-center gap-2'
+        : 'px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2';
+    }
+
+    if (viewLeaderboard) {
+      viewLeaderboard.classList.add('hidden');
+      viewLeaderboard.classList.remove('flex');
+    }
+    if (viewPartida) {
+      viewPartida.classList.remove('hidden');
+      viewPartida.classList.add('flex');
+    }
+  } else if (subTabId === 'leaderboard') {
+    if (btnLeaderboard) {
+      btnLeaderboard.className = 'px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 bg-pastel-denim text-white shadow-sm flex items-center gap-2';
+    }
+    if (btnPartida) {
+      btnPartida.className = isDark
+        ? 'px-4 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white transition-all duration-200 flex items-center gap-2'
+        : 'px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2';
+    }
+
+    if (viewPartida) {
+      viewPartida.classList.add('hidden');
+      viewPartida.classList.remove('flex');
+    }
+    if (viewLeaderboard) {
+      viewLeaderboard.classList.remove('hidden');
+      viewLeaderboard.classList.add('flex');
+    }
+
+    renderRealLeaderboard();
+    showRightShowcase();
   }
-  hideRightShowcase();
 }
 
 export function renderLeaderboard(): void {
-  // Leaderboard apagado
+  renderRealLeaderboard();
 }
 
-export function selectLeaderboardPlayer(name: string, title: string, element?: HTMLElement): void {
-  // Leaderboard apagado
+export function selectLeaderboardPlayer(name: string, _title: string, element?: HTMLElement): void {
+  inspectMinecraftPlayer(name, element);
 }
