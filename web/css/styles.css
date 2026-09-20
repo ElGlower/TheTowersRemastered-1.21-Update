@@ -59,14 +59,15 @@ body {
 
 .bg-illustration-moon {
   position: fixed;
-  top: 90px;
-  right: 6%;
-  width: 72px;
-  height: 72px;
+  top: 80px;
+  right: 2.5%;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
   background-color: #806E83;
+  opacity: 0.6;
   box-shadow: 0 0 35px rgba(128, 110, 131, 0.22);
   transition: background-color 0.4s ease, box-shadow 0.4s ease;
 }

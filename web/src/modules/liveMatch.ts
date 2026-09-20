@@ -729,24 +729,24 @@ function generateMatchHistoryHtml(p: DetailedPlayerProfile): string {
   for (const ev of events.slice(0, 5)) {
     if (ev.type === 'GOAL') {
       historyItems.push(`
-        <div class="match-history-row p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between transition-all">
-          <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-300 flex items-center justify-center font-black text-xs">
+        <div class="py-3.5 px-2 flex items-center justify-between transition-colors hover:bg-pastel-plum/5 dark:hover:bg-white/5 rounded-xl">
+          <div class="flex items-center gap-3.5">
+            <span class="w-8 h-8 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs flex-shrink-0">
               <i class="fa-solid fa-star"></i>
             </span>
             <div>
               <div class="text-xs font-bold text-pastel-plum">Anotación Decisiva de Gol</div>
-              <div class="text-[11px] text-pastel-plum/60 font-medium">Marcador de equipo: ${ev.score || 'Punto registrado'} • ${ev.team || 'The Towers'}</div>
+              <div class="text-[11px] text-pastel-plum/60 font-medium">Marcador: ${ev.score || 'Punto registrado'} • ${ev.team || 'The Towers'}</div>
             </div>
           </div>
-          <span class="text-xs font-black px-2.5 py-1 rounded-full bg-amber-500 text-white shadow-sm">+150 pts</span>
+          <span class="text-xs font-black px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-display flex-shrink-0">+150 pts</span>
         </div>
       `);
     } else if (ev.killer && ev.killer.toLowerCase() === p.name.toLowerCase()) {
       historyItems.push(`
-        <div class="match-history-row p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between transition-all">
-          <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-xs">
+        <div class="py-3.5 px-2 flex items-center justify-between transition-colors hover:bg-pastel-plum/5 dark:hover:bg-white/5 rounded-xl">
+          <div class="flex items-center gap-3.5">
+            <span class="w-8 h-8 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">
               <i class="fa-solid fa-crosshairs"></i>
             </span>
             <div>
@@ -754,14 +754,14 @@ function generateMatchHistoryHtml(p: DetailedPlayerProfile): string {
               <div class="text-[11px] text-pastel-plum/60 font-medium">Distancia: ${ev.distance || 4.2}m • ${ev.cause || 'Espada de Hierro'}</div>
             </div>
           </div>
-          <span class="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-600 text-white shadow-sm">+15 pts</span>
+          <span class="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-display flex-shrink-0">+15 pts</span>
         </div>
       `);
     } else if (ev.victim && ev.victim.toLowerCase() === p.name.toLowerCase()) {
       historyItems.push(`
-        <div class="match-history-row p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-between transition-all">
-          <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-500 flex items-center justify-center font-black text-xs">
+        <div class="py-3.5 px-2 flex items-center justify-between transition-colors hover:bg-pastel-plum/5 dark:hover:bg-white/5 rounded-xl">
+          <div class="flex items-center gap-3.5">
+            <span class="w-8 h-8 rounded-full bg-rose-500/15 text-rose-500 flex items-center justify-center text-xs flex-shrink-0">
               <i class="fa-solid fa-skull"></i>
             </span>
             <div>
@@ -769,7 +769,7 @@ function generateMatchHistoryHtml(p: DetailedPlayerProfile): string {
               <div class="text-[11px] text-pastel-plum/60 font-medium">Defensa en torre • ${ev.cause || 'Combate'}</div>
             </div>
           </div>
-          <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-700 dark:text-rose-300">-2 pts</span>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-300 font-display flex-shrink-0">-2 pts</span>
         </div>
       `);
     }
@@ -778,9 +778,9 @@ function generateMatchHistoryHtml(p: DetailedPlayerProfile): string {
   // 2. Partidas oficiales consolidadas según las estadísticas del jugador
   if (p.goals > 0 || p.kills > 0) {
     historyItems.push(`
-      <div class="match-history-row p-3.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-pastel-cardBorder/60 flex items-center justify-between transition-all">
-        <div class="flex items-center gap-3">
-          <span class="w-8 h-8 rounded-xl bg-pastel-denim/20 text-pastel-denim flex items-center justify-center font-black text-xs">
+      <div class="py-3.5 px-2 flex items-center justify-between transition-colors hover:bg-pastel-plum/5 dark:hover:bg-white/5 rounded-xl">
+        <div class="flex items-center gap-3.5">
+          <span class="w-8 h-8 rounded-full bg-pastel-denim/15 text-pastel-denim flex items-center justify-center text-xs flex-shrink-0">
             <i class="fa-solid fa-trophy"></i>
           </span>
           <div>
@@ -788,17 +788,17 @@ function generateMatchHistoryHtml(p: DetailedPlayerProfile): string {
             <div class="text-[11px] text-pastel-plum/60 font-medium">Aportación: ${p.goals} goles • ${p.kills} bajas totales</div>
           </div>
         </div>
-        <span class="text-xs font-extrabold text-pastel-denim font-display">Victoria Oficial</span>
+        <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-pastel-denim/15 text-pastel-denim font-display flex-shrink-0">Victoria Oficial</span>
       </div>
     `);
   }
 
   if (historyItems.length === 0) {
     return `
-      <div class="p-6 rounded-2xl bg-white/40 dark:bg-white/5 border border-pastel-cardBorder/40 text-center flex flex-col items-center gap-2 text-pastel-plum/70">
-        <i class="fa-solid fa-shield text-xl text-pastel-plum/40 mb-0.5"></i>
-        <p class="text-xs font-bold">Sin eventos de combate recientes para este jugador.</p>
-        <p class="text-[11px] text-pastel-plum/50">Las partidas jugadas en el servidor se registrarán aquí automáticamente.</p>
+      <div class="py-8 text-center flex flex-col items-center gap-2 text-pastel-plum/60">
+        <i class="fa-solid fa-shield text-xl text-pastel-plum/30"></i>
+        <p class="text-xs font-semibold">Sin eventos de combate recientes para este jugador.</p>
+        <p class="text-[11px] text-pastel-plum/40">Las partidas jugadas en el servidor se registrarán aquí automáticamente.</p>
       </div>
     `;
   }

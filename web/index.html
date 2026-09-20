@@ -390,202 +390,174 @@
 
           </div>
 
-          <!-- C. VISTA EXPANDIDA: PERFIL DETALLADO DE USUARIO (BENTO GRID MODERNO) -->
-          <div id="modalidad-user-profile" class="hidden flex-col gap-6 w-full animate-fadeIn">
+          <!-- C. VISTA EXPANDIDA: PERFIL DEL JUGADOR (DISEÑO ABIERTO Y EDITORIAL - SIN CARDBOXES) -->
+          <div id="modalidad-user-profile" class="hidden flex-col gap-8 w-full animate-fadeIn pb-8">
             
-            <!-- Barra superior de navegación y acciones del perfil -->
-            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-pastel-cardBorder/60">
+            <!-- Barra superior limpia de navegación y acciones -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-pastel-plum/15 dark:border-white/10 relative z-20">
               <div class="flex items-center gap-3">
-                <button onclick="window.destinyApp.closeFullUserProfile()" class="px-4 py-2 rounded-full bg-white/80 hover:bg-white dark:bg-white/10 dark:text-white dark:border-white/20 dark:hover:bg-white/20 text-pastel-plum text-xs font-bold transition-all flex items-center gap-2 border border-pastel-cardBorder shadow-sm">
-                  <i class="fa-solid fa-arrow-left"></i>
+                <button onclick="window.destinyApp.closeFullUserProfile()" class="px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/10 hover:bg-pastel-denim hover:text-white dark:hover:bg-pastel-denim text-pastel-plum text-xs font-bold transition-all flex items-center gap-2 border border-pastel-cardBorder shadow-sm">
+                  <i class="fa-solid fa-arrow-left text-[11px]"></i>
                   <span>Volver a Clasificación</span>
                 </button>
-                <div class="h-4 w-px bg-pastel-cardBorder/60 hidden sm:block"></div>
+                <div class="h-4 w-px bg-pastel-plum/20 dark:bg-white/10 hidden sm:block"></div>
                 <div class="flex items-center gap-2 text-xs font-semibold text-pastel-plum/60 hidden sm:flex">
                   <i class="fa-solid fa-trophy text-amber-500"></i>
-                  <span>The Towers 4v4 • Perfil Competitivo</span>
+                  <span>The Towers 4v4 • Perfil Oficial</span>
                 </div>
               </div>
 
               <!-- Enlaces externos y herramientas -->
               <div class="flex items-center gap-2">
-                <button onclick="window.destinyApp.openShareModal()" class="px-4 py-1.5 rounded-full bg-pastel-denim text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105" title="Compartir tarjeta como imagen en redes">
+                <button onclick="window.destinyApp.openShareModal()" class="px-4 py-1.5 rounded-full bg-pastel-denim hover:bg-pastel-denim/90 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105" title="Compartir tarjeta como imagen en redes">
                   <i class="fa-solid fa-share-nodes text-[11px]"></i>
                   <span>Compartir Tarjeta</span>
                 </button>
-                <a id="expanded-namemc-link" href="#" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/10 hover:bg-white text-pastel-plum text-xs font-bold border border-pastel-cardBorder transition-all flex items-center gap-1.5 shadow-sm">
+                <a id="expanded-namemc-link" href="#" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 text-pastel-plum text-xs font-bold border border-pastel-cardBorder transition-all flex items-center gap-1.5 shadow-sm">
                   <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                   <span>NameMC</span>
                 </a>
-                <button id="expanded-copy-btn" onclick="window.destinyApp.copyCurrentPlayerName()" class="px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/10 hover:bg-white text-pastel-plum text-xs font-bold border border-pastel-cardBorder transition-all flex items-center gap-1.5 shadow-sm">
+                <button id="expanded-copy-btn" onclick="window.destinyApp.copyCurrentPlayerName()" class="px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 text-pastel-plum text-xs font-bold border border-pastel-cardBorder transition-all flex items-center gap-1.5 shadow-sm">
                   <i class="fa-regular fa-copy text-xs"></i>
                   <span>Copiar Nick</span>
                 </button>
               </div>
             </div>
 
-            <!-- Escenario Principal: Composición Bento Dinámica (Sin cajas cuadradas repetitivas) -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Escenario Principal del Jugador: Abierto y fluido (Completamente sin cajas cuadradas) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               
-              <!-- Columna 1 (4 cols): Tarjeta Hero del Personaje con Pedestal Iluminado -->
-              <div class="lg:col-span-4 flex flex-col items-center text-center organic-glass-surface p-7 relative overflow-hidden group">
-                <!-- Aura de iluminación ambiental -->
-                <div class="absolute -top-16 -left-16 w-48 h-48 rounded-full bg-pastel-denim/20 filter blur-3xl pointer-events-none"></div>
-                <div class="absolute -bottom-16 -right-16 w-48 h-48 rounded-full bg-pastel-blush/30 filter blur-3xl pointer-events-none"></div>
+              <!-- Personaje Libre en Pedestal (SIN NINGUNA CARD ALREDEDOR) -->
+              <div class="lg:col-span-5 flex flex-col items-center justify-center relative select-none">
+                <!-- Aura de resplandor ambiental sutil -->
+                <div class="absolute w-64 h-64 rounded-full bg-radial-glow filter blur-3xl opacity-60 pointer-events-none"></div>
 
-                <!-- Pedestal con Skin de Cuerpo Completo -->
-                <div class="relative py-3 flex flex-col items-center justify-center min-h-[340px] w-full cursor-pointer" onclick="window.destinyApp.openNameMCProfile()" title="Ver skin en NameMC">
+                <div class="relative flex flex-col items-center justify-center cursor-pointer group" onclick="window.destinyApp.openNameMCProfile()" title="Inspeccionar skin en NameMC">
+                  <!-- Skin de Cuerpo Completo -->
                   <img 
                     id="expanded-skin-img" 
                     src="" 
                     alt="Skin Oficial de Minecraft" 
-                    class="h-[320px] object-contain drop-shadow-[0_24px_32px_rgba(74,62,77,0.26)] group-hover:scale-105 group-hover:-translate-y-1 transition-all duration-300 pointer-events-none"
+                    class="h-[360px] sm:h-[410px] object-contain drop-shadow-[0_24px_36px_rgba(74,62,77,0.30)] group-hover:scale-105 group-hover:-translate-y-1.5 transition-all duration-300 pointer-events-none"
                   />
-                  <!-- Sombra en la base -->
-                  <div class="w-32 h-4.5 bg-pastel-plum/20 dark:bg-black/45 rounded-full filter blur-md mt-[-8px]"></div>
+                  <!-- Sombra suave en la base del pedestal -->
+                  <div class="w-36 h-4 bg-pastel-plum/20 dark:bg-black/50 rounded-full filter blur-md mt-[-8px] group-hover:w-40 transition-all duration-300"></div>
                 </div>
 
-                <!-- Credenciales e Insignias -->
-                <div class="mt-4 flex flex-col items-center gap-2 w-full">
-                  <div class="flex items-center justify-center gap-2">
-                    <h2 id="expanded-username" class="text-2xl sm:text-3xl font-extrabold text-pastel-plum tracking-tight font-display">--</h2>
-                    <i class="fa-solid fa-circle-check text-sm text-pastel-denim" title="Cuenta Auténtica Verificada"></i>
+                <!-- Acciones discretas debajo del pedestal -->
+                <div class="mt-4 flex items-center gap-3 text-xs text-pastel-plum/60 font-semibold">
+                  <span class="cursor-pointer hover:text-pastel-denim transition-colors flex items-center gap-1" onclick="window.destinyApp.openNameMCProfile()">
+                    <i class="fa-solid fa-cube text-[10px] text-pastel-denim"></i> Ver Skin en NameMC
+                  </span>
+                  <span>•</span>
+                  <span class="cursor-pointer hover:text-pastel-denim transition-colors flex items-center gap-1" onclick="window.destinyApp.openShareModal()">
+                    <i class="fa-solid fa-camera text-[10px] text-pastel-denim"></i> Exportar Imagen
+                  </span>
+                </div>
+              </div>
+
+              <!-- Ficha de Datos y Estadísticas Abiertas (SIN CARDS RECTANGULARES) -->
+              <div class="lg:col-span-7 flex flex-col justify-center">
+                
+                <!-- Identidad del Jugador -->
+                <div class="flex flex-col gap-2">
+                  <div class="flex flex-wrap items-center gap-3">
+                    <h1 id="expanded-username" class="text-4xl sm:text-5xl font-black text-pastel-plum font-display tracking-tight">--</h1>
+                    <i class="fa-solid fa-circle-check text-xl text-pastel-denim" title="Cuenta Auténtica Verificada"></i>
                   </div>
                   
-                  <div class="flex flex-wrap items-center justify-center gap-1.5">
-                    <span id="expanded-role-badge" class="text-[10px] font-black px-3 py-0.5 rounded-full bg-purple-600 text-white tracking-wider shadow-sm">
-                      --
-                    </span>
-                    <span id="expanded-rank-badge" class="text-[10px] font-black px-3 py-0.5 rounded-full bg-amber-500 text-white tracking-wider shadow-sm">
-                      #-- RANKING
-                    </span>
+                  <!-- Badges / Chips ligeros en línea -->
+                  <div class="flex flex-wrap items-center gap-2 mt-1">
+                    <span id="expanded-role-badge" class="text-[10px] font-black px-3 py-0.5 rounded-full bg-purple-600 text-white tracking-wider shadow-sm">--</span>
+                    <span id="expanded-rank-badge" class="text-[10px] font-black px-3 py-0.5 rounded-full bg-amber-500 text-white tracking-wider shadow-sm">#-- EN RANKING</span>
                     <span id="expanded-status-badge" class="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       En Línea
                     </span>
                   </div>
-
-                  <!-- Botón rápido para compartir esta ficha -->
-                  <button 
-                    onclick="window.destinyApp.openShareModal()" 
-                    class="mt-3 w-full py-2 px-3 rounded-xl bg-white/60 dark:bg-white/10 hover:bg-pastel-denim hover:text-white text-pastel-plum text-xs font-bold border border-pastel-cardBorder transition-all flex items-center justify-center gap-2 shadow-sm"
-                  >
-                    <i class="fa-solid fa-camera text-xs"></i>
-                    <span>Exportar Tarjeta PNG</span>
-                  </button>
                 </div>
-              </div>
 
-              <!-- Columna 2 (8 cols): Mosaico Bento de Estadísticas, Balance e Historial -->
-              <div class="lg:col-span-8 flex flex-col gap-6">
-                
-                <!-- Bento A: Master Elo Card con Puntuación y División Oficial -->
-                <div class="organic-glass-surface p-6 sm:p-7 relative overflow-hidden flex flex-col gap-4">
-                  <div class="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-pastel-cardBorder/70">
-                    <div>
-                      <span class="text-[11px] uppercase tracking-widest font-bold text-pastel-plum/50">Puntuación Oficial de Temporada</span>
-                      <div class="flex items-baseline gap-2.5 mt-1">
-                        <span id="expanded-points" class="text-4xl sm:text-5xl font-black text-pastel-denim font-display">0</span>
-                        <span class="text-sm font-bold text-pastel-plum/60">PTS ELO</span>
-                      </div>
-                    </div>
-                    
-                    <div class="flex items-center gap-2.5">
-                      <span class="text-xs font-bold px-3 py-1 rounded-full bg-pastel-denim/15 text-pastel-denim border border-pastel-denim/25 flex items-center gap-1.5">
-                        <i class="fa-solid fa-shield-halved text-xs"></i>
-                        <span>División Competitiva 4v4</span>
-                      </span>
-                    </div>
+                <!-- Elo Monumental Tipográfico -->
+                <div class="mt-6 pt-5 pb-6 border-y border-pastel-plum/10 dark:border-white/10 flex flex-wrap items-baseline gap-4">
+                  <span id="expanded-points" class="text-5xl sm:text-6xl font-black text-pastel-denim font-display tracking-tight leading-none">0</span>
+                  <div class="flex flex-col">
+                    <span class="text-xs font-black tracking-widest text-pastel-plum uppercase">Puntos Elo de Temporada</span>
+                    <span class="text-xs font-medium text-pastel-plum/60 flex items-center gap-1.5 mt-0.5">
+                      <i class="fa-solid fa-shield-halved text-pastel-denim text-[11px]"></i>
+                      División Competitiva 4v4 The Towers
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Desglose de Métricas Tipográficas Abiertas (Divisores verticales finos, CERO cajas) -->
+                <div class="grid grid-cols-3 gap-4 sm:gap-6 py-5">
+                  
+                  <!-- Métrica 1: Goles -->
+                  <div class="flex flex-col">
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                      <i class="fa-solid fa-star text-[10px]"></i> Goles
+                    </span>
+                    <span id="expanded-goals" class="text-3xl sm:text-4xl font-black text-pastel-plum font-display mt-1">0</span>
+                    <span class="text-[11px] text-pastel-plum/60 font-medium mt-0.5">+150 pts Elo c/u</span>
                   </div>
 
-                  <!-- Triada Bento Especializada: Goles, Bajas PvP y Eficiencia K/D -->
-                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                    
-                    <!-- Tarjeta 1: Goles en Torre (Enfoque Objetivo) -->
-                    <div class="p-4.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex flex-col justify-between gap-2 transition-all hover:scale-[1.01]">
-                      <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-amber-800 dark:text-amber-200 uppercase tracking-wider">Goles en Torre</span>
-                        <span class="w-7 h-7 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-300 flex items-center justify-center text-xs">
-                          <i class="fa-solid fa-star"></i>
-                        </span>
-                      </div>
-                      <div>
-                        <span id="expanded-goals" class="text-3xl font-black text-amber-500 font-display">0</span>
-                        <p class="text-[10px] text-pastel-plum/60 font-medium mt-0.5">+150 pts Elo por anotación</p>
-                      </div>
-                    </div>
-
-                    <!-- Tarjeta 2: Asesinatos PvP (Enfoque Combate) -->
-                    <div class="p-4.5 rounded-2xl bg-rose-500/10 border border-rose-500/25 flex flex-col justify-between gap-2 transition-all hover:scale-[1.01]">
-                      <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-rose-800 dark:text-rose-200 uppercase tracking-wider">Bajas en Combate</span>
-                        <span class="w-7 h-7 rounded-xl bg-rose-500/20 text-rose-500 flex items-center justify-center text-xs">
-                          <i class="fa-solid fa-crosshairs"></i>
-                        </span>
-                      </div>
-                      <div>
-                        <span id="expanded-kills" class="text-3xl font-black text-rose-500 font-display">0</span>
-                        <p class="text-[10px] text-pastel-plum/60 font-medium mt-0.5">+15 pts Elo por baja PvP</p>
-                      </div>
-                    </div>
-
-                    <!-- Tarjeta 3: Ratio K/D & Muertes (Enfoque Supervivencia) -->
-                    <div class="p-4.5 rounded-2xl bg-pastel-denim/10 border border-pastel-denim/25 flex flex-col justify-between gap-2 transition-all hover:scale-[1.01]">
-                      <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-pastel-plum/80 uppercase tracking-wider">Ratio K/D</span>
-                        <span class="w-7 h-7 rounded-xl bg-pastel-denim/20 text-pastel-denim flex items-center justify-center text-xs">
-                          <i class="fa-solid fa-bolt"></i>
-                        </span>
-                      </div>
-                      <div>
-                        <div class="flex items-baseline gap-2">
-                          <span id="expanded-kd" class="text-3xl font-black text-pastel-plum font-display">0.00</span>
-                          <span class="text-[11px] font-bold text-pastel-plum/50">K/D</span>
-                        </div>
-                        <p class="text-[10px] text-pastel-plum/60 font-medium mt-0.5"><span id="expanded-deaths">0</span> muertes en arena</p>
-                      </div>
-                    </div>
-
+                  <!-- Métrica 2: Bajas PvP -->
+                  <div class="flex flex-col border-l border-pastel-plum/10 dark:border-white/10 pl-4 sm:pl-6">
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+                      <i class="fa-solid fa-crosshairs text-[10px]"></i> Bajas PvP
+                    </span>
+                    <span id="expanded-kills" class="text-3xl sm:text-4xl font-black text-pastel-plum font-display mt-1">0</span>
+                    <span class="text-[11px] text-pastel-plum/60 font-medium mt-0.5">+15 pts Elo c/u</span>
                   </div>
 
-                  <!-- Barra Continua de Balance de Arena -->
-                  <div class="pt-4 border-t border-pastel-cardBorder/60 flex flex-col gap-2.5">
-                    <div class="flex items-center justify-between text-xs font-bold text-pastel-plum/75">
-                      <span>Especialidad Táctica en The Towers</span>
-                      <span id="expanded-balance-text">50% Goles • 50% Bajas</span>
-                    </div>
-                    <div class="w-full h-3 rounded-full bg-pastel-cardBorder/50 overflow-hidden flex shadow-inner">
-                      <div id="expanded-bar-goals" class="bg-amber-500 h-full transition-all duration-500" style="width: 50%"></div>
-                      <div id="expanded-bar-kills" class="bg-rose-400 h-full transition-all duration-500" style="width: 50%"></div>
-                    </div>
-                    <div class="flex items-center justify-between text-[11px] text-pastel-plum/60 font-medium">
-                      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Goles Ofensivos (Objetivo Principal)</span>
-                      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Combate y Bajas (Defensa / Control de Puentes)</span>
-                    </div>
+                  <!-- Métrica 3: Ratio K/D -->
+                  <div class="flex flex-col border-l border-pastel-plum/10 dark:border-white/10 pl-4 sm:pl-6">
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-pastel-denim flex items-center gap-1.5">
+                      <i class="fa-solid fa-bolt text-[10px]"></i> Ratio K/D
+                    </span>
+                    <span id="expanded-kd" class="text-3xl sm:text-4xl font-black text-pastel-plum font-display mt-1">0.00</span>
+                    <span class="text-[11px] text-pastel-plum/60 font-medium mt-0.5"><span id="expanded-deaths">0</span> muertes</span>
                   </div>
 
                 </div>
 
-                <!-- Bento B: Timeline de Encuentros e Historial de Partidas Recientes -->
-                <div class="organic-glass-surface p-6 sm:p-7 flex flex-col gap-4">
-                  <div class="flex items-center justify-between pb-3 border-b border-pastel-cardBorder/70">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-7 h-7 rounded-lg bg-pastel-denim/15 text-pastel-denim flex items-center justify-center text-xs">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                      </div>
-                      <h4 class="text-base font-bold text-pastel-plum font-display">Historial de Partidas y Eventos</h4>
-                    </div>
-                    <span class="text-xs text-pastel-plum/60 font-medium">Registro de Arena</span>
+                <!-- Barra Continua de Balance Táctico -->
+                <div class="pt-4 border-t border-pastel-plum/10 dark:border-white/10 flex flex-col gap-2">
+                  <div class="flex items-center justify-between text-xs font-bold text-pastel-plum/75">
+                    <span class="flex items-center gap-1.5">
+                      <i class="fa-solid fa-sliders text-[11px] text-pastel-denim"></i>
+                      <span>Especialidad Táctica</span>
+                    </span>
+                    <span id="expanded-balance-text">50% Goles • 50% Bajas</span>
                   </div>
-
-                  <!-- Lista de encuentros recientes del jugador -->
-                  <div id="expanded-match-history-list" class="space-y-2.5">
-                    <!-- Inyectado dinámicamente -->
+                  <div class="w-full h-2 rounded-full bg-pastel-cardBorder/40 overflow-hidden flex">
+                    <div id="expanded-bar-goals" class="bg-amber-500 h-full transition-all duration-500" style="width: 50%"></div>
+                    <div id="expanded-bar-kills" class="bg-rose-400 h-full transition-all duration-500" style="width: 50%"></div>
+                  </div>
+                  <div class="flex items-center justify-between text-[11px] text-pastel-plum/60 font-medium">
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Goles Ofensivos</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-400"></span> Combate y Bajas</span>
                   </div>
                 </div>
 
               </div>
 
+            </div>
+
+            <!-- Historial de Partidas y Eventos (Línea de tiempo abierta, CERO CARDS) -->
+            <div class="mt-4 pt-6 border-t border-pastel-plum/15 dark:border-white/10 flex flex-col gap-3">
+              <div class="flex items-center justify-between pb-2">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-clock-rotate-left text-sm text-pastel-denim"></i>
+                  <h3 class="text-base font-extrabold text-pastel-plum font-display">Historial de Partidas y Eventos</h3>
+                </div>
+                <span class="text-xs text-pastel-plum/50 font-medium">Registro de Arena en Vivo</span>
+              </div>
+
+              <!-- Lista abierta de eventos (Sin cajas, líneas limpias) -->
+              <div id="expanded-match-history-list" class="divide-y divide-pastel-plum/10 dark:divide-white/10">
+                <!-- Inyectado dinámicamente -->
+              </div>
             </div>
 
           </div>
