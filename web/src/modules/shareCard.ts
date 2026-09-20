@@ -188,18 +188,9 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
   ctx.fill();
   ctx.restore();
 
-  // 1.2. Ilustración Vectorial: Acento Circular de Luna
+  // 1.2. Ilustración Vectorial: Siluetas de Gatos y Colinas (Esquina Inferior Derecha)
   ctx.save();
-  ctx.beginPath();
-  ctx.arc(1090, 85, 32, 0, Math.PI * 2);
-  ctx.fillStyle = isDark ? '#C1CFE6' : '#806E83';
-  ctx.globalAlpha = isDark ? 0.12 : 0.16;
-  ctx.fill();
-  ctx.restore();
-
-  // 1.3. Ilustración Vectorial: Siluetas de Gatos y Colinas (Esquina Inferior Derecha)
-  ctx.save();
-  const catScale = 0.88;
+  const catScale = 0.76;
   ctx.translate(1200 - (580 * catScale), 675 - (440 * catScale));
   ctx.scale(catScale, catScale);
 
@@ -219,7 +210,7 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
   ctx.fill(catPath3);
   ctx.restore();
 
-  // 1.4. Borde Perimetral Orgánico Fino
+  // 1.3. Borde Perimetral Orgánico Fino
   drawRoundedRect(ctx, 24, 24, 1152, 627, 36);
   ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(105, 130, 181, 0.22)';
   ctx.lineWidth = 1.5;
@@ -245,7 +236,7 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
   ctx.fillText('OWNERS', 124 + dW, 87);
 
   // Píldora del Servidor Oficial (play.destinyowners.com)
-  drawRoundedRect(ctx, 890, 56, 245, 44, 22);
+  drawRoundedRect(ctx, 895, 55, 240, 44, 22);
   ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.92)';
   ctx.fill();
   ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(193, 207, 230, 0.8)';
@@ -254,19 +245,24 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
 
   // Punto verde de servidor en línea
   ctx.beginPath();
-  ctx.arc(914, 78, 4, 0, Math.PI * 2);
+  ctx.arc(918, 77, 4, 0, Math.PI * 2);
   ctx.fillStyle = '#10B981';
   ctx.fill();
 
   ctx.font = '700 13px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = isDark ? '#C1CFE6' : '#5B4B6E';
-  ctx.fillText('play.destinyowners.com', 928, 83);
+  ctx.fillText('play.destinyowners.com', 932, 82);
 
-  // 3. Render de la Skin del Jugador (Izquierda - Sobre Pedestal Cálido)
-  // Sombra ambiental difuminada
+  // 3. Render de la Skin del Jugador (Ratio natural preservado, sin deformación)
+  const skinCenterX = 245;
+  const skinTargetH = 490;
+  const skinY = 110;
+  const skinBottom = skinY + skinTargetH; // 600
+
+  // Sombra ambiental difuminada bajo los pies
   ctx.save();
   ctx.beginPath();
-  ctx.ellipse(250, 535, 110, 18, 0, 0, Math.PI * 2);
+  ctx.ellipse(skinCenterX, skinBottom - 6, 105, 18, 0, 0, Math.PI * 2);
   ctx.fillStyle = isDark ? 'rgba(0, 0, 0, 0.55)' : 'rgba(91, 75, 110, 0.18)';
   ctx.filter = 'blur(10px)';
   ctx.fill();
@@ -275,8 +271,8 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
   // Halo cálido del pedestal
   ctx.save();
   ctx.beginPath();
-  ctx.ellipse(250, 520, 130, 32, 0, 0, Math.PI * 2);
-  const pedGlow = ctx.createRadialGradient(250, 520, 10, 250, 520, 130);
+  ctx.ellipse(skinCenterX, skinBottom - 20, 130, 32, 0, 0, Math.PI * 2);
+  const pedGlow = ctx.createRadialGradient(skinCenterX, skinBottom - 20, 10, skinCenterX, skinBottom - 20, 130);
   if (isDark) {
     pedGlow.addColorStop(0, 'rgba(105, 130, 181, 0.35)');
     pedGlow.addColorStop(1, 'rgba(105, 130, 181, 0)');
@@ -290,42 +286,54 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
   ctx.fill();
   ctx.restore();
 
-  // Cargar Render de la Skin
+  // Cargar y dibujar Render de la Skin respetando ratio de aspecto exacto (5:12)
   try {
     const skinImg = await loadImage(`https://mc-heads.net/body/${p.name}/right`);
-    ctx.drawImage(skinImg, 110, 165, 280, 365);
+    const aspect = (skinImg.naturalWidth && skinImg.naturalHeight)
+      ? (skinImg.naturalWidth / skinImg.naturalHeight)
+      : (180 / 432);
+    const drawW = Math.round(skinTargetH * aspect);
+    const drawX = Math.round(skinCenterX - (drawW / 2));
+    ctx.drawImage(skinImg, drawX, skinY, drawW, skinTargetH);
   } catch (err) {
     try {
       const fallbackImg = await loadImage(`https://minotar.net/armor/body/${p.name}/300.png`);
-      ctx.drawImage(fallbackImg, 140, 185, 220, 345);
+      const aspect = (fallbackImg.naturalWidth && fallbackImg.naturalHeight)
+        ? (fallbackImg.naturalWidth / fallbackImg.naturalHeight)
+        : (180 / 432);
+      const drawW = Math.round(skinTargetH * aspect);
+      const drawX = Math.round(skinCenterX - (drawW / 2));
+      ctx.drawImage(fallbackImg, drawX, skinY, drawW, skinTargetH);
     } catch (e) {}
   }
 
-  // Insignia de Ranking sobre la skin
+  // Insignia de Ranking flotante sobre la esquina superior de la skin
   const rankText = `#${p.rank} EN RANKING`;
-  drawRoundedRect(ctx, 90, 150, 130, 32, 16);
+  drawRoundedRect(ctx, 85, 105, 134, 32, 16);
   ctx.fillStyle = p.rank === 1 ? '#F59E0B' : p.rank === 2 ? '#64748B' : p.rank === 3 ? '#B45309' : '#6982B5';
   ctx.fill();
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '900 11px "Outfit", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(rankText, 155, 171);
+  ctx.fillText(rankText, 152, 126);
 
-  // 4. Panel de Estadísticas y Credenciales (Derecha)
+  // 4. Panel de Estadísticas y Credenciales (Derecha - Proporciones Amplias sin Compresión)
+  const rightX = 440;
+
   // Nombre de Usuario
   ctx.textAlign = 'left';
-  ctx.font = '900 50px "Outfit", sans-serif';
+  ctx.font = '900 54px "Outfit", sans-serif';
   ctx.fillStyle = isDark ? '#FFFFFF' : '#362B3A';
-  ctx.fillText(p.name, 460, 195);
+  ctx.fillText(p.name, rightX, 172);
 
   // Ícono de Verificación Auténtica
   const nameW = ctx.measureText(p.name).width;
-  drawCheckmark(ctx, 460 + nameW + 18, 178, 11, '#6982B5');
+  drawCheckmark(ctx, rightX + nameW + 20, 153, 12, '#6982B5');
 
   // Fila de Badges: Rol y Estado
   const roleText = p.isStaff ? '✦ DESTINY ADMIN' : p.rank <= 3 ? '★ TOP JUGADOR' : 'JUGADOR OFICIAL';
-  const roleW = p.isStaff ? 142 : p.rank <= 3 ? 132 : 136;
-  drawRoundedRect(ctx, 460, 216, roleW, 28, 14);
+  const roleW = p.isStaff ? 146 : p.rank <= 3 ? 134 : 138;
+  drawRoundedRect(ctx, rightX, 195, roleW, 30, 15);
 
   if (p.isStaff) {
     ctx.fillStyle = isDark ? '#7C3AED' : '#F3E8FF';
@@ -346,109 +354,109 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
     ctx.stroke();
     ctx.fillStyle = isDark ? '#FFFFFF' : '#2563EB';
   }
-  ctx.font = '800 11px "Plus Jakarta Sans", sans-serif';
+  ctx.font = '800 12px "Plus Jakarta Sans", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(roleText, 460 + (roleW / 2), 234);
+  ctx.fillText(roleText, rightX + (roleW / 2), 215);
 
   // Chip de Estado En Línea
-  drawRoundedRect(ctx, 460 + roleW + 10, 216, 96, 28, 14);
+  drawRoundedRect(ctx, rightX + roleW + 12, 195, 102, 30, 15);
   ctx.fillStyle = isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.12)';
   ctx.fill();
   ctx.beginPath();
-  ctx.arc(460 + roleW + 24, 230, 3.5, 0, Math.PI * 2);
+  ctx.arc(rightX + roleW + 26, 210, 4, 0, Math.PI * 2);
   ctx.fillStyle = '#10B981';
   ctx.fill();
   ctx.textAlign = 'left';
-  ctx.font = '700 11px "Plus Jakarta Sans", sans-serif';
+  ctx.font = '700 12px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = isDark ? '#34D399' : '#059669';
-  ctx.fillText('En Línea', 460 + roleW + 33, 234);
+  ctx.fillText('En Línea', rightX + roleW + 36, 215);
 
   // Sección Elo Monumental
-  ctx.font = '800 11px "Plus Jakarta Sans", sans-serif';
+  ctx.font = '800 12px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.55)' : '#806E83';
-  ctx.fillText('PUNTOS ELO DE TEMPORADA', 460, 275);
+  ctx.fillText('PUNTOS ELO DE TEMPORADA', rightX, 272);
 
   const ptsStr = p.points.toLocaleString();
-  ctx.font = '900 64px "Outfit", sans-serif';
+  ctx.font = '900 74px "Outfit", sans-serif';
   ctx.fillStyle = isDark ? '#8FA4D1' : '#6982B5';
-  ctx.fillText(ptsStr, 460, 335);
+  ctx.fillText(ptsStr, rightX, 345);
 
-  // Medición con la fuente del número para alineación exacta de PTS ELO
+  // Medición con la fuente del número para espaciado limpio de PTS ELO
   const ptsWidth = ctx.measureText(ptsStr).width;
-  ctx.font = '700 14px "Plus Jakarta Sans", sans-serif';
+  ctx.font = '700 18px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.6)' : '#806E83';
-  ctx.fillText('PTS ELO', 460 + ptsWidth + 14, 325);
+  ctx.fillText('PTS ELO', rightX + ptsWidth + 16, 334);
 
-  // 5. Panel Orgánico de Métricas (Idéntico a la vista de perfil de la web)
-  const stripX = 460;
-  const stripY = 365;
-  const stripW = 675;
-  const stripH = 148;
+  // 5. Panel Amplio de Métricas (215px de altura, sin compresión, espacioso y legible)
+  const stripX = 440;
+  const stripY = 375;
+  const stripW = 695;
+  const stripH = 215;
   const colW = stripW / 3;
 
-  // Contenedor frosted
-  drawRoundedRect(ctx, stripX, stripY, stripW, stripH, 24);
-  ctx.fillStyle = isDark ? 'rgba(26, 31, 48, 0.9)' : 'rgba(255, 255, 255, 0.94)';
+  // Contenedor con fondo sólido esmerilado para garantizar legibilidad óptima
+  drawRoundedRect(ctx, stripX, stripY, stripW, stripH, 26);
+  ctx.fillStyle = isDark ? 'rgba(24, 20, 36, 0.96)' : 'rgba(255, 255, 255, 0.96)';
   ctx.fill();
-  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(193, 207, 230, 0.75)';
+  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(193, 207, 230, 0.8)';
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
   // Columna 1: Goles en Torre
   ctx.textAlign = 'left';
-  ctx.font = '800 11px "Plus Jakarta Sans", sans-serif';
+  ctx.font = '800 12px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = '#D97706';
-  ctx.fillText('★ GOLES EN TORRE', stripX + 25, stripY + 32);
+  ctx.fillText('★ GOLES EN TORRE', stripX + 28, stripY + 40);
 
-  ctx.font = '900 34px "Outfit", sans-serif';
+  ctx.font = '900 42px "Outfit", sans-serif';
   ctx.fillStyle = isDark ? '#FFFFFF' : '#362B3A';
-  ctx.fillText(String(p.goals), stripX + 25, stripY + 70);
+  ctx.fillText(String(p.goals), stripX + 28, stripY + 86);
 
-  ctx.font = '600 11px "Plus Jakarta Sans", sans-serif';
-  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.5)' : '#806E83';
-  ctx.fillText('+150 pts Elo c/u', stripX + 25, stripY + 90);
+  ctx.font = '600 12px "Plus Jakarta Sans", sans-serif';
+  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.55)' : '#806E83';
+  ctx.fillText('+150 pts Elo c/u', stripX + 28, stripY + 112);
 
   // Divisor 1
   ctx.beginPath();
-  ctx.moveTo(stripX + colW, stripY + 18);
-  ctx.lineTo(stripX + colW, stripY + 100);
+  ctx.moveTo(stripX + colW, stripY + 24);
+  ctx.lineTo(stripX + colW, stripY + 120);
   ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(193, 207, 230, 0.7)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
   // Columna 2: Bajas PvP
-  ctx.font = '800 11px "Plus Jakarta Sans", sans-serif';
+  ctx.font = '800 12px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = '#E11D48';
-  ctx.fillText('⊕ BAJAS EN ARENA', stripX + colW + 25, stripY + 32);
+  ctx.fillText('⊕ BAJAS EN ARENA', stripX + colW + 28, stripY + 40);
 
-  ctx.font = '900 34px "Outfit", sans-serif';
+  ctx.font = '900 42px "Outfit", sans-serif';
   ctx.fillStyle = isDark ? '#FFFFFF' : '#362B3A';
-  ctx.fillText(String(p.kills), stripX + colW + 25, stripY + 70);
+  ctx.fillText(String(p.kills), stripX + colW + 28, stripY + 86);
 
-  ctx.font = '600 11px "Plus Jakarta Sans", sans-serif';
-  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.5)' : '#806E83';
-  ctx.fillText('+15 pts Elo c/u', stripX + colW + 25, stripY + 90);
+  ctx.font = '600 12px "Plus Jakarta Sans", sans-serif';
+  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.55)' : '#806E83';
+  ctx.fillText('+15 pts Elo c/u', stripX + colW + 28, stripY + 112);
 
   // Divisor 2
   ctx.beginPath();
-  ctx.moveTo(stripX + (colW * 2), stripY + 18);
-  ctx.lineTo(stripX + (colW * 2), stripY + 100);
+  ctx.moveTo(stripX + (colW * 2), stripY + 24);
+  ctx.lineTo(stripX + (colW * 2), stripY + 120);
   ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(193, 207, 230, 0.7)';
   ctx.lineWidth = 1;
   ctx.stroke();
 
   // Columna 3: Ratio K/D
-  ctx.font = '800 11px "Plus Jakarta Sans", sans-serif';
+  ctx.font = '800 12px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = '#6982B5';
-  ctx.fillText('⚡ RATIO K/D', stripX + (colW * 2) + 25, stripY + 32);
+  ctx.fillText('⚡ RATIO K/D', stripX + (colW * 2) + 28, stripY + 40);
 
-  ctx.font = '900 34px "Outfit", sans-serif';
+  ctx.font = '900 42px "Outfit", sans-serif';
   ctx.fillStyle = isDark ? '#8FA4D1' : '#6982B5';
-  ctx.fillText(p.kdRatio, stripX + (colW * 2) + 25, stripY + 70);
+  ctx.fillText(p.kdRatio, stripX + (colW * 2) + 28, stripY + 86);
 
-  ctx.font = '600 11px "Plus Jakarta Sans", sans-serif';
-  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.5)' : '#806E83';
-  ctx.fillText(`${p.deaths} caídas en combate`, stripX + (colW * 2) + 25, stripY + 90);
+  ctx.font = '600 12px "Plus Jakarta Sans", sans-serif';
+  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.55)' : '#806E83';
+  ctx.fillText(`${p.deaths} caídas en combate`, stripX + (colW * 2) + 28, stripY + 112);
 
   // Barra Continua de Especialidad Táctica (Goles vs Bajas)
   const totalTactical = p.goals + p.kills;
@@ -456,35 +464,31 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
   const killsPct = 100 - goalsPct;
 
   ctx.beginPath();
-  ctx.moveTo(stripX + 25, stripY + 112);
-  ctx.lineTo(stripX + stripW - 25, stripY + 112);
-  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(193, 207, 230, 0.4)';
+  ctx.moveTo(stripX + 28, stripY + 138);
+  ctx.lineTo(stripX + stripW - 28, stripY + 138);
+  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.09)' : 'rgba(193, 207, 230, 0.5)';
   ctx.stroke();
 
-  ctx.font = '700 10px "Plus Jakarta Sans", sans-serif';
-  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.55)' : '#806E83';
-  ctx.fillText(`Especialidad Táctica: ${goalsPct}% Enfoque en Goles • ${killsPct}% Enfoque en Bajas`, stripX + 25, stripY + 128);
+  ctx.font = '700 12px "Plus Jakarta Sans", sans-serif';
+  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.65)' : '#806E83';
+  ctx.fillText(`Especialidad Táctica: ${goalsPct}% Enfoque en Goles • ${killsPct}% Enfoque en Bajas`, stripX + 28, stripY + 162);
 
-  const barW = stripW - 50;
-  const barH = 6;
-  const barY = stripY + 134;
-  const goalsBarW = Math.max(8, Math.min(barW - 8, Math.round(barW * (goalsPct / 100))));
+  const barW = stripW - 56;
+  const barH = 10;
+  const barY = stripY + 174;
+  const goalsBarW = Math.max(12, Math.min(barW - 12, Math.round(barW * (goalsPct / 100))));
 
   // Barra de Goles (Ámbar)
-  drawRoundedRect(ctx, stripX + 25, barY, goalsBarW, barH, 3);
+  drawRoundedRect(ctx, stripX + 28, barY, goalsBarW, barH, 5);
   ctx.fillStyle = '#F59E0B';
   ctx.fill();
 
   // Barra de Bajas (Rosa)
-  drawRoundedRect(ctx, stripX + 25 + goalsBarW, barY, barW - goalsBarW, barH, 3);
+  drawRoundedRect(ctx, stripX + 28 + goalsBarW, barY, barW - goalsBarW, barH, 5);
   ctx.fillStyle = '#FB7185';
   ctx.fill();
 
-  // 6. Pie de Tarjeta
-  ctx.font = '600 11px "Plus Jakarta Sans", sans-serif';
-  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.45)' : '#806E83';
-  ctx.fillText('Clasificación Oficial Destiny Towers • Estadísticas sincronizadas en tiempo real con Firebase', stripX, 545);
-
+  // Fin: SIN pie de página ni textos superfluos
   return canvas;
 }
 
