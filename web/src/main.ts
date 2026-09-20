@@ -52,14 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
 
   // 2. Renderizar datos oficiales auténticos
-  renderLeaderboard();
   renderTeamRoster();
 
   // 3. Inicializar visor 3D WebGL
   initSkinViewer();
 
-  // 4. Iniciar sincronización en tiempo real con Firebase RTDB
-  startLiveSync();
+  // 4. Telemetría y Leaderboard apagados de momento por solicitud del usuario
+  // startLiveSync();
 
   // 5. Procesar parámetros de URL (?tab=...&modality=...&sub=...)
   const params = new URLSearchParams(window.location.search);

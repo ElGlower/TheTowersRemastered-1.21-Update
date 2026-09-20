@@ -190,7 +190,7 @@
                     <i class="fa-solid fa-users text-pastel-denim mr-1.5"></i>8 Jugadores por Partida
                   </span>
                   <span class="font-bold text-pastel-denim group-hover:translate-x-1 transition-transform flex items-center gap-1.5">
-                    Ver Partida / Leaderboard <i class="fa-solid fa-arrow-right text-[11px]"></i>
+                    Ver Partida en Vivo <i class="fa-solid fa-arrow-right text-[11px]"></i>
                   </span>
                 </div>
               </div>
@@ -230,7 +230,7 @@
           <!-- B. VISTA DETALLADA DE LA MODALIDAD (THE TOWERS) -->
           <div id="modalidad-detail" class="hidden flex-col gap-6 w-full">
             
-            <!-- Barra de navegación y sub-pestañas -->
+            <!-- Barra de navegación y título -->
             <div class="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-pastel-cardBorder/60">
               <div class="flex items-center gap-4">
                 <button onclick="closeModalityDetail()" class="px-4 py-2 rounded-full bg-white/80 hover:bg-white text-pastel-plum text-xs font-bold transition-all flex items-center gap-2 border border-pastel-cardBorder shadow-sm">
@@ -238,20 +238,8 @@
                   <span>Volver a Modalidades</span>
                 </button>
                 <div>
-                  <h3 class="text-xl sm:text-2xl font-extrabold text-pastel-plum tracking-tight font-display">The Towers</h3>
+                  <h3 class="text-xl sm:text-2xl font-extrabold text-pastel-plum tracking-tight font-display">The Towers — Partida en Vivo</h3>
                 </div>
-              </div>
-
-              <!-- Píldora subpestañas: Partida vs Leaderboard -->
-              <div class="flex items-center p-1.5 rounded-full bg-white/70 border border-pastel-cardBorder shadow-inner">
-                <button id="subtab-btn-partida" onclick="switchModalitySubTab('partida')" class="px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 bg-pastel-denim text-white shadow-sm flex items-center gap-2">
-                  <i class="fa-solid fa-gamepad text-xs"></i>
-                  <span>Partida en Vivo</span>
-                </button>
-                <button id="subtab-btn-leaderboard" onclick="switchModalitySubTab('leaderboard')" class="px-5 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2">
-                  <i class="fa-solid fa-trophy text-xs text-pastel-denim"></i>
-                  <span>Leaderboard</span>
-                </button>
               </div>
             </div>
 
@@ -344,31 +332,6 @@
                     Sin eventos recientes en la arena.
                   </div>
                 </div>
-              </div>
-
-            </div>
-
-            <!-- SUB-VISTA 2: LEADERBOARD OFICIAL (TABLA CLASIFICATORIA) -->
-            <div id="subview-leaderboard" class="hidden flex-col gap-4 flex-1">
-              
-              <div class="leaderboard-deck p-6 sm:p-7 flex flex-col gap-4">
-                <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-pastel-cardBorder/80">
-                  <div>
-                    <h4 class="text-xl font-bold text-pastel-plum font-display">Clasificación</h4>
-                  </div>
-                </div>
-
-                <!-- Cabecera de Columnas -->
-                <div class="px-4 py-2 flex items-center justify-between text-[11px] font-bold text-pastel-plum/60 uppercase tracking-wider">
-                  <span>Posición & Jugador</span>
-                  <span>Puntuación</span>
-                </div>
-
-                <!-- Contenedor dinámico del Leaderboard poblado por TypeScript -->
-                <div id="leaderboard-list-container" class="space-y-2">
-                  <!-- Inyectado por TypeScript -->
-                </div>
-
               </div>
 
             </div>

@@ -189,12 +189,11 @@ public class WebStatsManager {
                 writer.write(liveJson);
             }
 
-            // 2. Sincronizar en tiempo real con Firebase Realtime Database
-            syncToFirebase("live", liveJson);
-
-            if (!playerStats.isEmpty()) {
-                syncToFirebase("leaderboard", toJsonString(getLeaderboardMap()));
-            }
+            // 2. Sincronización en tiempo real con Firebase RTDB (desactivada a petición)
+            // syncToFirebase("live", liveJson);
+            // if (!playerStats.isEmpty()) {
+            //     syncToFirebase("leaderboard", toJsonString(getLeaderboardMap()));
+            // }
         } catch (Exception ignored) {}
     }
 
