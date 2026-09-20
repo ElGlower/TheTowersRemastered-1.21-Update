@@ -576,8 +576,8 @@
         
         <div class="notch-container p-6 sm:p-7 shadow-xl flex flex-col h-full min-h-[540px] relative backdrop-blur-xl">
           
-          <!-- Notch Cutout Cóncavo Superior Dinámico -->
-          <div class="notch-cutout flex items-center gap-2.5">
+          <!-- Notch Cutout Cóncavo Superior Dinámico (Oculto para mostrar SOLO la skin) -->
+          <div id="right-showcase-notch" class="notch-cutout hidden items-center gap-2.5">
             <div id="notch-avatar-badge" class="w-6 h-6 rounded-full bg-pastel-denim text-white flex items-center justify-center text-[10px] font-bold">
               DO
             </div>
@@ -587,8 +587,8 @@
             </div>
           </div>
 
-          <!-- Botones de Acción Circulares Flotantes -->
-          <div class="absolute top-6 right-6 flex items-center gap-2 z-20">
+          <!-- Botones de Acción Circulares Flotantes (Ocultos para mostrar SOLO la skin) -->
+          <div id="right-showcase-actions" class="absolute top-6 right-6 hidden items-center gap-2 z-20">
             <button onclick="window.destinyApp.copyCurrentPlayerName()" title="Copiar nombre del jugador" class="floating-circle-btn">
               <i class="fa-regular fa-copy text-xs"></i>
             </button>
@@ -597,8 +597,8 @@
             </button>
           </div>
 
-          <!-- CONTENIDO DEL PERFIL DETALLADO -->
-          <div id="player-profile-detail-container" class="flex flex-col gap-4 pt-6 pb-2 my-auto w-full">
+          <!-- CONTENIDO DEL PERFIL DETALLADO (SOLO LA SKIN) -->
+          <div id="player-profile-detail-container" class="flex flex-col items-center justify-center my-auto w-full h-full">
             <!-- Inyectado dinámicamente por renderDetailedUserProfile() -->
             <div class="py-12 flex flex-col items-center justify-center text-center gap-3">
               <div class="w-16 h-16 rounded-2xl bg-pastel-periwinkle/30 flex items-center justify-center text-pastel-denim text-2xl">
