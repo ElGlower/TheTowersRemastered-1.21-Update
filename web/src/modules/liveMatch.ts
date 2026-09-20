@@ -73,6 +73,10 @@ let lastLeaderboardMap: Record<string, PlayerStatsData> = {};
 let currentSearchFilter: string = '';
 let currentlyInspectedName: string | null = null;
 
+export function getCurrentlyInspectedName(): string | null {
+  return currentlyInspectedName;
+}
+
 /**
  * Inicia la sincronización periódica con Firebase Realtime Database
  */
@@ -123,6 +127,14 @@ async function fetchLeaderboardState(): Promise<void> {
   } catch (err) {
     // Manejo silencioso ante desconexión temporal
   }
+}
+
+/**
+ * Asegura que los datos del Leaderboard estén cargados antes de renderizar
+ */
+export async function ensureLeaderboardLoaded(): Promise<void> {
+  if (Object.keys(lastLeaderboardMap).length > 0) return;
+  await fetchLeaderboardState();
 }
 
 /**
@@ -327,7 +339,7 @@ function checkPlayerOnline(username: string): boolean {
 /**
  * Busca o genera el perfil completo de un jugador
  */
-function getPlayerProfileData(username: string): DetailedPlayerProfile {
+export function getPlayerProfileData(username: string): DetailedPlayerProfile {
   const statsEntry = Object.values(lastLeaderboardMap).find(
     s => s && s.name && s.name.toLowerCase() === username.toLowerCase()
   );
@@ -394,45 +406,133 @@ export function inspectMinecraftPlayer(username: string, element?: HTMLElement):
 }
 
 /**
- * Renderiza exclusivamente la skin de cuerpo entero en el panel lateral.
- * Sin elementos adicionales (solo la skin en su pedestal).
- * Al hacer clic, se abre la vista expandida con todos los detalles del usuario.
+ * Renderiza la tarjeta de perfil en el panel lateral con la skin de cuerpo entero,
+ * estadísticas clave, badges y botón de compartir en redes sociales.
  */
 export function renderDetailedUserProfile(p: DetailedPlayerProfile): void {
   currentlyInspectedName = p.name;
   const container = document.getElementById('player-profile-detail-container');
   if (!container) return;
 
-  // Ocultar notch y botones para que se muestre ÚNICAMENTE la skin
+  // Restaurar Notch y botones de acción
   const notch = document.getElementById('right-showcase-notch');
   const actions = document.getElementById('right-showcase-actions');
+  const badge = document.getElementById('notch-avatar-badge');
+  const titleEl = document.getElementById('notch-player-title');
+  const iconEl = document.getElementById('notch-player-icon');
+
   if (notch) {
-    notch.classList.add('hidden');
-    notch.style.display = 'none';
+    notch.classList.remove('hidden');
+    notch.style.display = 'flex';
   }
+  if (badge) badge.textContent = p.name.substring(0, 2).toUpperCase();
+  if (titleEl) titleEl.textContent = p.name;
+  if (iconEl) iconEl.className = 'fa-solid fa-circle-check text-[11px] text-pastel-denim';
+
   if (actions) {
-    actions.classList.add('hidden');
-    actions.style.display = 'none';
+    actions.classList.remove('hidden');
+    actions.style.display = 'flex';
   }
 
   const fullSkinUrl = `https://mc-heads.net/body/${p.name}/right`;
 
+  const rankBadgeClass = p.rank === 1
+    ? 'bg-amber-500 text-white shadow-amber-500/20'
+    : p.rank === 2
+    ? 'bg-slate-300 text-slate-800'
+    : p.rank === 3
+    ? 'bg-amber-700 text-white'
+    : 'bg-pastel-periwinkle/50 text-pastel-plum';
+
+  const roleBadge = p.isStaff
+    ? '<span class="text-[10px] font-black px-2.5 py-0.5 rounded-md bg-purple-600 text-white tracking-wider shadow-sm">✦ DESTINY ADMIN</span>'
+    : p.rank <= 3
+    ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-500/30">★ TOP JUGADOR</span>'
+    : '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-pastel-periwinkle/30 text-pastel-plum border border-pastel-cardBorder">JUGADOR DESTINY</span>';
+
+  const statusHtml = p.isOnline
+    ? '<span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>En Línea</span>'
+    : '<span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-pastel-plum/60 bg-slate-500/10 px-2 py-0.5 rounded-md"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Desconectado</span>';
+
   container.innerHTML = `
-    <!-- Vista Exclusiva de la Skin (Solo la skin) -->
+    <!-- Render de la Skin con Pedestal (Haz clic para ver perfil completo) -->
     <div 
-      class="relative flex flex-col items-center justify-center w-full h-full min-h-[460px] cursor-pointer group select-none py-6 transition-all"
+      class="flex flex-col items-center text-center pt-1 cursor-pointer group" 
       onclick="window.destinyApp.openFullUserProfile('${p.name}')" 
-      title="Haz clic para ver el perfil completo de ${p.name}"
+      title="Haz clic para ver el perfil completo y estadísticas detalladas"
     >
-      <!-- Skin de Cuerpo Completo en Gran Formato -->
-      <img 
-        src="${fullSkinUrl}" 
-        alt="${p.name}" 
-        class="h-[360px] sm:h-[400px] max-h-[460px] object-contain drop-shadow-[0_24px_36px_rgba(74,62,77,0.30)] group-hover:scale-105 group-hover:-translate-y-2 transition-all duration-300 pointer-events-none"
-        onerror="this.src='https://minotar.net/armor/body/${p.name}/400.png'"
-      />
-      <!-- Sombra en el suelo / Pedestal -->
-      <div class="w-36 h-5 bg-pastel-plum/20 dark:bg-black/50 rounded-full filter blur-md mt-[-10px] group-hover:w-40 transition-all duration-300"></div>
+      <!-- Pedestal con skin completa -->
+      <div class="relative py-2 px-4 flex flex-col items-center justify-center min-h-[220px] w-full">
+        <!-- Badge de ranking -->
+        <span class="absolute top-1 left-2 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm ${rankBadgeClass}">
+          #${p.rank} RANKING
+        </span>
+
+        <!-- Botón flotante para expandir -->
+        <span class="absolute top-1 right-2 w-7 h-7 rounded-full bg-white/80 dark:bg-white/10 flex items-center justify-center text-xs text-pastel-plum group-hover:scale-110 group-hover:bg-pastel-denim group-hover:text-white transition-all shadow-sm">
+          <i class="fa-solid fa-expand text-[10px]"></i>
+        </span>
+
+        <!-- Skin de Cuerpo Completo -->
+        <img 
+          src="${fullSkinUrl}" 
+          alt="${p.name}" 
+          class="h-[185px] object-contain drop-shadow-[0_16px_24px_rgba(74,62,77,0.25)] group-hover:scale-105 transition-transform duration-300 pointer-events-none"
+          onerror="this.src='https://minotar.net/armor/body/${p.name}/300.png'"
+        />
+        <!-- Sombra base -->
+        <div class="w-24 h-3.5 bg-pastel-plum/15 dark:bg-black/40 rounded-full filter blur-sm mt-[-6px]"></div>
+      </div>
+
+      <!-- Nombre e Insignia -->
+      <div class="mt-2 flex flex-col items-center gap-1 w-full">
+        <div class="flex items-center justify-center gap-1.5">
+          <h3 class="text-xl font-extrabold text-pastel-plum tracking-tight font-display group-hover:text-pastel-denim transition-colors">${p.name}</h3>
+          <i class="fa-solid fa-circle-check text-xs text-pastel-denim"></i>
+        </div>
+        <div class="flex items-center gap-2">
+          ${roleBadge}
+          ${statusHtml}
+        </div>
+      </div>
+    </div>
+
+    <!-- Muestra orgánica de estadísticas (Sin saturar de cards pequeñas) -->
+    <div class="py-3 px-4 rounded-2xl bg-white/50 dark:bg-white/5 border border-pastel-cardBorder/60 flex items-center justify-around text-center">
+      <div class="flex flex-col">
+        <span class="text-[10px] font-bold text-pastel-plum/60 uppercase tracking-wider">Puntuación</span>
+        <span class="text-base font-black text-pastel-denim font-display">${p.points}</span>
+      </div>
+      <div class="w-px h-6 bg-pastel-cardBorder/60"></div>
+      <div class="flex flex-col">
+        <span class="text-[10px] font-bold text-pastel-plum/60 uppercase tracking-wider">Goles</span>
+        <span class="text-base font-black text-amber-500 font-display">${p.goals}</span>
+      </div>
+      <div class="w-px h-6 bg-pastel-cardBorder/60"></div>
+      <div class="flex flex-col">
+        <span class="text-[10px] font-bold text-pastel-plum/60 uppercase tracking-wider">K/D</span>
+        <span class="text-base font-black text-pastel-plum font-display">${p.kdRatio}</span>
+      </div>
+    </div>
+
+    <!-- Botones de Acción: Ver Perfil Completo & Compartir Tarjeta como Imagen -->
+    <div class="flex flex-col gap-2 w-full pt-1">
+      <button 
+        onclick="window.destinyApp.openFullUserProfile('${p.name}')" 
+        class="w-full py-2.5 px-4 rounded-2xl bg-pastel-denim hover:bg-pastel-denim/90 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.01]"
+      >
+        <i class="fa-solid fa-expand text-xs"></i>
+        <span>Ver Perfil Completo y Estadísticas</span>
+      </button>
+
+      <button 
+        onclick="window.destinyApp.openShareModal('${p.name}')" 
+        class="w-full py-2 px-4 rounded-2xl bg-white/70 hover:bg-white dark:bg-white/10 dark:hover:bg-white/20 text-pastel-plum text-xs font-bold flex items-center justify-center gap-2 border border-pastel-cardBorder shadow-sm transition-all hover:scale-[1.01]"
+        title="Generar imagen de la tarjeta para compartir en redes"
+      >
+        <i class="fa-solid fa-share-nodes text-pastel-denim text-xs"></i>
+        <span>Compartir Tarjeta en Redes</span>
+      </button>
     </div>
   `;
 }
@@ -466,8 +566,8 @@ export function openFullUserProfile(username?: string): void {
     userProfileView.style.display = 'flex';
   }
 
-  // 2. Expandir el área de contenido ocultando el panel lateral derecho
-  hideRightShowcase();
+  // 2. Expandir el área de contenido ocultando el panel lateral derecho inmediatamente
+  hideRightShowcase(true);
 
   // 3. Poblar datos del perfil expandido
   populateExpandedUserProfile(targetName);

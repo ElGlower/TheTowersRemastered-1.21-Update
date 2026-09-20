@@ -14,6 +14,12 @@ export function getCurrentTab(): TabId {
 }
 
 export function showRightShowcase(): void {
+  // Si el perfil detallado expandido está activo o visible, NUNCA mostrar el panel lateral
+  const userProfile = document.getElementById('modalidad-user-profile');
+  if (userProfile && !userProfile.classList.contains('hidden')) {
+    return;
+  }
+
   const leftCol = document.getElementById('left-content-area');
   const rightPanel = document.getElementById('right-showcase-panel');
   if (!leftCol || !rightPanel) return;
@@ -24,6 +30,7 @@ export function showRightShowcase(): void {
   }
 
   leftCol.className = 'lg:col-span-7 flex flex-col justify-stretch';
+  rightPanel.classList.remove('hidden');
   rightPanel.style.display = 'flex';
   showcaseTimer = window.setTimeout(() => {
     rightPanel.style.opacity = '1';
@@ -31,7 +38,7 @@ export function showRightShowcase(): void {
   }, 20);
 }
 
-export function hideRightShowcase(): void {
+export function hideRightShowcase(immediate: boolean = false): void {
   const leftCol = document.getElementById('left-content-area');
   const rightPanel = document.getElementById('right-showcase-panel');
   if (!leftCol || !rightPanel) return;
@@ -41,10 +48,19 @@ export function hideRightShowcase(): void {
     showcaseTimer = null;
   }
 
+  if (immediate) {
+    rightPanel.style.opacity = '0';
+    rightPanel.style.display = 'none';
+    rightPanel.classList.add('hidden');
+    leftCol.className = 'lg:col-span-12 flex flex-col justify-stretch';
+    return;
+  }
+
   rightPanel.style.opacity = '0';
   rightPanel.style.transform = 'translateX(24px)';
   showcaseTimer = window.setTimeout(() => {
     rightPanel.style.display = 'none';
+    rightPanel.classList.add('hidden');
     leftCol.className = 'lg:col-span-12 flex flex-col justify-stretch';
   }, 220);
 }

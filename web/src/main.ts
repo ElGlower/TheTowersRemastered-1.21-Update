@@ -24,6 +24,14 @@ import {
   openFullUserProfile,
   closeFullUserProfile 
 } from './modules/liveMatch';
+import {
+  openShareModal,
+  closeShareModal,
+  downloadCardImage,
+  copyCardImage,
+  shareOnTwitter,
+  copyProfileLink
+} from './modules/shareCard';
 import { TabId, ModalitySubTab } from './types';
 
 // Puente global unificado para controladores HTML
@@ -40,6 +48,12 @@ const app = {
   openNameMCProfile: (name?: string) => openNameMCProfile(name),
   openFullUserProfile: (username?: string) => openFullUserProfile(username),
   closeFullUserProfile: () => closeFullUserProfile(),
+  openShareModal: (username?: string) => openShareModal(username || (window as any).destinyApp.currentlyInspectedName),
+  closeShareModal: () => closeShareModal(),
+  downloadCardImage: () => downloadCardImage(),
+  copyCardImage: () => copyCardImage(),
+  shareOnTwitter: () => shareOnTwitter(),
+  copyProfileLink: () => copyProfileLink(),
   showRightShowcase: () => showRightShowcase(),
   hideRightShowcase: () => hideRightShowcase(),
   toggleAutoRotate: () => toggleAutoRotate(),
@@ -60,6 +74,12 @@ const app = {
 (window as any).openNameMCProfile = app.openNameMCProfile;
 (window as any).openFullUserProfile = app.openFullUserProfile;
 (window as any).closeFullUserProfile = app.closeFullUserProfile;
+(window as any).openShareModal = app.openShareModal;
+(window as any).closeShareModal = app.closeShareModal;
+(window as any).downloadCardImage = app.downloadCardImage;
+(window as any).copyCardImage = app.copyCardImage;
+(window as any).shareOnTwitter = app.shareOnTwitter;
+(window as any).copyProfileLink = app.copyProfileLink;
 (window as any).toggleAutoRotate = app.toggleAutoRotate;
 (window as any).copyServerIP = app.copyServerIP;
 (window as any).showToast = app.showToast;
@@ -83,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabParam = params.get('tab') as TabId | null;
   const modalityParam = params.get('modality');
   const profileParam = params.get('profile');
+  const shareParam = params.get('share');
 
   if (tabParam && ['inicio', 'modalidad', 'miembros'].includes(tabParam)) {
     if (tabParam === 'modalidad' && modalityParam === 'the-towers') {
@@ -96,9 +117,21 @@ document.addEventListener('DOMContentLoaded', () => {
           openFullUserProfile(profileParam);
         }, 350);
       }
+
+      if (shareParam) {
+        setTimeout(() => {
+          openShareModal(shareParam);
+        }, 500);
+      }
     } else {
       switchTab(tabParam);
     }
+  } else if (shareParam) {
+    switchTab('modalidad');
+    openModalityDetail('the-towers', true);
+    setTimeout(() => {
+      openShareModal(shareParam);
+    }, 500);
   } else {
     switchTab('inicio');
   }
