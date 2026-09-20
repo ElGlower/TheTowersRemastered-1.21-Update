@@ -90,6 +90,24 @@ public class ChestRestockManager {
                 }
             }
         }
+
+        if (TTRCore.getInstance().getConfigManager() != null) {
+            java.util.List<Location> configured = TTRCore.getInstance().getConfigManager().getAllConfiguredChests();
+            for (Location loc : configured) {
+                if (loc != null && loc.getWorld() != null) {
+                    if (!loc.isChunkLoaded()) loc.getChunk().load();
+                    BlockState state = loc.getBlock().getState();
+                    if (state instanceof Chest chest && !initialChestSnapshots.containsKey(loc)) {
+                        ItemStack[] contents = chest.getBlockInventory().getContents();
+                        ItemStack[] copy = new ItemStack[contents.length];
+                        for (int i = 0; i < contents.length; i++) {
+                            copy[i] = (contents[i] != null && !isLiquidBucket(contents[i].getType())) ? contents[i].clone() : null;
+                        }
+                        initialChestSnapshots.put(loc, copy);
+                    }
+                }
+            }
+        }
     }
 
     /**

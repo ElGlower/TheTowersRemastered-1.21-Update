@@ -15,6 +15,7 @@ import {
 } from './modules/modalities';
 import { renderTeamRoster } from './modules/roster';
 import { copyServerIP, showToast } from './modules/clipboard';
+import { startLiveSync, inspectMinecraftPlayer } from './modules/liveMatch';
 import { TabId, ModalitySubTab } from './types';
 
 // Puente global unificado para retrocompatibilidad con controladores HTML
@@ -25,6 +26,9 @@ const app = {
   closeModalityDetail: () => closeModalityDetail(),
   switchModalitySubTab: (subTabId: ModalitySubTab) => switchModalitySubTab(subTabId),
   selectPlayer: (name: string, title: string, element?: HTMLElement) => selectLeaderboardPlayer(name, title, element),
+  inspectMinecraftPlayer: (username: string, element?: HTMLElement) => inspectMinecraftPlayer(username, element),
+  showRightShowcase: () => showRightShowcase(),
+  hideRightShowcase: () => hideRightShowcase(),
   toggleAutoRotate: () => toggleAutoRotate(),
   copyServerIP: () => copyServerIP(),
   showToast: (msg: string) => showToast(msg)
@@ -37,6 +41,7 @@ const app = {
 (window as any).openModalityDetail = app.openModalityDetail;
 (window as any).closeModalityDetail = app.closeModalityDetail;
 (window as any).switchModalitySubTab = app.switchModalitySubTab;
+(window as any).inspectMinecraftPlayer = app.inspectMinecraftPlayer;
 (window as any).toggleAutoRotate = app.toggleAutoRotate;
 (window as any).copyServerIP = app.copyServerIP;
 (window as any).showToast = app.showToast;
@@ -53,7 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3. Inicializar visor 3D WebGL
   initSkinViewer();
 
-  // 4. Procesar parámetros de URL (?tab=...&modality=...&sub=...)
+  // 4. Iniciar sincronización en tiempo real con Firebase RTDB
+  startLiveSync();
+
+  // 5. Procesar parámetros de URL (?tab=...&modality=...&sub=...)
   const params = new URLSearchParams(window.location.search);
   const tabParam = params.get('tab') as TabId | null;
   const modalityParam = params.get('modality');

@@ -17,6 +17,8 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 
+import org.bukkit.inventory.ItemStack;
+import me.PauMAVA.TTR.match.ChestRestockManager;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,6 +32,8 @@ public class RollbackManager implements Listener {
     private final TTRCore plugin;
     // Mapa: Ubicación -> BlockData original antes de cualquier alteración
     private final Map<Location, BlockData> originalBlockData = new ConcurrentHashMap<>();
+    // Mapa: Ubicación -> Inventario original antes de cualquier saqueo o rotura
+    private final Map<Location, ItemStack[]> originalChestContents = new ConcurrentHashMap<>();
     private boolean trackingActive = true;
     private boolean editMode = false;
 
@@ -65,6 +69,7 @@ public class RollbackManager implements Listener {
 
     public void clearHistory() {
         this.originalBlockData.clear();
+        this.originalChestContents.clear();
     }
 
     public int getModifiedBlockCount() {
@@ -80,10 +85,25 @@ public class RollbackManager implements Listener {
         originalBlockData.putIfAbsent(loc.clone(), data.clone());
     }
 
+    public void recordContainer(Location loc, org.bukkit.inventory.Inventory inv) {
+        if (editMode || !trackingActive || loc == null || inv == null) return;
+        if (!originalChestContents.containsKey(loc)) {
+            org.bukkit.inventory.ItemStack[] items = inv.getContents();
+            org.bukkit.inventory.ItemStack[] copy = new org.bukkit.inventory.ItemStack[items.length];
+            for (int i = 0; i < items.length; i++) {
+                copy[i] = (items[i] != null) ? items[i].clone() : null;
+            }
+            originalChestContents.put(loc.clone(), copy);
+        }
+    }
+
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
         record(block.getLocation(), block.getBlockData());
+        if (block.getState() instanceof org.bukkit.block.Container container) {
+            recordContainer(block.getLocation(), container.getInventory());
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -97,6 +117,9 @@ public class RollbackManager implements Listener {
     public void onEntityExplode(EntityExplodeEvent event) {
         for (Block b : event.blockList()) {
             record(b.getLocation(), b.getBlockData());
+            if (b.getState() instanceof org.bukkit.block.Container container) {
+                recordContainer(b.getLocation(), container.getInventory());
+            }
         }
     }
 
@@ -104,6 +127,32 @@ public class RollbackManager implements Listener {
     public void onBlockExplode(BlockExplodeEvent event) {
         for (Block b : event.blockList()) {
             record(b.getLocation(), b.getBlockData());
+            if (b.getState() instanceof org.bukkit.block.Container container) {
+                recordContainer(b.getLocation(), container.getInventory());
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onPlayerInteract(org.bukkit.event.player.PlayerInteractEvent event) {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null) {
+            Block b = event.getClickedBlock();
+            if (b.getState() instanceof org.bukkit.block.Container container) {
+                record(b.getLocation(), b.getBlockData());
+                recordContainer(b.getLocation(), container.getInventory());
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onInventoryOpen(org.bukkit.event.inventory.InventoryOpenEvent event) {
+        if (event.getInventory().getHolder() instanceof org.bukkit.block.Container container) {
+            Location loc = container.getLocation();
+            if (loc != null) {
+                Block b = loc.getBlock();
+                record(loc, b.getBlockData());
+                recordContainer(loc, container.getInventory());
+            }
         }
     }
 
@@ -161,13 +210,38 @@ public class RollbackManager implements Listener {
             originalBlockData.clear();
         }
 
+        // 2. Restaurar contenido íntegro de todos los cofres modificados o saqueados
+        if (!originalChestContents.isEmpty()) {
+            for (Map.Entry<Location, org.bukkit.inventory.ItemStack[]> entry : originalChestContents.entrySet()) {
+                Location loc = entry.getKey();
+                org.bukkit.inventory.ItemStack[] contents = entry.getValue();
+                if (loc.getWorld() != null) {
+                    Block b = loc.getBlock();
+                    if (b.getState() instanceof org.bukkit.block.Container container) {
+                        container.getInventory().clear();
+                        for (int i = 0; i < contents.length; i++) {
+                            if (contents[i] != null && !ChestRestockManager.isLiquidBucket(contents[i].getType())) {
+                                container.getInventory().setItem(i, contents[i].clone());
+                            }
+                        }
+                    }
+                }
+            }
+            originalChestContents.clear();
+        }
+
+        // 3. Reabastecer y purgar cubos de agua/lava de todos los cofres de la arena
+        ChestRestockManager.getInstance().restockAndPurgeArenaChests(true);
+
         cleanArenaEntities();
 
-        // Teletransportar a los jugadores al lobby de the-towers (Overworld), nunca al nether
+        // Solo teletransportar si los jugadores están fuera del mundo del lobby (ej. al resetear mapa en partida)
         Location lobby = plugin.getConfigManager().getLobbyLocation();
         if (lobby != null && lobby.getWorld() != null) {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                p.teleport(lobby);
+                if (!p.getWorld().equals(lobby.getWorld()) || p.getLocation().distanceSquared(lobby) > 100.0) {
+                    p.teleport(lobby);
+                }
             }
         }
 

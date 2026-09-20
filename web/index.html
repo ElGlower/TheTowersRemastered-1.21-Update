@@ -256,12 +256,18 @@
             </div>
 
             <!-- SUB-VISTA 1: ARENA MATCHBOARD (PARTIDA EN VIVO FLUIDA) -->
-            <div id="subview-partida" class="arena-matchboard p-8 flex flex-col gap-6 w-full">
+            <div id="subview-partida" class="arena-matchboard p-6 sm:p-8 flex flex-col gap-6 w-full">
               
               <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-pastel-cardBorder/60">
-                <div class="flex items-center gap-2.5">
-                  <span class="w-2.5 h-2.5 rounded-full bg-[#48BB78] animate-pulse"></span>
-                  <span class="text-xs font-bold text-pastel-plum">Servidor en Línea</span>
+                <div class="flex items-center gap-3">
+                  <div id="live-match-status-badge" class="flex items-center gap-2 bg-[#E7F5ED]/90 border border-[#A8DAC0] px-3 py-1.5 rounded-full text-xs font-bold text-[#2A6E4F] shadow-sm">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#48BB78] animate-pulse"></span>
+                    <span id="live-status-text">Servidor en Línea</span>
+                  </div>
+                  <div id="live-match-timer" class="text-xs font-bold px-3 py-1.5 rounded-full bg-pastel-periwinkle/30 text-pastel-plum border border-pastel-cardBorder flex items-center gap-1.5">
+                    <i class="fa-regular fa-clock text-pastel-denim"></i>
+                    <span id="live-timer-text">--:--</span>
+                  </div>
                 </div>
                 <div class="text-xs text-pastel-plum/80 font-medium">
                   Conexión directa: <strong class="text-pastel-denim font-bold cursor-pointer" onclick="copyServerIP()">play.destinyowners.com</strong>
@@ -276,19 +282,25 @@
                   <div class="flex items-center justify-between pb-3 border-b border-[#E79796]/30 text-pastel-plum font-bold">
                     <span class="flex items-center gap-2 text-sm tracking-wide">
                       <i class="fa-solid fa-shield-halved text-[#E79796]"></i>
-                      <span>RED TEAM</span>
+                      <span class="text-[#D9534F] font-black">RED TEAM</span>
                     </span>
-                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-pastel-blush/60 border border-[#E79796]/30">0 / 4</span>
+                    <div class="flex items-center gap-2">
+                      <span id="live-red-score" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-[#E79796]/30 text-[#A83232]">0 pts</span>
+                      <span id="live-red-count" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-pastel-blush/60 border border-[#E79796]/30">0 / 4</span>
+                    </div>
                   </div>
 
-                  <div class="py-6 flex flex-col items-center justify-center text-center gap-2">
-                    <i class="fa-solid fa-users text-2xl text-[#E79796]/60"></i>
-                    <p class="text-xs font-semibold text-pastel-plum/80">Equipo Rojo</p>
+                  <!-- Lista dinámica de jugadores rojos -->
+                  <div id="live-red-players" class="py-2 flex flex-col gap-2 min-h-[140px] justify-center">
+                    <div class="py-4 flex flex-col items-center justify-center text-center gap-2">
+                      <i class="fa-solid fa-users text-2xl text-[#E79796]/50"></i>
+                      <p class="text-xs font-semibold text-pastel-plum/70">Esperando jugadores rojos...</p>
+                    </div>
                   </div>
 
                   <div class="pt-3 border-t border-[#E79796]/30 text-[11px] text-pastel-plum/70 flex justify-between font-medium">
                     <span>Base Roja</span>
-                    <span class="font-bold text-[#E79796]">Listo</span>
+                    <span id="live-red-status" class="font-bold text-[#E79796]">Listo</span>
                   </div>
                 </div>
 
@@ -297,22 +309,41 @@
                   <div class="flex items-center justify-between pb-3 border-b border-pastel-cornflower/30 text-pastel-denim font-bold">
                     <span class="flex items-center gap-2 text-sm tracking-wide">
                       <i class="fa-solid fa-shield-halved text-pastel-denim"></i>
-                      <span>BLUE TEAM</span>
+                      <span class="text-[#4A72B2] font-black">BLUE TEAM</span>
                     </span>
-                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-pastel-periwinkle/50 border border-pastel-cornflower/30">0 / 4</span>
+                    <div class="flex items-center gap-2">
+                      <span id="live-blue-score" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-pastel-denim/25 text-pastel-denim">0 pts</span>
+                      <span id="live-blue-count" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-pastel-periwinkle/50 border border-pastel-cornflower/30">0 / 4</span>
+                    </div>
                   </div>
 
-                  <div class="py-6 flex flex-col items-center justify-center text-center gap-2">
-                    <i class="fa-solid fa-users text-2xl text-pastel-denim/60"></i>
-                    <p class="text-xs font-semibold text-pastel-plum/80">Equipo Azul</p>
+                  <!-- Lista dinámica de jugadores azules -->
+                  <div id="live-blue-players" class="py-2 flex flex-col gap-2 min-h-[140px] justify-center">
+                    <div class="py-4 flex flex-col items-center justify-center text-center gap-2">
+                      <i class="fa-solid fa-users text-2xl text-pastel-denim/50"></i>
+                      <p class="text-xs font-semibold text-pastel-plum/70">Esperando jugadores azules...</p>
+                    </div>
                   </div>
 
                   <div class="pt-3 border-t border-pastel-cornflower/30 text-[11px] text-pastel-denim flex justify-between font-medium">
                     <span>Base Azul</span>
-                    <span class="font-bold text-pastel-denim">Listo</span>
+                    <span id="live-blue-status" class="font-bold text-pastel-denim">Listo</span>
                   </div>
                 </div>
 
+              </div>
+
+              <!-- Registro de Eventos Recientes (Killfeed y Goles en Vivo) -->
+              <div id="live-killfeed-section" class="pt-2 border-t border-pastel-cardBorder/50 flex flex-col gap-2">
+                <div class="flex items-center justify-between text-[11px] font-bold text-pastel-plum/60 uppercase tracking-wider">
+                  <span><i class="fa-solid fa-bolt text-pastel-denim mr-1.5"></i>Eventos de la Partida</span>
+                  <span id="live-killfeed-count" class="text-[10px] text-pastel-plum/50">0 eventos</span>
+                </div>
+                <div id="live-killfeed-container" class="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                  <div class="text-xs text-pastel-plum/60 py-2 text-center italic">
+                    Sin eventos recientes en la arena.
+                  </div>
+                </div>
               </div>
 
             </div>

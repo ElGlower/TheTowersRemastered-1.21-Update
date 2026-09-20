@@ -237,7 +237,47 @@ public class ConfigCommand implements CommandExecutor {
             }
         }
 
-        sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Opciones: time, prep, autostart-time, autostart-players, vote-time, rules-time, auction-time, points, gui, screen."));
+        if (sub.equals("credits") || sub.equals("creditos")) {
+            if (args.length < 2) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Uso: /ttr config credits <monto>"));
+                return true;
+            }
+            int value;
+            try {
+                value = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("El valor debe ser un número entero válido."));
+                return true;
+            }
+            TTRCore.getInstance().getConfig().set("auction.initial_credits", value);
+            TTRCore.getInstance().saveConfig();
+            TTRCore.getInstance().getConfigManager().reload();
+
+            sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Créditos de subasta establecidos a: ") + ChatColor.YELLOW + value);
+            return true;
+        }
+
+        if (sub.equals("bid-increment") || sub.equals("incremento")) {
+            if (args.length < 2) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Uso: /ttr config bid-increment <monto>"));
+                return true;
+            }
+            int value;
+            try {
+                value = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("El valor debe ser un número entero válido."));
+                return true;
+            }
+            TTRCore.getInstance().getConfig().set("auction.bid_increment", value);
+            TTRCore.getInstance().saveConfig();
+            TTRCore.getInstance().getConfigManager().reload();
+
+            sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Incremento de puja establecido a: ") + ChatColor.YELLOW + value);
+            return true;
+        }
+
+        sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Opciones: time, prep, autostart-time, autostart-players, vote-time, rules-time, auction-time, credits, bid-increment, points, gui, screen."));
         return true;
     }
 }

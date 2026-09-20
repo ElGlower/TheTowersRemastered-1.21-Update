@@ -331,4 +331,44 @@ public class TTRConfigManager {
     public boolean isAutoRestoreMap() {
         return config.getBoolean("rollback.auto_restore_on_end", true);
     }
+
+    public List<Location> getAllConfiguredChests() {
+        List<Location> locs = new ArrayList<>();
+        List<String> neutral = config.getStringList("tagged_neutral_chests");
+        if (neutral != null) {
+            for (String s : neutral) {
+                Location l = parseLocationString(s);
+                if (l != null) locs.add(l);
+            }
+        }
+        Set<String> names = getTeamNames();
+        if (names != null) {
+            for (String team : names) {
+                List<String> list = config.getStringList("teams." + team + ".tagged_chests");
+                if (list != null) {
+                    for (String s : list) {
+                        Location l = parseLocationString(s);
+                        if (l != null) locs.add(l);
+                    }
+                }
+            }
+        }
+        return locs;
+    }
+
+    private Location parseLocationString(String s) {
+        try {
+            String[] parts = s.split(",");
+            if (parts.length >= 4) {
+                World w = Bukkit.getWorld(parts[0]);
+                if (w != null) {
+                    int x = Integer.parseInt(parts[1]);
+                    int y = Integer.parseInt(parts[2]);
+                    int z = Integer.parseInt(parts[3]);
+                    return new Location(w, x, y, z);
+                }
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
 }

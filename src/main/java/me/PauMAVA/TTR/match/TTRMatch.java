@@ -57,6 +57,13 @@ public class TTRMatch {
         TTRCore.getInstance().getTeamHandler().loadSpawnsFromConfig();
         ChestRestockManager.getInstance().restockAndPurgeArenaChests(true);
 
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (TTRCore.isAdmin(p)) {
+                TTRCore.getInstance().getTeamHandler().removePlayer(p);
+                p.setGameMode(GameMode.SPECTATOR);
+            }
+        }
+
         TTRTeam red = TTRCore.getInstance().getTeamHandler().getTeam("Red");
         TTRTeam blue = TTRCore.getInstance().getTeamHandler().getTeam("Blue");
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -258,6 +265,11 @@ public class TTRMatch {
         TTRTeam red = TTRCore.getInstance().getTeamHandler().getTeam("Red");
         TTRTeam blue = TTRCore.getInstance().getTeamHandler().getTeam("Blue");
         for (Player p : Bukkit.getOnlinePlayers()) {
+            if (TTRCore.isAdmin(p)) {
+                TTRCore.getInstance().getTeamHandler().removePlayer(p);
+                p.setGameMode(GameMode.SPECTATOR);
+                continue;
+            }
             if (TTRCore.getInstance().getTeamHandler().getPlayerTeam(p) == null) {
                 if (red != null && blue != null) {
                     if (red.getPlayers().size() <= blue.getPlayers().size()) {
@@ -320,13 +332,15 @@ public class TTRMatch {
         updateBossBar();
 
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+            if (TTRCore.isAdmin(player)) {
+                player.setGameMode(GameMode.SPECTATOR);
+                continue;
+            }
             joinPlayerToMatch(player);
             player.playSound(player.getLocation(), Sound.EVENT_RAID_HORN, 1f, 1f);
             player.playSound(player.getLocation(), Sound.ENTITY_BREEZE_WIND_BURST, 1f, 1.2f);
             player.sendTitle(TextUtil.color("&#55FF55§l¡A LUCHAR!"), TextUtil.color("&#FFFFFF" + TextUtil.toTiny("¡Anota 10 puntos en la jaula rival!")), 5, 50, 15);
         }
-
-        startLocatorTask();
     }
 
     public void joinPlayerToMatch(Player player) {
@@ -631,82 +645,6 @@ public class TTRMatch {
                 TTRCore.getInstance().resetMatchLogic();
             }
         }.runTaskLater(TTRCore.getInstance(), 100L);
-    }
-
-    public void startLocatorTask() {
-        if (this.locatorTaskID != -1) {
-            Bukkit.getScheduler().cancelTask(this.locatorTaskID);
-        }
-        this.locatorTaskID = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (status != MatchStatus.INGAME) {
-                    cancel();
-                    locatorTaskID = -1;
-                    return;
-                }
-
-                TTRTeam redTeam = TTRCore.getInstance().getTeamHandler().getTeam("Red");
-                TTRTeam blueTeam = TTRCore.getInstance().getTeamHandler().getTeam("Blue");
-                List<Location> redCages = TTRCore.getInstance().getConfigManager().getTeamCages("Red");
-                List<Location> blueCages = TTRCore.getInstance().getConfigManager().getTeamCages("Blue");
-                Location redTarget = (redCages != null && !redCages.isEmpty()) ? redCages.get(0) : TTRCore.getInstance().getConfigManager().getTeamSpawn("Red");
-                Location blueTarget = (blueCages != null && !blueCages.isEmpty()) ? blueCages.get(0) : TTRCore.getInstance().getConfigManager().getTeamSpawn("Blue");
-
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    TTRTeam team = TTRCore.getInstance().getTeamHandler().getPlayerTeam(p);
-                    if (team == null) {
-                        String specMsg = TextUtil.color("&#FFFFFF⚔ " + TextUtil.toTiny("Tiempo: ") + "&#55FF55§l" + getFormattedTime() +
-                                "  &#888888▪  &#FF5555" + TextUtil.toTiny("Rojo: ") + "&#FFFFFF§l" + (redTeam != null ? redTeam.getPoints() : 0) +
-                                "  &#888888▪  &#5555FF" + TextUtil.toTiny("Azul: ") + "&#FFFFFF§l" + (blueTeam != null ? blueTeam.getPoints() : 0));
-                        p.sendActionBar(net.kyori.adventure.text.Component.text(specMsg));
-                        continue;
-                    }
-
-                    boolean isRed = team.getIdentifier().equalsIgnoreCase("Red");
-                    Location enemyTarget = isRed ? blueTarget : redTarget;
-                    Location ownTarget = isRed ? redTarget : blueTarget;
-
-                    String enemyPart = "";
-                    if (enemyTarget != null && enemyTarget.getWorld() != null && enemyTarget.getWorld().equals(p.getWorld())) {
-                        int distEnemy = (int) p.getLocation().distance(enemyTarget);
-                        String arrowEnemy = getDirectionArrow(p.getLocation(), enemyTarget);
-                        ChatColor enemyColor = isRed ? ChatColor.BLUE : ChatColor.RED;
-                        enemyPart = enemyColor + "⚔ " + TextUtil.toTiny("Meta Rival: ") + ChatColor.WHITE + "" + ChatColor.BOLD + arrowEnemy + " " + distEnemy + "m";
-                    }
-
-                    String ownPart = "";
-                    if (ownTarget != null && ownTarget.getWorld() != null && ownTarget.getWorld().equals(p.getWorld())) {
-                        int distOwn = (int) p.getLocation().distance(ownTarget);
-                        String arrowOwn = getDirectionArrow(p.getLocation(), ownTarget);
-                        ChatColor ownColor = isRed ? ChatColor.RED : ChatColor.BLUE;
-                        ownPart = ownColor + "🛡 " + TextUtil.toTiny("Tu Base: ") + ChatColor.WHITE + "" + ChatColor.BOLD + arrowOwn + " " + distOwn + "m";
-                    }
-
-                    String bar = enemyPart + (ownPart.isEmpty() ? "" : ChatColor.DARK_GRAY + "  ▪  " + ownPart);
-                    p.sendActionBar(net.kyori.adventure.text.Component.text(bar));
-                }
-            }
-        }.runTaskTimer(TTRCore.getInstance(), 0L, 20L).getTaskId();
-    }
-
-    private String getDirectionArrow(Location playerLoc, Location targetLoc) {
-        double dx = targetLoc.getX() - playerLoc.getX();
-        double dz = targetLoc.getZ() - playerLoc.getZ();
-        double targetAngle = Math.toDegrees(Math.atan2(-dx, dz));
-        double playerYaw = playerLoc.getYaw();
-        double diff = (targetAngle - playerYaw) % 360.0;
-        if (diff < -180.0) diff += 360.0;
-        if (diff > 180.0) diff -= 360.0;
-
-        if (diff >= -22.5 && diff < 22.5) return "▲";
-        if (diff >= 22.5 && diff < 67.5) return "↗";
-        if (diff >= 67.5 && diff < 112.5) return "➡";
-        if (diff >= 112.5 && diff < 157.5) return "↘";
-        if (diff >= 157.5 || diff < -157.5) return "▼";
-        if (diff >= -157.5 && diff < -112.5) return "↙";
-        if (diff >= -112.5 && diff < -67.5) return "⬅";
-        return "↖";
     }
 
     private String centerText(String text) {

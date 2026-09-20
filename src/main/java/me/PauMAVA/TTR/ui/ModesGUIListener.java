@@ -349,6 +349,11 @@ public class ModesGUIListener implements Listener {
 
             switch (action) {
                 case "cycle_vote_secs": {
+                    if (event.isRightClick()) {
+                        player.closeInventory();
+                        player.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Establece cualquier tiempo: ") + ChatColor.GOLD + "/dt config vote-time <segundos>");
+                        break;
+                    }
                     int[] opts = {10, 15, 20, 30, 45, 60};
                     int cur = plugin.getConfig().getInt("voting.round_seconds", 20);
                     int next = getNextOption(opts, cur);
@@ -359,6 +364,11 @@ public class ModesGUIListener implements Listener {
                     break;
                 }
                 case "cycle_turn_secs": {
+                    if (event.isRightClick()) {
+                        player.closeInventory();
+                        player.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Establece cualquier turno: ") + ChatColor.GOLD + "/dt config auction-time <segundos>");
+                        break;
+                    }
                     int[] opts = {10, 15, 20, 25, 30, 45};
                     int cur = plugin.getConfig().getInt("auction.turn_seconds", 15);
                     int next = getNextOption(opts, cur);
@@ -369,6 +379,11 @@ public class ModesGUIListener implements Listener {
                     break;
                 }
                 case "cycle_prestart_secs": {
+                    if (event.isRightClick()) {
+                        player.closeInventory();
+                        player.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Establece cualquier tiempo: ") + ChatColor.GOLD + "/dt config prep <segundos>");
+                        break;
+                    }
                     int[] opts = {5, 10, 15, 20, 30};
                     int cur = plugin.getConfig().getInt("match.prestart_countdown", 10);
                     int next = getNextOption(opts, cur);
@@ -379,6 +394,11 @@ public class ModesGUIListener implements Listener {
                     break;
                 }
                 case "cycle_credits": {
+                    if (event.isRightClick()) {
+                        player.closeInventory();
+                        player.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Establece cualquier monto de créditos: ") + ChatColor.GOLD + "/dt config credits <monto>");
+                        break;
+                    }
                     int[] opts = {50, 100, 150, 200, 250, 300, 500};
                     int cur = plugin.getConfig().getInt("auction.initial_credits", 100);
                     int next = getNextOption(opts, cur);
@@ -389,6 +409,11 @@ public class ModesGUIListener implements Listener {
                     break;
                 }
                 case "cycle_bid_increment": {
+                    if (event.isRightClick()) {
+                        player.closeInventory();
+                        player.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Establece cualquier incremento: ") + ChatColor.GOLD + "/dt config bid-increment <monto>");
+                        break;
+                    }
                     int[] opts = {5, 10, 15, 20, 25, 50};
                     int cur = plugin.getConfig().getInt("auction.bid_increment", 10);
                     int next = getNextOption(opts, cur);
@@ -399,6 +424,11 @@ public class ModesGUIListener implements Listener {
                     break;
                 }
                 case "cycle_read_secs": {
+                    if (event.isRightClick()) {
+                        player.closeInventory();
+                        player.sendMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Establece cualquier tiempo de reglas: ") + ChatColor.GOLD + "/dt config rules-time <segundos>");
+                        break;
+                    }
                     int[] opts = {0, 15, 30, 45, 60, 90};
                     int cur = plugin.getConfig().getInt("modes.explanation_seconds", 60);
                     int next = getNextOption(opts, cur);

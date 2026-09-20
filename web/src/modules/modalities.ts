@@ -5,7 +5,7 @@
 import { ModalitySubTab } from '../types';
 import { OFFICIAL_LEADERBOARD } from '../data/leaderboardData';
 import { showRightShowcase, hideRightShowcase } from './navigation';
-import { getSkinViewer } from './skinViewer';
+import { getSkinViewer, loadSkinTexture } from './skinViewer';
 import { getIsDarkMode } from './theme';
 import { showToast } from './clipboard';
 
@@ -185,6 +185,12 @@ export function selectLeaderboardPlayer(name: string, title: string, element?: H
   if (titleEl) titleEl.textContent = name;
   if (iconEl) {
     iconEl.className = 'fa-solid fa-circle-check text-[11px] text-pastel-denim';
+  }
+
+  // Cargar skin 3D si es un usuario válido
+  const cleanUsername = name.split(' ')[0];
+  if (cleanUsername && cleanUsername !== 'Unknown') {
+    loadSkinTexture(`https://minotar.net/skin/${cleanUsername}`);
   }
 
   const viewer = getSkinViewer();

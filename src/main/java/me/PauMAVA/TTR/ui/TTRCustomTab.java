@@ -77,9 +77,9 @@ public class TTRCustomTab extends BukkitRunnable {
         }
 
         String teamKey;
-        if (isStaff && (team == null || plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME)) {
+        if (isStaff) {
             teamKey = "00_destiny";
-            formattedName = DestinyTheme.DESTINY_ROLE_BADGE + " " + ChatColor.WHITE + target.getName();
+            formattedName = ChatColor.WHITE + target.getName();
         } else if (team != null) {
             boolean isLeader = team.isLeader(target.getUniqueId());
             ChatColor color = team.getColor();
@@ -91,14 +91,10 @@ public class TTRCustomTab extends BukkitRunnable {
                 teamKey = isLeader ? "20_blue_l" : "21_blue";
             }
 
-            String staffPrefix = isStaff ? DestinyTheme.DESTINY_ROLE_BADGE + " " : "";
-            String leaderStar = isLeader ? ChatColor.GOLD + "★ " : "";
-            String teamTag = color + "[" + TextUtil.toTiny(team.getIdentifier().toUpperCase()) + "] ";
-            formattedName = staffPrefix + leaderStar + teamTag + color + target.getName() + killsInfo;
+            formattedName = color + target.getName() + killsInfo;
         } else {
-            teamKey = isStaff ? "00_destiny" : "90_spec";
-            String prefix = isStaff ? DestinyTheme.DESTINY_ROLE_BADGE + " " : ChatColor.GRAY + "[" + TextUtil.toTiny("Espec") + "] ";
-            formattedName = prefix + ChatColor.WHITE + target.getName();
+            teamKey = "90_spec";
+            formattedName = ChatColor.GRAY + target.getName();
         }
 
         if (viewer.equals(target)) {

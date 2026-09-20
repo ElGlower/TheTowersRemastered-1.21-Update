@@ -13,7 +13,7 @@
   --color-blush: #F8E1E1;
   --color-lavender: #E4D8EB;
   --color-bg-light: #F7F9FC;
-  --color-bg-dark: #1A1F30;
+  --color-bg-dark: #161322;
   --color-card-border: rgba(193, 207, 230, 0.45);
 }
 
@@ -380,36 +380,64 @@ body {
 }
 
 /* ==========================================================================
-   9. MODO NOCHE ACLARADO (#1A1F30) CON ALTO CONTRASTE
+   9. MODO NOCHE DESTINY VELVET (#161322) CON ARMONÍA MALVA Y MÁXIMA LEGIBILIDAD
    ========================================================================== */
 body.dark-mode {
-  background-color: #1A1F30 !important;
-  color: #E2E8F0 !important;
+  background-color: #161322 !important;
+  color: #E2DBEB !important;
+}
+
+body.dark-mode header {
+  background: rgba(22, 18, 34, 0.85) !important;
+  border-bottom-color: rgba(185, 165, 215, 0.20) !important;
+}
+
+body.dark-mode nav {
+  background: rgba(32, 26, 48, 0.85) !important;
+  border-color: rgba(185, 165, 215, 0.25) !important;
+}
+
+body.dark-mode #theme-toggle-btn {
+  background: rgba(32, 26, 48, 0.85) !important;
+  border-color: rgba(185, 165, 215, 0.25) !important;
+}
+body.dark-mode #theme-toggle-btn:hover {
+  background: rgba(48, 38, 72, 0.95) !important;
+}
+
+body.dark-mode button[onclick="copyServerIP()"] {
+  background: rgba(32, 26, 48, 0.85) !important;
+  border-color: rgba(185, 165, 215, 0.25) !important;
+  color: #E2DBEB !important;
+}
+body.dark-mode button[onclick="copyServerIP()"]:hover {
+  background: rgba(48, 38, 72, 0.95) !important;
+  border-color: #8FA4D1 !important;
 }
 
 body.dark-mode .organic-glass-surface,
 body.dark-mode .leaderboard-deck,
 body.dark-mode .arena-matchboard {
-  background: rgba(28, 36, 56, 0.88) !important;
-  border-color: rgba(140, 165, 215, 0.28) !important;
-  box-shadow: 0 20px 45px rgba(10, 15, 28, 0.35) !important;
+  background: rgba(29, 23, 44, 0.88) !important;
+  border-color: rgba(185, 165, 215, 0.22) !important;
+  box-shadow: 0 20px 50px rgba(10, 7, 18, 0.45) !important;
 }
 
 body.dark-mode .notch-container {
-  background: rgba(26, 33, 52, 0.90) !important;
-  border-color: rgba(140, 165, 215, 0.32) !important;
-  box-shadow: 0 20px 45px rgba(10, 15, 28, 0.40) !important;
+  background: rgba(27, 21, 41, 0.92) !important;
+  border-color: rgba(185, 165, 215, 0.25) !important;
+  box-shadow: 0 20px 45px rgba(10, 7, 18, 0.45) !important;
 }
 
 body.dark-mode .notch-cutout {
-  background: rgba(24, 30, 48, 0.96) !important;
-  border-color: rgba(140, 165, 215, 0.35) !important;
+  background: rgba(22, 17, 34, 0.96) !important;
+  border-color: rgba(185, 165, 215, 0.30) !important;
 }
 
 body.dark-mode .floating-circle-btn {
-  background: rgba(36, 46, 72, 0.90) !important;
-  border-color: rgba(140, 165, 215, 0.30) !important;
-  color: #E2E8F0 !important;
+  background: rgba(42, 33, 62, 0.90) !important;
+  border-color: rgba(185, 165, 215, 0.28) !important;
+  color: #E2DBEB !important;
 }
 body.dark-mode .floating-circle-btn:hover {
   background: #6982B5 !important;
@@ -417,53 +445,53 @@ body.dark-mode .floating-circle-btn:hover {
 }
 
 body.dark-mode .modality-card {
-  background: rgba(30, 38, 58, 0.88) !important;
-  border-color: rgba(140, 165, 215, 0.32) !important;
-  box-shadow: 0 20px 45px rgba(10, 15, 28, 0.30) !important;
+  background: rgba(32, 25, 48, 0.88) !important;
+  border-color: rgba(185, 165, 215, 0.24) !important;
+  box-shadow: 0 20px 45px rgba(10, 7, 18, 0.35) !important;
 }
 body.dark-mode .modality-card:hover {
-  background: rgba(36, 46, 72, 0.96) !important;
-  border-color: rgba(140, 165, 215, 0.55) !important;
+  background: rgba(44, 34, 66, 0.96) !important;
+  border-color: rgba(185, 165, 215, 0.50) !important;
 }
 body.dark-mode .modality-card-coming {
-  background: rgba(26, 33, 50, 0.65) !important;
-  border-color: rgba(140, 165, 215, 0.25) !important;
+  background: rgba(25, 20, 36, 0.65) !important;
+  border-color: rgba(185, 165, 215, 0.18) !important;
 }
 
 body.dark-mode .modality-emblem {
-  background: linear-gradient(135deg, rgba(46, 58, 90, 0.85) 0%, rgba(68, 42, 58, 0.85) 100%) !important;
-  border-color: rgba(140, 165, 215, 0.5) !important;
+  background: linear-gradient(135deg, rgba(62, 46, 88, 0.85) 0%, rgba(88, 62, 102, 0.85) 100%) !important;
+  border-color: rgba(185, 165, 215, 0.45) !important;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35) !important;
 }
 body.dark-mode .modality-emblem::before {
-  border-color: rgba(140, 165, 215, 0.45) !important;
+  border-color: rgba(185, 165, 215, 0.40) !important;
 }
 
 body.dark-mode .arena-team-red {
-  background: linear-gradient(135deg, rgba(58, 30, 44, 0.75) 0%, rgba(28, 36, 56, 0.90) 100%) !important;
-  border-right-color: rgba(231, 151, 150, 0.20) !important;
+  background: linear-gradient(135deg, rgba(62, 28, 44, 0.80) 0%, rgba(29, 23, 44, 0.92) 100%) !important;
+  border-right-color: rgba(231, 151, 150, 0.25) !important;
 }
 body.dark-mode .arena-team-blue {
-  background: linear-gradient(135deg, rgba(34, 48, 76, 0.75) 0%, rgba(28, 36, 56, 0.90) 100%) !important;
+  background: linear-gradient(135deg, rgba(34, 44, 78, 0.80) 0%, rgba(29, 23, 44, 0.92) 100%) !important;
 }
 body.dark-mode .arena-vs-badge {
-  border-color: #1A1F30 !important;
+  border-color: #161322 !important;
 }
 
 body.dark-mode .leaderboard-row:hover {
-  background: rgba(140, 165, 215, 0.10) !important;
+  background: rgba(185, 165, 215, 0.10) !important;
 }
 body.dark-mode .leaderboard-row.active-player {
-  background: rgba(140, 165, 215, 0.20) !important;
-  border-color: rgba(140, 165, 215, 0.55) !important;
+  background: rgba(185, 165, 215, 0.20) !important;
+  border-color: rgba(185, 165, 215, 0.55) !important;
 }
 
 body.dark-mode .roster-member-item {
-  background: rgba(24, 31, 48, 0.82) !important;
-  border-color: rgba(140, 165, 215, 0.25) !important;
+  background: rgba(26, 20, 38, 0.85) !important;
+  border-color: rgba(185, 165, 215, 0.22) !important;
 }
 body.dark-mode .roster-member-item:hover {
-  background: rgba(32, 42, 66, 0.95) !important;
+  background: rgba(38, 30, 56, 0.96) !important;
   border-color: #8FA4D1 !important;
 }
 
@@ -473,18 +501,36 @@ body.dark-mode h4,
 body.dark-mode .title-destiny {
   color: #FFFFFF !important;
 }
-body.dark-mode p {
-  color: #B8C7E0 !important;
+body.dark-mode p,
+body.dark-mode .text-pastel-plum {
+  color: #D5CCE2 !important;
 }
+body.dark-mode .text-pastel-plum\/80 {
+  color: #C2B7D2 !important;
+}
+body.dark-mode .text-pastel-plum\/70,
+body.dark-mode .text-pastel-plum\/60 {
+  color: #AFA4C2 !important;
+}
+body.dark-mode .border-pastel-cardBorder\/60,
+body.dark-mode .border-pastel-cardBorder\/80,
+body.dark-mode .border-pastel-cardBorder {
+  border-color: rgba(185, 165, 215, 0.22) !important;
+}
+
 body.dark-mode .cat-svg-dark-back {
-  fill: #263148;
+  fill: #261F35;
 }
 body.dark-mode .cat-svg-dark-front {
-  fill: #354464;
+  fill: #372D4D;
 }
 body.dark-mode .cat-svg-dark-fore {
-  fill: #43557C;
+  fill: #4C3E69;
 }
 body.dark-mode .dune-svg-dark {
-  fill: #2B2536;
+  fill: #241C33;
+}
+body.dark-mode .bg-illustration-moon {
+  background-color: #4A3E5E !important;
+  box-shadow: 0 0 40px rgba(185, 165, 215, 0.25) !important;
 }

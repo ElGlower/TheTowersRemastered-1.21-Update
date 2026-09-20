@@ -118,6 +118,7 @@ public class TTRCore extends JavaPlugin {
 
         this.scoreboard = new ScoreboardHandler(this);
         new TTRCustomTab(this).runTaskTimer(this, 0L, 20L);
+        me.PauMAVA.TTR.web.WebStatsManager.getInstance().startSyncTask();
 
         Bukkit.getConsoleSender().sendMessage(TTRPrefix.TTR_SUCCESS + 
                 ChatColor.GREEN + TextUtil.toTiny("Destiny Towers 26.3 / 26.2 habilitado correctamente!"));
@@ -254,8 +255,8 @@ public class TTRCore extends JavaPlugin {
 
             Location lobby = this.configManager.getLobbyLocation();
             if (lobby != null && lobby.getWorld() != null) {
-                // Solo teletransportar si el jugador no está ya en el lobby para evitar doble teletransporte
-                if (!p.getWorld().equals(lobby.getWorld()) || p.getLocation().distanceSquared(lobby) > 36.0) {
+                // Solo teletransportar si el jugador no está en el mundo del lobby
+                if (!p.getWorld().equals(lobby.getWorld())) {
                     p.teleport(lobby);
                 }
             }

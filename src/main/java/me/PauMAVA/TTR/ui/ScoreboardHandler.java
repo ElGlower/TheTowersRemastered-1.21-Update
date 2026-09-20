@@ -131,11 +131,6 @@ public class ScoreboardHandler {
             int maxPlayers = Bukkit.getMaxPlayers();
             newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Jugadores: ") + ChatColor.AQUA + TextUtil.toTiny(String.valueOf(playingCount)) + ChatColor.DARK_GRAY + "/" + ChatColor.GRAY + TextUtil.toTiny(String.valueOf(maxPlayers)));
 
-            int required = plugin.getConfig().getInt("autostart.count", 4);
-            if (status == MatchStatus.LOBBY || status == MatchStatus.STARTING) {
-                newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Requeridos: ") + ChatColor.YELLOW + TextUtil.toTiny(String.valueOf(required)));
-            }
-
             if (status == MatchStatus.PREPARATION) {
                 int prepRem = plugin.getCurrentMatch() != null ? plugin.getCurrentMatch().getPrepRemaining() : 0;
                 newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Combate en: ") + ChatColor.YELLOW + TextUtil.toTiny(prepRem + "s"));

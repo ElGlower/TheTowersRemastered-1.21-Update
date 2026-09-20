@@ -144,14 +144,53 @@ public class WebStatsManager {
         return state;
     }
 
+    private final java.net.http.HttpClient httpClient = java.net.http.HttpClient.newBuilder()
+            .connectTimeout(java.time.Duration.ofSeconds(3))
+            .build();
+
+    public void startSyncTask() {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::saveLiveJson, 40L, 60L);
+    }
+
+    private void syncToFirebase(String path, String json) {
+        try {
+            java.net.URI uri = java.net.URI.create("https://destinyowners-23-default-rtdb.firebaseio.com/" + path + ".json");
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                    .uri(uri)
+                    .header("Content-Type", "application/json")
+                    .PUT(java.net.http.HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                    .timeout(java.time.Duration.ofSeconds(5))
+                    .build();
+            httpClient.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.discarding());
+        } catch (Throwable ignored) {}
+    }
+
+    public Map<String, Object> getLeaderboardMap() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        for (Map.Entry<UUID, Map<String, Object>> entry : playerStats.entrySet()) {
+            map.put(entry.getKey().toString(), entry.getValue());
+        }
+        return map;
+    }
+
     private void saveLiveJson() {
         try {
+            Map<String, Object> live = getCurrentLiveState();
+            String liveJson = toJsonString(live);
+
+            // 1. Guardar archivo local
             File dataFolder = plugin.getDataFolder();
             if (!dataFolder.exists()) dataFolder.mkdirs();
             File jsonFile = new File(dataFolder, "web_live_stats.json");
             try (FileWriter writer = new FileWriter(jsonFile, StandardCharsets.UTF_8)) {
-                // Serialización simple sin dependencias externas
-                writer.write(toJsonString(getCurrentLiveState()));
+                writer.write(liveJson);
+            }
+
+            // 2. Sincronizar en tiempo real con Firebase Realtime Database
+            syncToFirebase("live", liveJson);
+
+            if (!playerStats.isEmpty()) {
+                syncToFirebase("leaderboard", toJsonString(getLeaderboardMap()));
             }
         } catch (Exception ignored) {}
     }
