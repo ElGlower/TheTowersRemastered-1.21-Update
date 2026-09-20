@@ -17,6 +17,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
@@ -636,27 +637,27 @@
   </main>
 
   <!-- Modal para Compartir Tarjeta de Estadísticas en Redes -->
-  <div id="share-card-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md animate-fadeIn">
-    <div class="relative w-full max-w-2xl bg-white dark:bg-[#1A1F30] rounded-3xl p-6 sm:p-8 shadow-2xl border border-pastel-cardBorder flex flex-col gap-5 text-pastel-plum overflow-hidden">
+  <div id="share-card-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6 bg-pastel-plum/40 dark:bg-black/70 backdrop-blur-md animate-fadeIn">
+    <div class="relative w-full max-w-2xl bg-white dark:bg-[#1A1F30] rounded-3xl p-6 sm:p-8 shadow-2xl border border-pastel-cardBorder dark:border-white/10 flex flex-col gap-5 text-pastel-plum dark:text-white overflow-hidden">
       
       <!-- Cabecera del Modal -->
-      <div class="flex items-center justify-between pb-3 border-b border-pastel-cardBorder/60">
+      <div class="flex items-center justify-between pb-3 border-b border-pastel-cardBorder/60 dark:border-white/10">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-full bg-pastel-denim/20 text-pastel-denim flex items-center justify-center text-sm font-bold">
             <i class="fa-solid fa-share-nodes"></i>
           </div>
           <div>
-            <h3 class="text-lg font-bold text-pastel-plum font-display">Compartir Tarjeta en Redes</h3>
-            <p class="text-xs text-pastel-plum/60">Estadísticas oficiales de <strong id="share-modal-player-name" class="text-pastel-denim font-bold">--</strong></p>
+            <h3 class="text-lg font-bold text-pastel-plum dark:text-white font-display">Compartir Tarjeta en Redes</h3>
+            <p class="text-xs text-pastel-plum/60 dark:text-white/60">Estadísticas oficiales de <strong id="share-modal-player-name" class="text-pastel-denim font-bold">--</strong></p>
           </div>
         </div>
-        <button onclick="window.destinyApp.closeShareModal()" class="w-8 h-8 rounded-full bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 flex items-center justify-center text-pastel-plum transition-all" title="Cerrar ventana">
+        <button onclick="window.destinyApp.closeShareModal()" class="w-8 h-8 rounded-full bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 flex items-center justify-center text-pastel-plum dark:text-white transition-all" title="Cerrar ventana">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
 
       <!-- Vista previa de la Tarjeta en Canvas / Imagen -->
-      <div id="share-card-preview-container" class="w-full flex items-center justify-center min-h-[280px] bg-black/5 dark:bg-black/30 rounded-2xl p-3 border border-pastel-cardBorder/40 overflow-hidden">
+      <div id="share-card-preview-container" class="w-full flex items-center justify-center min-h-[280px] bg-pastel-canvas/80 dark:bg-black/30 rounded-2xl p-3 border border-pastel-cardBorder/50 dark:border-white/10 overflow-hidden shadow-inner">
         <!-- Inyectado dinámicamente -->
       </div>
 

@@ -17,12 +17,14 @@ export function setDarkMode(enable: boolean): void {
 
   if (isDark) {
     document.body.classList.add('dark-mode');
+    document.documentElement.classList.add('dark');
     if (icon) {
       icon.className = 'fa-solid fa-sun text-sm text-[#FDE68A]';
     }
     localStorage.setItem('destiny_theme', 'dark');
   } else {
     document.body.classList.remove('dark-mode');
+    document.documentElement.classList.remove('dark');
     if (icon) {
       icon.className = 'fa-solid fa-moon text-sm text-pastel-plum';
     }
