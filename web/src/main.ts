@@ -3,9 +3,9 @@
  * Arquitectura modular moderna en TypeScript (Estándar 2026)
  */
 
-import { initTheme, toggleDarkMode } from './modules/theme';
+import { initTheme, toggleDarkMode, setDarkMode } from './modules/theme';
 import { initSkinViewer, toggleAutoRotate } from './modules/skinViewer';
-import { switchTab, showRightShowcase, hideRightShowcase } from './modules/navigation';
+import { switchTab, showRightShowcase, hideRightShowcase, setRightPanelMode } from './modules/navigation';
 import { 
   openModalityDetail, 
   closeModalityDetail, 
@@ -56,6 +56,7 @@ const app = {
   copyProfileLink: () => copyProfileLink(),
   showRightShowcase: () => showRightShowcase(),
   hideRightShowcase: () => hideRightShowcase(),
+  setRightPanelMode: (mode: 'inicio' | 'leaderboard') => setRightPanelMode(mode),
   toggleAutoRotate: () => toggleAutoRotate(),
   copyServerIP: () => copyServerIP(),
   showToast: (msg: string) => showToast(msg)
@@ -80,6 +81,7 @@ const app = {
 (window as any).copyCardImage = app.copyCardImage;
 (window as any).shareOnTwitter = app.shareOnTwitter;
 (window as any).copyProfileLink = app.copyProfileLink;
+(window as any).setRightPanelMode = app.setRightPanelMode;
 (window as any).toggleAutoRotate = app.toggleAutoRotate;
 (window as any).copyServerIP = app.copyServerIP;
 (window as any).showToast = app.showToast;
@@ -98,8 +100,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. Iniciar sincronización en tiempo real de Partida y Leaderboard con Firebase RTDB
   startLiveSync();
 
-  // 5. Procesar parámetros de URL (?tab=...&modality=...&sub=...&profile=...)
+  // 5. Procesar parámetros de URL (?tab=...&modality=...&sub=...&profile=...&theme=...)
   const params = new URLSearchParams(window.location.search);
+  const themeParam = params.get('theme');
+  if (themeParam === 'dark') {
+    setDarkMode(true);
+  } else if (themeParam === 'light') {
+    setDarkMode(false);
+  }
+
   const tabParam = params.get('tab') as TabId | null;
   const modalityParam = params.get('modality');
   const profileParam = params.get('profile');

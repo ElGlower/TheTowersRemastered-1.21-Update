@@ -5,7 +5,7 @@
  * Endpoint Leaderboard: https://destinyowners-23-default-rtdb.firebaseio.com/leaderboard.json
  */
 
-import { showRightShowcase, hideRightShowcase } from './navigation';
+import { showRightShowcase, hideRightShowcase, setRightPanelMode, getCurrentTab } from './navigation';
 import { showToast } from './clipboard';
 
 export interface LivePlayer {
@@ -311,13 +311,15 @@ export function renderRealLeaderboard(): void {
     `;
   }).join('');
 
-  // Si no hay ningún jugador inspeccionado activamente, cargar el primero
-  if (!currentlyInspectedName && displayList.length > 0) {
-    renderDetailedUserProfile(displayList[0]);
-  } else if (currentlyInspectedName) {
-    const current = playerList.find(p => p.name.toLowerCase() === currentlyInspectedName?.toLowerCase()) || getPlayerProfileData(currentlyInspectedName);
-    if (current) {
-      renderDetailedUserProfile(current);
+  // Solo actualizar el panel lateral de perfil si estamos en la pestaña modalidad
+  if (getCurrentTab() === 'modalidad') {
+    if (!currentlyInspectedName && displayList.length > 0) {
+      renderDetailedUserProfile(displayList[0]);
+    } else if (currentlyInspectedName) {
+      const current = playerList.find(p => p.name.toLowerCase() === currentlyInspectedName?.toLowerCase()) || getPlayerProfileData(currentlyInspectedName);
+      if (current) {
+        renderDetailedUserProfile(current);
+      }
     }
   }
 
@@ -411,8 +413,17 @@ export function inspectMinecraftPlayer(username: string, element?: HTMLElement):
  */
 export function renderDetailedUserProfile(p: DetailedPlayerProfile): void {
   currentlyInspectedName = p.name;
+  
+  // En inicio NUNCA mostrar la tarjeta de perfil detallada (en inicio solo sale la skin)
+  if (getCurrentTab() === 'inicio') {
+    return;
+  }
+
   const container = document.getElementById('player-profile-detail-container');
   if (!container) return;
+
+  // Activar modo leaderboard en el panel derecho (revela notch, acciones y detalles)
+  setRightPanelMode('leaderboard');
 
   // Restaurar Notch y botones de acción
   const notch = document.getElementById('right-showcase-notch');

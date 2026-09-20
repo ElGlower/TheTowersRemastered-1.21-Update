@@ -617,10 +617,10 @@
       <!-- ============================================================ -->
       <aside id="right-showcase-panel" class="lg:col-span-5 flex flex-col justify-stretch">
         
-        <div class="notch-container p-6 sm:p-7 shadow-xl flex flex-col h-full min-h-[540px] relative backdrop-blur-xl">
+        <div class="notch-container p-6 sm:p-7 shadow-xl flex flex-col h-full min-h-[540px] relative backdrop-blur-xl justify-center">
           
-          <!-- Notch Cutout Cóncavo Superior Dinámico -->
-          <div id="right-showcase-notch" class="notch-cutout flex items-center gap-2.5">
+          <!-- Notch Cutout Cóncavo Superior Dinámico (Solo Leaderboard) -->
+          <div id="right-showcase-notch" class="notch-cutout hidden items-center gap-2.5" style="display: none;">
             <div id="notch-avatar-badge" class="w-6 h-6 rounded-full bg-pastel-denim text-white flex items-center justify-center text-[10px] font-bold">
               DO
             </div>
@@ -630,8 +630,8 @@
             </div>
           </div>
 
-          <!-- Botones de Acción Circulares Flotantes -->
-          <div id="right-showcase-actions" class="absolute top-6 right-6 flex items-center gap-2 z-20">
+          <!-- Botones de Acción Circulares Flotantes (Solo Leaderboard) -->
+          <div id="right-showcase-actions" class="absolute top-6 right-6 hidden items-center gap-2 z-20" style="display: none;">
             <button onclick="window.destinyApp.openShareModal()" title="Compartir tarjeta como imagen en redes" class="floating-circle-btn text-pastel-denim hover:bg-pastel-denim hover:text-white">
               <i class="fa-solid fa-share-nodes text-xs"></i>
             </button>
@@ -643,15 +643,25 @@
             </button>
           </div>
 
-          <!-- CONTENIDO DEL PERFIL DETALLADO -->
-          <div id="player-profile-detail-container" class="flex flex-col gap-4 pt-6 pb-2 my-auto w-full">
+          <!-- SHOWCASE EXCLUSIVO DE SKIN (EN INICIO: SOLO LA SKIN) -->
+          <div id="inicio-skin-showcase" class="pedestal-glow flex flex-col items-center justify-center h-full my-auto w-full relative select-none py-2">
+            <!-- Canvas 3D Real (skinview3d / WebGL) -->
+            <canvas id="skin-canvas" class="cursor-grab active:cursor-grabbing drop-shadow-[0_20px_35px_rgba(74,62,77,0.25)]"></canvas>
+
+            <!-- Fallback visual de alta definición -->
+            <img id="skin-fallback-img" 
+                 src="https://mc-heads.net/body/ElGlower/right" 
+                 alt="Destiny Skin" 
+                 class="hidden h-[380px] object-contain drop-shadow-[0_24px_36px_rgba(74,62,77,0.30)] pointer-events-none"
+                 onerror="this.src='https://minotar.net/armor/body/ElGlower/400.png'">
+
+            <!-- Sombra base suave bajo la skin -->
+            <div class="w-36 h-4 bg-pastel-plum/20 dark:bg-black/50 rounded-full filter blur-md mt-[-8px] pointer-events-none"></div>
+          </div>
+
+          <!-- CONTENIDO DEL PERFIL DETALLADO (EN LEADERBOARD) -->
+          <div id="player-profile-detail-container" class="hidden flex-col gap-4 pt-6 pb-2 my-auto w-full" style="display: none;">
             <!-- Inyectado dinámicamente por renderDetailedUserProfile() -->
-            <div class="py-12 flex flex-col items-center justify-center text-center gap-3">
-              <div class="w-16 h-16 rounded-2xl bg-pastel-periwinkle/30 flex items-center justify-center text-pastel-denim text-2xl">
-                <i class="fa-solid fa-user"></i>
-              </div>
-              <p class="text-xs text-pastel-plum/60 font-medium">Selecciona un jugador del Leaderboard para inspeccionar su perfil completo</p>
-            </div>
           </div>
 
         </div>

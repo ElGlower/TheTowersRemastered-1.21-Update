@@ -3,7 +3,7 @@
  */
 
 import { ModalitySubTab } from '../types';
-import { showRightShowcase, hideRightShowcase } from './navigation';
+import { showRightShowcase, hideRightShowcase, setRightPanelMode } from './navigation';
 import { getIsDarkMode } from './theme';
 import { renderRealLeaderboard, inspectMinecraftPlayer } from './liveMatch';
 
@@ -135,6 +135,7 @@ export function switchModalitySubTab(subTabId: ModalitySubTab): void {
     }
 
     renderRealLeaderboard();
+    setRightPanelMode('leaderboard');
     showRightShowcase();
   }
 }

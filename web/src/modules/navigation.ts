@@ -83,10 +83,17 @@ export function switchTab(tabId: TabId): void {
 
   // 3. Control inteligente del panel lateral 3D
   if (tabId === 'inicio') {
+    // Si el perfil expandido de usuario estaba abierto, cerrarlo
+    const userProfile = document.getElementById('modalidad-user-profile');
+    if (userProfile && !userProfile.classList.contains('hidden')) {
+      userProfile.classList.add('hidden');
+      userProfile.style.display = 'none';
+    }
+    setRightPanelMode('inicio');
     showRightShowcase();
-    resetShowcaseNotch();
   } else if (tabId === 'modalidad') {
     if (isModalityDetailOpenState() && getCurrentModalitySubTab() === 'leaderboard') {
+      setRightPanelMode('leaderboard');
       showRightShowcase();
     } else {
       hideRightShowcase();
@@ -118,6 +125,56 @@ export function updateNavButtonsStyle(): void {
         : 'px-7 py-2 rounded-full text-sm font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2';
     }
   });
+}
+
+/**
+ * Controla el modo del panel lateral derecho:
+ * - 'inicio': Muestra EXCLUSIVAMENTE la skin en pedestal (sin notch, sin botones de acción, sin stats)
+ * - 'leaderboard': Muestra el perfil completo del jugador seleccionado con notch, botones y estadísticas
+ */
+export function setRightPanelMode(mode: 'inicio' | 'leaderboard'): void {
+  const notch = document.getElementById('right-showcase-notch');
+  const actions = document.getElementById('right-showcase-actions');
+  const inicioSkin = document.getElementById('inicio-skin-showcase');
+  const leaderboardDetail = document.getElementById('player-profile-detail-container');
+
+  if (mode === 'inicio') {
+    // EN INICIO: ÚNICAMENTE LA SKIN
+    if (notch) {
+      notch.classList.add('hidden');
+      notch.style.display = 'none';
+    }
+    if (actions) {
+      actions.classList.add('hidden');
+      actions.style.display = 'none';
+    }
+    if (leaderboardDetail) {
+      leaderboardDetail.classList.add('hidden');
+      leaderboardDetail.style.display = 'none';
+    }
+    if (inicioSkin) {
+      inicioSkin.classList.remove('hidden');
+      inicioSkin.style.display = 'flex';
+    }
+  } else {
+    // EN LEADERBOARD: Perfil detallado del usuario con stats
+    if (inicioSkin) {
+      inicioSkin.classList.add('hidden');
+      inicioSkin.style.display = 'none';
+    }
+    if (leaderboardDetail) {
+      leaderboardDetail.classList.remove('hidden');
+      leaderboardDetail.style.display = 'flex';
+    }
+    if (notch) {
+      notch.classList.remove('hidden');
+      notch.style.display = 'flex';
+    }
+    if (actions) {
+      actions.classList.remove('hidden');
+      actions.style.display = 'flex';
+    }
+  }
 }
 
 export function resetShowcaseNotch(): void {

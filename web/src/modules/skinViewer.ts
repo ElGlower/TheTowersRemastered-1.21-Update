@@ -18,6 +18,7 @@ export function getSkinViewer() {
 }
 
 export function initSkinViewer(): void {
+  if (viewerInstance) return;
   const canvas = document.getElementById('skin-canvas') as HTMLCanvasElement | null;
   if (!canvas) return;
 
