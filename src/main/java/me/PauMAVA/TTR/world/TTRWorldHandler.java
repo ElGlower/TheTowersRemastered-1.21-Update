@@ -37,12 +37,11 @@ public class TTRWorldHandler {
 
     public void preloadArenaChunks() {
         if (world == null) return;
-        org.bukkit.Location lobby = plugin.getConfigManager().getLobbyLocation();
-        int centerX = (lobby != null && lobby.getWorld() != null && lobby.getWorld().equals(world)) ? lobby.getBlockX() >> 4 : 0;
-        int centerZ = (lobby != null && lobby.getWorld() != null && lobby.getWorld().equals(world)) ? lobby.getBlockZ() >> 4 : 0;
-
-        for (int cx = centerX - 12; cx <= centerX + 12; cx++) {
-            for (int cz = centerZ - 12; cz <= centerZ + 12; cz++) {
+        // Fijar tickets permanentes en RAM para todo el mapa The Towers (X: -160 a +160, Z: 928 a 1360)
+        // Esto garantiza CERO lecturas de disco y cero tirones cuando 40+ jugadores corren por la arena.
+        for (int cx = -10; cx <= 10; cx++) {
+            for (int cz = 58; cz <= 85; cz++) {
+                world.addPluginChunkTicket(cx, cz, plugin);
                 world.getChunkAtAsync(cx, cz);
             }
         }
