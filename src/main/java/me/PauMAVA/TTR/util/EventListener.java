@@ -533,10 +533,6 @@ public class EventListener implements Listener {
             }
 
             spawnDamageIndicator(victim.getLocation(), damage, isCrit);
-
-            if (attacker != null) {
-                attacker.playSound(attacker.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 0.6f, isCrit ? 1.8f : 1.2f);
-            }
         }
     }
 

@@ -37,6 +37,7 @@ public class MainCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt spectate" + ChatColor.GRAY + " - " + TextUtil.toTiny("Entrar a modo espectador"));
                 sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt play" + ChatColor.GRAY + " - " + TextUtil.toTiny("Salir de espectador y jugar"));
                 sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/bid <monto>" + ChatColor.GRAY + " - " + TextUtil.toTiny("Pujar en la subasta"));
+                sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt ping [jugador]" + ChatColor.GRAY + " - " + TextUtil.toTiny("Ver latencia y estado de red"));
                 sender.sendMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
                 return true;
             }
@@ -59,6 +60,7 @@ public class MainCommand implements CommandExecutor {
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt voteleader" + ChatColor.GRAY + " - " + TextUtil.toTiny("Iniciar votación de líderes"));
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt auction [start|skip|gui]" + ChatColor.GRAY + " - " + TextUtil.toTiny("Control de subasta"));
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt shop <on/off>" + ChatColor.GRAY + " - " + TextUtil.toTiny("Activar/Desactivar tienda de faro"));
+            sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt pingequalizer <on|off> [ms]" + ChatColor.GRAY + " - " + TextUtil.toTiny("Igualador de latencia internacional"));
             sender.sendMessage(ChatColor.GRAY + " » " + ChatColor.YELLOW + "/dt reload" + ChatColor.GRAY + " - " + TextUtil.toTiny("Recargar configuración"));
             sender.sendMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
             return true;
@@ -79,6 +81,35 @@ public class MainCommand implements CommandExecutor {
             case "stats":
             case "estadisticas":
                 return new StatsCommand().onCommand(sender, command, label, subArgs);
+            case "ping":
+            case "ms":
+            case "latencia": {
+                Player target = null;
+                if (subArgs.length > 0) {
+                    target = Bukkit.getPlayer(subArgs[0]);
+                    if (target == null) {
+                        sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Jugador no encontrado."));
+                        return true;
+                    }
+                } else if (sender instanceof Player p) {
+                    target = p;
+                } else {
+                    sender.sendMessage(TTRPrefix.TTR_ERROR + "Debes especificar un jugador desde la consola.");
+                    return true;
+                }
+                int ping = target.getPing();
+                String pingColor = (ping < 60) ? "§a" : (ping < 130 ? "§e" : "§c");
+                sender.sendMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+                sender.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "◆ " + TextUtil.toTiny("DIAGNÓSTICO DE RED Y LATENCIA") + " ◆");
+                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Jugador: ") + ChatColor.WHITE + target.getName());
+                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Ping actual: ") + pingColor + ping + "ms");
+                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Compensación de Lag: ") + ChatColor.GREEN + "ACTIVA " + ChatColor.GRAY + "(Historial 1.25s / BoundingBox Rewind)");
+                boolean eq = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().isEqualizerEnabled();
+                int targetMs = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().getTargetPing();
+                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Ping Equalizer: ") + (eq ? ChatColor.GREEN + "ACTIVADO " + ChatColor.GRAY + "(Objetivo: " + targetMs + "ms)" : ChatColor.RED + "DESACTIVADO"));
+                sender.sendMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+                return true;
+            }
         }
 
         // Subcomandos estrictamente administrativos
@@ -419,6 +450,31 @@ public class MainCommand implements CommandExecutor {
                 return new ForceJoinCommand().onCommand(sender, command, label, subArgs);
             case "revive":
                 return new ReviveCommand().onCommand(sender, command, label, subArgs);
+            case "pingequalizer":
+            case "pe":
+            case "equalizer": {
+                if (subArgs.length == 0) {
+                    boolean cur = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().isEqualizerEnabled();
+                    sender.sendMessage(TTRPrefix.TTR_ADMIN + TextUtil.toTiny("Ping Equalizer está actualmente ") +
+                            (cur ? ChatColor.GREEN + "ACTIVADO" : ChatColor.RED + "DESACTIVADO") +
+                            ChatColor.GRAY + " (Objetivo: " + me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().getTargetPing() + "ms).");
+                    sender.sendMessage(ChatColor.YELLOW + "Uso: /dt pingequalizer <on|off> [ms]");
+                    return true;
+                }
+                boolean enable = subArgs[0].equalsIgnoreCase("on") || subArgs[0].equalsIgnoreCase("true");
+                me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().setEqualizerEnabled(enable);
+                if (subArgs.length > 1) {
+                    try {
+                        int target = Integer.parseInt(subArgs[1]);
+                        me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().setTargetPing(target);
+                    } catch (NumberFormatException ignored) {}
+                }
+                int target = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().getTargetPing();
+                Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Modo Ping Equalizer ") +
+                        (enable ? ChatColor.GREEN + "ACTIVADO " + ChatColor.GRAY + "(" + target + "ms objetivo)" : ChatColor.RED + "DESACTIVADO") +
+                        ChatColor.YELLOW + TextUtil.toTiny(" por la administración."));
+                return true;
+            }
             case "reload":
                 TTRCore.getInstance().getConfigManager().reload();
                 sender.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Configuración recargada con éxito."));

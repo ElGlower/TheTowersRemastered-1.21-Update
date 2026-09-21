@@ -108,6 +108,7 @@ public class TTRCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TeamSelectListener(this), this);
         getServer().getPluginManager().registerEvents(new me.PauMAVA.TTR.ui.ModesGUIListener(), this);
         getServer().getPluginManager().registerEvents(me.PauMAVA.TTR.match.ChestRestockManager.getInstance(), this);
+        getServer().getPluginManager().registerEvents(me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance(), this);
 
         // Simple Voice Chat API Integration
         me.PauMAVA.TTR.voice.VoiceChatManager.getInstance().init();
@@ -133,6 +134,7 @@ public class TTRCore extends JavaPlugin {
         if (this.currentMatch != null) this.currentMatch.cleanup();
         if (this.rollbackManager != null) this.rollbackManager.stopTracking();
         if (this.worldHandler != null) this.worldHandler.restoreDifficulty();
+        me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().stopTracking();
         Bukkit.getConsoleSender().sendMessage(TTRPrefix.TTR_ERROR + 
                 ChatColor.RED + TextUtil.toTiny("Destiny Towers deshabilitado."));
     }

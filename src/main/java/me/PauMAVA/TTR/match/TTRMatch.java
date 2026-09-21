@@ -295,6 +295,9 @@ public class TTRMatch {
             TTRCore.getInstance().getEventManager().startCycle();
         }
 
+        // Iniciar motor de justicia de red y compensación de lag (cero ghost-hits para pings altos)
+        me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().startTracking();
+
         this.remainingTime = TTRCore.getInstance().getConfigManager().getMatchDuration();
         this.maxPointsToWin = TTRCore.getInstance().getConfigManager().getMaxPoints();
 
@@ -549,6 +552,9 @@ public class TTRMatch {
             TTRCore.getInstance().getEventManager().stopCycle();
             TTRCore.getInstance().getEventManager().stopCurrentEvent();
         }
+
+        // Detener motor de justicia de red y liberar memoria de snapshots
+        me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().stopTracking();
 
         // El Scoreboard no se detiene para mantener animaciones fluidas permanentes en el lobby
         if (this.gameBar != null) this.gameBar.removeAll();

@@ -17,12 +17,12 @@ public class TTRTabCompleter implements TabCompleter {
 
     private static final List<String> ADMIN_MAIN_SUBS = Arrays.asList(
             "start", "stop", "cancel", "next", "skipphase", "time", "resetmap", "edit", "savemap", "wand", "parkour", "reroll", "credits", "restock",
-            "set", "config", "screen", "gui", "leaders", "voteleader", "auction", "shop",
+            "set", "config", "screen", "gui", "leaders", "voteleader", "auction", "shop", "ping", "pingequalizer",
             "event", "forcejoin", "revive", "spectate", "play", "join", "bid", "stats", "estadisticas", "reload"
     );
 
     private static final List<String> PLAYER_MAIN_SUBS = Arrays.asList(
-            "join", "play", "spectate", "bid", "stats", "estadisticas"
+            "join", "play", "spectate", "bid", "stats", "estadisticas", "ping"
     );
 
     private static final List<String> SET_SUBS = Arrays.asList(
@@ -94,13 +94,18 @@ public class TTRTabCompleter implements TabCompleter {
                 String sub = args[0].toLowerCase();
                 if (sub.equals("join")) return filterStartingWith(TEAMS, args[1]);
                 if (sub.equals("bid")) return filterStartingWith(COMMON_AMOUNTS, args[1]);
-                if (sub.equals("stats") || sub.equals("estadisticas")) return filterStartingWith(getOnlinePlayerNames(), args[1]);
+                if (sub.equals("stats") || sub.equals("estadisticas") || sub.equals("ping") || sub.equals("ms") || sub.equals("latencia")) {
+                    return filterStartingWith(getOnlinePlayerNames(), args[1]);
+                }
 
                 if (!isAdmin) return new ArrayList<>();
 
                 if (sub.equals("start")) return filterStartingWith(Arrays.asList("now"), args[1]);
                 if (sub.equals("wand")) return filterStartingWith(WAND_SUBS, args[1]);
                 if (sub.equals("edit") || sub.equals("editmode")) return filterStartingWith(Arrays.asList("on", "off"), args[1]);
+                if (sub.equals("pingequalizer") || sub.equals("pe") || sub.equals("equalizer")) {
+                    return filterStartingWith(Arrays.asList("on", "off"), args[1]);
+                }
                 if (sub.equals("time") || sub.equals("timer")) return filterStartingWith(TIME_SUBS, args[1]);
                 if (sub.equals("parkour")) return filterStartingWith(PARKOUR_SUBS, args[1]);
                 if (sub.equals("credits")) return filterStartingWith(CREDITS_SUBS, args[1]);
@@ -118,6 +123,9 @@ public class TTRTabCompleter implements TabCompleter {
                 String sub = args[0].toLowerCase();
                 String sub2 = args[1].toLowerCase();
 
+                if (sub.equals("pingequalizer") || sub.equals("pe") || sub.equals("equalizer")) {
+                    return filterStartingWith(Arrays.asList("80", "100", "120", "140", "160"), args[2]);
+                }
                 if (sub.equals("forcejoin")) {
                     return filterStartingWith(TEAMS, args[2]);
                 }
