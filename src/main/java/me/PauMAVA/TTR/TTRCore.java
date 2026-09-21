@@ -109,6 +109,7 @@ public class TTRCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new me.PauMAVA.TTR.ui.ModesGUIListener(), this);
         getServer().getPluginManager().registerEvents(me.PauMAVA.TTR.match.ChestRestockManager.getInstance(), this);
         getServer().getPluginManager().registerEvents(me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance(), this);
+        me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().startTracking();
 
         // Simple Voice Chat API Integration
         me.PauMAVA.TTR.voice.VoiceChatManager.getInstance().init();

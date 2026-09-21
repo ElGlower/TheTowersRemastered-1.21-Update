@@ -118,12 +118,14 @@ public class TTRCustomTab extends BukkitRunnable {
 
         int playingCount = Bukkit.getOnlinePlayers().size();
         int maxPlayers = Bukkit.getMaxPlayers();
-        int ping = player.getPing();
+        int rawPing = player.getPing();
+        // Suavizado exponencial para evitar que un solo pico de jitter mantenga el ping en 300ms durante 20s
+        int smoothedPing = getSmoothedPing(player.getUniqueId(), rawPing);
 
         String footer = "\n" +
                 ChatColor.GRAY + TextUtil.toTiny("Jugadores: ") + ChatColor.AQUA + TextUtil.toTiny(String.valueOf(playingCount)) +
                 ChatColor.DARK_GRAY + "/" + ChatColor.GRAY + TextUtil.toTiny(String.valueOf(maxPlayers)) +
-                ChatColor.DARK_GRAY + "  ▪  " + ChatColor.GRAY + TextUtil.toTiny("Ping: ") + getPingDisplay(ping) + "\n" +
+                ChatColor.DARK_GRAY + "  ▪  " + ChatColor.GRAY + TextUtil.toTiny("Ping: ") + getPingDisplay(smoothedPing) + "\n" +
                 ChatColor.DARK_GRAY + "§m                             \n" +
                 animatedFooter + "\n";
 
@@ -229,9 +231,20 @@ public class TTRCustomTab extends BukkitRunnable {
         }
     }
 
+    private static final Map<UUID, Double> smoothedPings = new ConcurrentHashMap<>();
+
+    private int getSmoothedPing(UUID uuid, int rawPing) {
+        if (rawPing <= 0) return 60;
+        // Filtro de media móvil exponencial para estabilidad visual
+        Double prev = smoothedPings.get(uuid);
+        double smoothed = (prev == null) ? rawPing : (prev * 0.65 + rawPing * 0.35);
+        smoothedPings.put(uuid, smoothed);
+        return (int) Math.round(smoothed);
+    }
+
     private String getPingDisplay(int ping) {
-        if (ping < 60) return ChatColor.GREEN + TextUtil.toTiny(ping + "ms") + ChatColor.DARK_GRAY + " ▂▃▅";
-        if (ping < 120) return ChatColor.YELLOW + TextUtil.toTiny(ping + "ms") + ChatColor.DARK_GRAY + " ▂▃";
-        return ChatColor.RED + TextUtil.toTiny(ping + "ms") + ChatColor.DARK_GRAY + " ▂";
+        if (ping < 80) return ChatColor.GREEN + TextUtil.toTiny(ping + "ms") + ChatColor.DARK_GRAY + " ▂▃▅";
+        if (ping < 160) return ChatColor.YELLOW + TextUtil.toTiny(ping + "ms") + ChatColor.DARK_GRAY + " ▂▃";
+        return ChatColor.GOLD + TextUtil.toTiny(ping + "ms") + ChatColor.DARK_GRAY + " ▂";
     }
 }

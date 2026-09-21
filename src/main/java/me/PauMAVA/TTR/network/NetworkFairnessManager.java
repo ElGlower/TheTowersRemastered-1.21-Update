@@ -56,7 +56,7 @@ public class NetworkFairnessManager implements Listener {
     private final Map<UUID, Deque<PlayerSnapshot>> positionHistory = new ConcurrentHashMap<>();
     private final Map<UUID, Long> lastHitTimes = new ConcurrentHashMap<>();
 
-    private static final int MAX_SNAPSHOTS = 15; // 15 snapshots a 2 ticks = 1.5 segundos de historial
+    private static final int MAX_SNAPSHOTS = 25; // 25 snapshots a 2 ticks = 2.5 segundos de historial
 
     private BukkitTask trackingTask = null;
     private boolean equalizerEnabled = false; // Desactivado por defecto para cero latencia artificial
@@ -96,8 +96,7 @@ public class NetworkFairnessManager implements Listener {
     }
 
     public boolean isTrackingActive() {
-        TTRCore core = TTRCore.getInstance();
-        return trackingTask != null && core.getCurrentMatch() != null && core.getCurrentMatch().getStatus() == MatchStatus.INGAME;
+        return trackingTask != null;
     }
 
     public boolean isEqualizerActive() {
@@ -109,11 +108,6 @@ public class NetworkFairnessManager implements Listener {
         trackingTask = new BukkitRunnable() {
             @Override
             public void run() {
-                TTRCore core = TTRCore.getInstance();
-                if (core.getCurrentMatch() == null || core.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
-                    return;
-                }
-
                 long now = System.currentTimeMillis();
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (p.getGameMode() == GameMode.SPECTATOR) continue;
@@ -180,16 +174,15 @@ public class NetworkFairnessManager implements Listener {
 
     private void attemptRewoundHit(Player attacker, int ping, long now) {
         TTRCore core = TTRCore.getInstance();
-        TTRTeam attackerTeam = core.getTeamHandler().getPlayerTeam(attacker);
-        if (attackerTeam == null) return;
+        TTRTeam attackerTeam = core.getTeamHandler() != null ? core.getTeamHandler().getPlayerTeam(attacker) : null;
 
         // Momento en el tiempo en que el cliente vio al enemigo en su pantalla
         long targetTime = now - (ping / 2);
 
         Location eye = attacker.getEyeLocation();
         Vector dir = eye.getDirection().normalize();
-        // Tolerancia justa de alcance compensada por ping (entre 3.5 y 4.0 bloques máx)
-        double maxReach = Math.min(4.0, 3.4 + ((double) ping / 350.0) * 0.5);
+        // Tolerancia de alcance compensada por ping (soporta hasta 300ms de ping fluidamente)
+        double maxReach = Math.min(4.3, 3.4 + ((double) ping / 280.0) * 0.8);
 
         Player bestTarget = null;
         double bestDistance = Double.MAX_VALUE;
@@ -198,19 +191,21 @@ public class NetworkFairnessManager implements Listener {
             if (target.equals(attacker)) continue;
             if (target.getGameMode() != GameMode.SURVIVAL) continue;
 
-            TTRTeam targetTeam = core.getTeamHandler().getPlayerTeam(target);
-            if (targetTeam == null || targetTeam.equals(attackerTeam)) continue;
+            TTRTeam targetTeam = core.getTeamHandler() != null ? core.getTeamHandler().getPlayerTeam(target) : null;
+            // Prevenir fuego amigo si ambos están en el mismo equipo
+            if (attackerTeam != null && targetTeam != null && targetTeam.equals(attackerTeam)) continue;
 
             // Pre-filtro rápido de distancia en el presente
             if (!target.getWorld().equals(attacker.getWorld())) continue;
-            if (target.getLocation().distanceSquared(attacker.getLocation()) > 36.0) continue;
+            if (target.getLocation().distanceSquared(attacker.getLocation()) > 49.0) continue;
 
             // Obtener el snapshot más cercano al momento targetTime
             PlayerSnapshot snapshot = findBestSnapshot(target.getUniqueId(), targetTime);
             BoundingBox box = (snapshot != null) ? snapshot.getBox() : target.getBoundingBox();
 
-            // Pequeña tolerancia de jitter (0.12 bloques)
-            BoundingBox expanded = box.clone().expand(0.12);
+            // Tolerancia de jitter adaptada a la latencia del jugador (hasta 0.25 bloques para 300ms)
+            double jitterTolerance = Math.min(0.25, 0.12 + ((double) ping / 1000.0) * 0.25);
+            BoundingBox expanded = box.clone().expand(jitterTolerance);
             RayTraceResult hit = expanded.rayTrace(eye.toVector(), dir, maxReach);
 
             if (hit != null) {
