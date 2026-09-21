@@ -62,6 +62,8 @@ public class NetworkFairnessManager implements Listener {
     private boolean equalizerEnabled = false;
     private int targetPing = 120; // 120 ms por defecto (estándar internacional competitivo)
 
+    private boolean autoEqualizer = false;
+
     public static NetworkFairnessManager getInstance() {
         if (instance == null) {
             instance = new NetworkFairnessManager();
@@ -71,8 +73,27 @@ public class NetworkFairnessManager implements Listener {
 
     public boolean isEqualizerEnabled() { return equalizerEnabled; }
     public void setEqualizerEnabled(boolean enabled) { this.equalizerEnabled = enabled; }
+    public boolean isAutoEqualizer() { return autoEqualizer; }
+    public void setAutoEqualizer(boolean auto) { this.autoEqualizer = auto; }
     public int getTargetPing() { return targetPing; }
     public void setTargetPing(int target) { this.targetPing = Math.max(30, Math.min(300, target)); }
+
+    public int getEffectiveTargetPing() {
+        if (!autoEqualizer) return targetPing;
+
+        List<Integer> pings = new ArrayList<>();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getGameMode() == GameMode.SPECTATOR) continue;
+            int pPing = p.getPing();
+            if (pPing > 35) {
+                pings.add(pPing);
+            }
+        }
+        if (pings.isEmpty()) return targetPing;
+        Collections.sort(pings);
+        int median = pings.get(pings.size() / 2);
+        return Math.max(60, Math.min(200, median));
+    }
 
     public boolean isTrackingActive() {
         TTRCore core = TTRCore.getInstance();
@@ -204,8 +225,9 @@ public class NetworkFairnessManager implements Listener {
             final Player victim = bestTarget;
 
             // Si el modo Ping Equalizer está activo y el atacante tiene menos ping que el objetivo
-            if (isEqualizerActive() && ping < targetPing) {
-                long delayMs = (targetPing - ping) / 2;
+            int effectiveTarget = getEffectiveTargetPing();
+            if (isEqualizerActive() && ping < effectiveTarget) {
+                long delayMs = (effectiveTarget - ping) / 2;
                 long delayTicks = Math.max(1, delayMs / 50);
                 Bukkit.getScheduler().runTaskLater(core, () -> {
                     executeCompensatedHit(attacker, victim);

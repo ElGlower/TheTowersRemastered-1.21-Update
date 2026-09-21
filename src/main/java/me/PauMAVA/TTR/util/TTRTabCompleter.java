@@ -104,7 +104,7 @@ public class TTRTabCompleter implements TabCompleter {
                 if (sub.equals("wand")) return filterStartingWith(WAND_SUBS, args[1]);
                 if (sub.equals("edit") || sub.equals("editmode")) return filterStartingWith(Arrays.asList("on", "off"), args[1]);
                 if (sub.equals("pingequalizer") || sub.equals("pe") || sub.equals("equalizer")) {
-                    return filterStartingWith(Arrays.asList("on", "off"), args[1]);
+                    return filterStartingWith(Arrays.asList("on", "off", "auto"), args[1]);
                 }
                 if (sub.equals("time") || sub.equals("timer")) return filterStartingWith(TIME_SUBS, args[1]);
                 if (sub.equals("parkour")) return filterStartingWith(PARKOUR_SUBS, args[1]);

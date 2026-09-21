@@ -107,15 +107,17 @@ public class MainCommand implements CommandExecutor {
                 boolean isTracking = nfm.isTrackingActive();
                 boolean eqEnabled = nfm.isEqualizerEnabled();
                 boolean eqActive = nfm.isEqualizerActive();
-                int targetMs = nfm.getTargetPing();
+                boolean isAuto = nfm.isAutoEqualizer();
+                int effectiveMs = nfm.getEffectiveTargetPing();
 
                 sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Compensación de Lag: ") + 
                         (isTracking ? ChatColor.GREEN + "ACTIVA " + ChatColor.GRAY + "(En combate - Historial 1.25s / BoundingBox Rewind)" 
                                     : ChatColor.YELLOW + "EN ESPERA " + ChatColor.GRAY + "(Inactiva en lobby - Se activa solo en combate)"));
 
+                String modeLabel = isAuto ? "AUTO: " + effectiveMs + "ms" : effectiveMs + "ms";
                 sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Ping Equalizer: ") + 
-                        (eqActive ? ChatColor.GREEN + "ACTIVO " + ChatColor.GRAY + "(Objetivo: " + targetMs + "ms)" 
-                                  : (eqEnabled ? ChatColor.YELLOW + "CONFIGURADO " + ChatColor.GRAY + "(" + targetMs + "ms - se activa al combatir)" 
+                        (eqActive ? ChatColor.GREEN + "ACTIVO " + ChatColor.GRAY + "(" + modeLabel + ")" 
+                                  : (eqEnabled ? ChatColor.YELLOW + "CONFIGURADO " + ChatColor.GRAY + "(" + modeLabel + " - se activa en combate)" 
                                                : ChatColor.RED + "DESACTIVADO")));
                 sender.sendMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
                 return true;
@@ -463,25 +465,38 @@ public class MainCommand implements CommandExecutor {
             case "pingequalizer":
             case "pe":
             case "equalizer": {
+                me.PauMAVA.TTR.network.NetworkFairnessManager nfm = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance();
                 if (subArgs.length == 0) {
-                    boolean cur = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().isEqualizerEnabled();
+                    boolean cur = nfm.isEqualizerEnabled();
+                    boolean isAuto = nfm.isAutoEqualizer();
                     sender.sendMessage(TTRPrefix.TTR_ADMIN + TextUtil.toTiny("Ping Equalizer está actualmente ") +
-                            (cur ? ChatColor.GREEN + "ACTIVADO" : ChatColor.RED + "DESACTIVADO") +
-                            ChatColor.GRAY + " (Objetivo: " + me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().getTargetPing() + "ms).");
-                    sender.sendMessage(ChatColor.YELLOW + "Uso: /dt pingequalizer <on|off> [ms]");
+                            (cur ? ChatColor.GREEN + "ACTIVADO " + ChatColor.GRAY + (isAuto ? "(Modo AUTO: " + nfm.getEffectiveTargetPing() + "ms)" : "(Objetivo: " + nfm.getTargetPing() + "ms)") 
+                                 : ChatColor.RED + "DESACTIVADO") + ".");
+                    sender.sendMessage(ChatColor.YELLOW + "Uso: /dt pingequalizer <on|off|auto> [ms]");
                     return true;
                 }
-                boolean enable = subArgs[0].equalsIgnoreCase("on") || subArgs[0].equalsIgnoreCase("true");
-                me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().setEqualizerEnabled(enable);
+                String mode = subArgs[0].toLowerCase();
+                if (mode.equals("auto")) {
+                    nfm.setEqualizerEnabled(true);
+                    nfm.setAutoEqualizer(true);
+                    int eff = nfm.getEffectiveTargetPing();
+                    Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Modo Ping Equalizer ") +
+                            ChatColor.GREEN + "" + ChatColor.BOLD + "ACTIVADO (MODO AUTO) " + ChatColor.GRAY + "(Nivelando dinámicamente a ~" + eff + "ms en combate)" +
+                            ChatColor.YELLOW + TextUtil.toTiny(" por la administración."));
+                    return true;
+                }
+                boolean enable = mode.equals("on") || mode.equals("true");
+                nfm.setEqualizerEnabled(enable);
+                nfm.setAutoEqualizer(false);
                 if (subArgs.length > 1) {
                     try {
                         int target = Integer.parseInt(subArgs[1]);
-                        me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().setTargetPing(target);
+                        nfm.setTargetPing(target);
                     } catch (NumberFormatException ignored) {}
                 }
-                int target = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().getTargetPing();
+                int target = nfm.getTargetPing();
                 Bukkit.broadcastMessage(TTRPrefix.TTR_ADMIN + ChatColor.YELLOW + TextUtil.toTiny("Modo Ping Equalizer ") +
-                        (enable ? ChatColor.GREEN + "ACTIVADO " + ChatColor.GRAY + "(" + target + "ms objetivo)" : ChatColor.RED + "DESACTIVADO") +
+                        (enable ? ChatColor.GREEN + "ACTIVADO " + ChatColor.GRAY + "(" + target + "ms objetivo - se activa en combate)" : ChatColor.RED + "DESACTIVADO") +
                         ChatColor.YELLOW + TextUtil.toTiny(" por la administración."));
                 return true;
             }

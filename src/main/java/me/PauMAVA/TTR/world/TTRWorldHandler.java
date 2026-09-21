@@ -30,6 +30,22 @@ public class TTRWorldHandler {
         // Configurar tiempo y clima inicial usando tu config
         configureTime();
         configureWeather();
+
+        // Pre-cargar asíncronamente los 12 chunks de la arena en RAM para renderizado instantáneo sin lag
+        preloadArenaChunks();
+    }
+
+    public void preloadArenaChunks() {
+        if (world == null) return;
+        org.bukkit.Location lobby = plugin.getConfigManager().getLobbyLocation();
+        int centerX = (lobby != null && lobby.getWorld() != null && lobby.getWorld().equals(world)) ? lobby.getBlockX() >> 4 : 0;
+        int centerZ = (lobby != null && lobby.getWorld() != null && lobby.getWorld().equals(world)) ? lobby.getBlockZ() >> 4 : 0;
+
+        for (int cx = centerX - 12; cx <= centerX + 12; cx++) {
+            for (int cz = centerZ - 12; cz <= centerZ + 12; cz++) {
+                world.getChunkAtAsync(cx, cz);
+            }
+        }
     }
 
     public void configureTime() {
