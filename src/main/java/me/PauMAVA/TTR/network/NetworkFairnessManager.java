@@ -56,11 +56,11 @@ public class NetworkFairnessManager implements Listener {
     private final Map<UUID, Deque<PlayerSnapshot>> positionHistory = new ConcurrentHashMap<>();
     private final Map<UUID, Long> lastHitTimes = new ConcurrentHashMap<>();
 
-    private static final int MAX_SNAPSHOTS = 25; // 25 ticks = 1.25 segundos de historial
+    private static final int MAX_SNAPSHOTS = 15; // 15 snapshots a 2 ticks = 1.5 segundos de historial
 
     private BukkitTask trackingTask = null;
-    private boolean equalizerEnabled = false;
-    private int targetPing = 120; // 120 ms por defecto (estándar internacional competitivo)
+    private boolean equalizerEnabled = false; // Desactivado por defecto para cero latencia artificial
+    private int targetPing = 120;
 
     private boolean autoEqualizer = false;
 
@@ -120,14 +120,14 @@ public class NetworkFairnessManager implements Listener {
 
                     Deque<PlayerSnapshot> snapshots = positionHistory.computeIfAbsent(p.getUniqueId(), k -> new ArrayDeque<>());
                     synchronized (snapshots) {
-                        snapshots.addLast(new PlayerSnapshot(now, p.getLocation().clone(), p.getBoundingBox().clone()));
+                        snapshots.addLast(new PlayerSnapshot(now, p.getLocation(), p.getBoundingBox()));
                         while (snapshots.size() > MAX_SNAPSHOTS) {
                             snapshots.removeFirst();
                         }
                     }
                 }
             }
-        }.runTaskTimer(TTRCore.getInstance(), 0L, 1L);
+        }.runTaskTimer(TTRCore.getInstance(), 0L, 2L);
     }
 
     public void stopTracking() {
@@ -152,7 +152,9 @@ public class NetworkFairnessManager implements Listener {
      */
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerSwing(PlayerInteractEvent event) {
-        if (event.getAction() != Action.LEFT_CLICK_AIR && event.getAction() != Action.LEFT_CLICK_BLOCK) return;
+        // Solo procesar golpes al aire (LEFT_CLICK_AIR). Ignorar completamente LEFT_CLICK_BLOCK
+        // para que picar en minas o romper bloques tenga CERO costo de CPU.
+        if (event.getAction() != Action.LEFT_CLICK_AIR) return;
 
         if (!isTrackingActive()) return;
 
@@ -274,39 +276,5 @@ public class NetworkFairnessManager implements Listener {
 
         // Ejecutar ataque nativo (disparará EntityDamageByEntityEvent que aplica el knockback)
         attacker.attack(victim);
-    }
-
-    /**
-     * Normalizador de Knockback (Fair Knockback Engine):
-     * Calcula una trayectoria limpia y constante sin retraso acumulado de velocidad.
-     */
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onCombatDamage(EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof Player victim)) return;
-        if (!(event.getDamager() instanceof Player attacker)) return;
-
-        if (!isTrackingActive()) return;
-
-        // Aplicar knockback justo y sincronizado
-        applyFairKnockback(attacker, victim);
-    }
-
-    public void applyFairKnockback(Player attacker, Player victim) {
-        Vector dir = victim.getLocation().toVector().subtract(attacker.getLocation().toVector()).setY(0);
-        if (dir.lengthSquared() > 0.001) {
-            dir.normalize();
-        } else {
-            dir = attacker.getLocation().getDirection().setY(0).normalize();
-        }
-
-        double horizontal = 0.38;
-        double vertical = 0.36;
-
-        final Vector kb = dir.multiply(horizontal).setY(vertical);
-        Bukkit.getScheduler().runTask(TTRCore.getInstance(), () -> {
-            if (victim.isOnline() && !victim.isDead()) {
-                victim.setVelocity(kb);
-            }
-        });
     }
 }

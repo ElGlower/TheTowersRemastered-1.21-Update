@@ -71,13 +71,14 @@ public class ChestRestockManager implements Listener {
     }
 
     /**
-     * Guarda el snapshot del inventario del cofre si no existía previamente.
+     * Guarda el snapshot del inventario de cualquier contenedor si no existía previamente.
      */
-    public void snapshotChest(Chest chest) {
-        if (chest == null) return;
-        Location loc = chest.getLocation();
+    public void snapshotContainer(Container container) {
+        if (container == null) return;
+        Location loc = container.getLocation();
         if (!initialChestSnapshots.containsKey(loc)) {
-            ItemStack[] contents = chest.getBlockInventory().getContents();
+            Inventory inv = (container instanceof Chest chest) ? chest.getBlockInventory() : container.getInventory();
+            ItemStack[] contents = inv.getContents();
             ItemStack[] copy = new ItemStack[contents.length];
             for (int i = 0; i < contents.length; i++) {
                 if (contents[i] != null && !isLiquidBucket(contents[i].getType())) {
@@ -90,17 +91,30 @@ public class ChestRestockManager implements Listener {
         }
     }
 
+    public void snapshotChest(Chest chest) {
+        snapshotContainer(chest);
+    }
+
     /**
-     * Captura el estado original de todos los cofres de la arena.
+     * Captura el estado original de todos los cofres de la arena escaneando
+     * exhaustivamente los chunks de la arena The Towers.
      */
     public void captureInitialChests(World world) {
         if (world == null) return;
 
-        // 1. Chunks cargados actualmente
-        for (Chunk chunk : world.getLoadedChunks()) {
-            for (BlockState state : chunk.getTileEntities()) {
-                if (state instanceof Chest chest) {
-                    snapshotChest(chest);
+        // 1. Escaneo exhaustivo del cuadrante completo de la arena (X: -160 a +160, Z: 928 a 1360)
+        for (int cx = -10; cx <= 10; cx++) {
+            for (int cz = 58; cz <= 85; cz++) {
+                if (!world.isChunkLoaded(cx, cz)) {
+                    world.loadChunk(cx, cz, false);
+                }
+                Chunk chunk = world.getChunkAt(cx, cz);
+                if (chunk != null) {
+                    for (BlockState state : chunk.getTileEntities()) {
+                        if (state instanceof Container container) {
+                            snapshotContainer(container);
+                        }
+                    }
                 }
             }
         }
@@ -112,8 +126,8 @@ public class ChestRestockManager implements Listener {
                 if (loc != null && loc.getWorld() != null) {
                     if (!loc.isChunkLoaded()) loc.getChunk().load();
                     BlockState state = loc.getBlock().getState();
-                    if (state instanceof Chest chest) {
-                        snapshotChest(chest);
+                    if (state instanceof Container container) {
+                        snapshotContainer(container);
                     }
                 }
             }
@@ -131,8 +145,8 @@ public class ChestRestockManager implements Listener {
         TTRMatch match = TTRCore.getInstance().getCurrentMatch();
         if (match != null && match.getStatus() == MatchStatus.LOBBY) {
             for (BlockState state : event.getChunk().getTileEntities()) {
-                if (state instanceof Chest chest) {
-                    snapshotChest(chest);
+                if (state instanceof Container container) {
+                    snapshotContainer(container);
                 }
             }
         }
@@ -143,7 +157,7 @@ public class ChestRestockManager implements Listener {
      * 1. Carga chunks correspondientes para no perder cofres de torres alejadas.
      * 2. Si el bloque fue destruido o reemplazado por aire, lo vuelve a colocar.
      * 3. Restaura fielmente todos los ítems del snapshot inicial (incluyendo ambas mitades de cofres dobles).
-     * 4. Purga cubos de agua y lava.
+     * 4. Purga cubos de agua y lava y actualiza el estado de bloque (tile entity).
      */
     public int restockAndPurgeArenaChests(boolean restoreFromSnapshot) {
         World arenaWorld = getArenaWorld();
@@ -154,7 +168,7 @@ public class ChestRestockManager implements Listener {
         int chestsTouched = 0;
         Set<Location> processed = new HashSet<>();
 
-        // 1. Restaurar todos los cofres de los cuales tenemos snapshot
+        // 1. Restaurar todos los contenedores de los cuales tenemos snapshot
         for (Map.Entry<Location, ItemStack[]> entry : initialChestSnapshots.entrySet()) {
             Location loc = entry.getKey();
             ItemStack[] snapshot = entry.getValue();
@@ -166,12 +180,12 @@ public class ChestRestockManager implements Listener {
 
             Block b = loc.getBlock();
             // Si el bloque fue destruido (aire u otro bloque), reconstruirlo como cofre
-            if (b.getType() != Material.CHEST && b.getType() != Material.TRAPPED_CHEST) {
+            if (b.getType() != Material.CHEST && b.getType() != Material.TRAPPED_CHEST && b.getType() != Material.BARREL) {
                 b.setType(Material.CHEST, false);
             }
 
-            if (b.getState() instanceof Chest chest) {
-                Inventory inv = chest.getBlockInventory();
+            if (b.getState() instanceof Container container) {
+                Inventory inv = (container instanceof Chest chest) ? chest.getBlockInventory() : container.getInventory();
                 inv.clear();
                 for (int i = 0; i < Math.min(inv.getSize(), snapshot.length); i++) {
                     if (snapshot[i] != null && !isLiquidBucket(snapshot[i].getType())) {
@@ -179,6 +193,7 @@ public class ChestRestockManager implements Listener {
                     }
                 }
                 purgeLiquids(inv);
+                container.update(true, false);
                 processed.add(loc);
                 chestsTouched++;
             }
@@ -197,10 +212,10 @@ public class ChestRestockManager implements Listener {
                     b.setType(Material.CHEST, false);
                 }
 
-                if (b.getState() instanceof Chest chest) {
+                if (b.getState() instanceof Container container) {
                     if (restoreFromSnapshot && initialChestSnapshots.containsKey(loc)) {
                         ItemStack[] snapshot = initialChestSnapshots.get(loc);
-                        Inventory inv = chest.getBlockInventory();
+                        Inventory inv = (container instanceof Chest chest) ? chest.getBlockInventory() : container.getInventory();
                         inv.clear();
                         for (int i = 0; i < Math.min(inv.getSize(), snapshot.length); i++) {
                             if (snapshot[i] != null && !isLiquidBucket(snapshot[i].getType())) {
@@ -208,7 +223,8 @@ public class ChestRestockManager implements Listener {
                             }
                         }
                     }
-                    purgeLiquids(chest.getBlockInventory());
+                    purgeLiquids((container instanceof Chest chest) ? chest.getBlockInventory() : container.getInventory());
+                    container.update(true, false);
                     processed.add(loc);
                     chestsTouched++;
                 }
@@ -220,6 +236,7 @@ public class ChestRestockManager implements Listener {
             for (BlockState state : chunk.getTileEntities()) {
                 if (state instanceof Container container && !processed.contains(container.getLocation())) {
                     purgeLiquids(container.getInventory());
+                    container.update(true, false);
                     chestsTouched++;
                 }
             }
