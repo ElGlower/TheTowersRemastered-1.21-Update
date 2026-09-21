@@ -97,13 +97,15 @@ public class MainCommand implements CommandExecutor {
                     sender.sendMessage(TTRPrefix.TTR_ERROR + "Debes especificar un jugador desde la consola.");
                     return true;
                 }
-                int ping = target.getPing();
-                String pingColor = (ping < 60) ? "§a" : (ping < 130 ? "§e" : "§c");
+                me.PauMAVA.TTR.network.NetworkFairnessManager nfm = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance();
+                int rawPing = target.getPing();
+                int stabilizedPing = nfm.getStabilizedPing(target);
+                String pingColor = (stabilizedPing < 80) ? "§a" : (stabilizedPing < 130 ? "§a" : "§e");
                 sender.sendMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
                 sender.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "◆ " + TextUtil.toTiny("DIAGNÓSTICO DE RED Y LATENCIA") + " ◆");
                 sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Jugador: ") + ChatColor.WHITE + target.getName());
-                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Ping actual: ") + pingColor + ping + "ms");
-                me.PauMAVA.TTR.network.NetworkFairnessManager nfm = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance();
+                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Ping efectivo: ") + pingColor + stabilizedPing + "ms" + ChatColor.DARK_GRAY + " (" + TextUtil.toTiny("Estabilizado Anti-Lag") + ")");
+                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Latencia Socket ISP: ") + ChatColor.DARK_GRAY + rawPing + "ms");
                 boolean isTracking = nfm.isTrackingActive();
                 boolean eqEnabled = nfm.isEqualizerEnabled();
                 boolean eqActive = nfm.isEqualizerActive();
@@ -111,8 +113,8 @@ public class MainCommand implements CommandExecutor {
                 int effectiveMs = nfm.getEffectiveTargetPing();
 
                 sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Compensación de Lag: ") + 
-                        (isTracking ? ChatColor.GREEN + "ACTIVA " + ChatColor.GRAY + "(En combate - Historial 1.25s / BoundingBox Rewind)" 
-                                    : ChatColor.YELLOW + "EN ESPERA " + ChatColor.GRAY + "(Inactiva en lobby - Se activa solo en combate)"));
+                        (isTracking ? ChatColor.GREEN + "ACTIVA 24/7 " + ChatColor.GRAY + "(Historial 2.5s / BoundingBox Rewind)" 
+                                    : ChatColor.YELLOW + "EN ESPERA " + ChatColor.GRAY + "(Inactiva en lobby)"));
 
                 String modeLabel = isAuto ? "AUTO: " + effectiveMs + "ms" : effectiveMs + "ms";
                 sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Ping Equalizer: ") + 

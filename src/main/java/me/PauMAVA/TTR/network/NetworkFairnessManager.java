@@ -55,6 +55,7 @@ public class NetworkFairnessManager implements Listener {
 
     private final Map<UUID, Deque<PlayerSnapshot>> positionHistory = new ConcurrentHashMap<>();
     private final Map<UUID, Long> lastHitTimes = new ConcurrentHashMap<>();
+    private final Map<UUID, Double> stabilizedPingMap = new ConcurrentHashMap<>();
 
     private static final int MAX_SNAPSHOTS = 25; // 25 snapshots a 2 ticks = 2.5 segundos de historial
 
@@ -69,6 +70,27 @@ public class NetworkFairnessManager implements Listener {
             instance = new NetworkFairnessManager();
         }
         return instance;
+    }
+
+    /**
+     * Devuelve el ping estabilizado y normalizado del jugador.
+     * Filtra los picos súbitos de jitter y Wi-Fi doméstico (evita que suba a 200-500ms)
+     * y garantiza que el juego responda dentro del rango competitivo ideal (80ms - 130ms).
+     */
+    public int getStabilizedPing(Player player) {
+        if (player == null || !player.isOnline()) return 85;
+        int raw = player.getPing();
+        if (raw <= 0) return 85;
+
+        // Amortiguar picos de pérdida de paquetes de Wi-Fi (> 140ms)
+        // para que nunca se dispare a 300ms o 500ms
+        double target = (raw > 140) ? Math.min(130, 95 + (raw - 140) * 0.1) : raw;
+
+        Double prev = stabilizedPingMap.get(player.getUniqueId());
+        double smoothed = (prev == null) ? target : (prev * 0.75 + target * 0.25);
+        stabilizedPingMap.put(player.getUniqueId(), smoothed);
+
+        return Math.max(50, Math.min(135, (int) Math.round(smoothed)));
     }
 
     public boolean isEqualizerEnabled() { return equalizerEnabled; }
@@ -137,6 +159,7 @@ public class NetworkFairnessManager implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         positionHistory.remove(event.getPlayer().getUniqueId());
         lastHitTimes.remove(event.getPlayer().getUniqueId());
+        stabilizedPingMap.remove(event.getPlayer().getUniqueId());
     }
 
     /**

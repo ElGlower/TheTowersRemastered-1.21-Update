@@ -2,6 +2,7 @@ package me.PauMAVA.TTR.ui;
 
 import me.PauMAVA.TTR.TTRCore;
 import me.PauMAVA.TTR.match.MatchStatus;
+import me.PauMAVA.TTR.network.NetworkFairnessManager;
 import me.PauMAVA.TTR.teams.TTRTeam;
 import me.PauMAVA.TTR.util.TextUtil;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -118,14 +119,12 @@ public class TTRCustomTab extends BukkitRunnable {
 
         int playingCount = Bukkit.getOnlinePlayers().size();
         int maxPlayers = Bukkit.getMaxPlayers();
-        int rawPing = player.getPing();
-        // Suavizado exponencial para evitar que un solo pico de jitter mantenga el ping en 300ms durante 20s
-        int smoothedPing = getSmoothedPing(player.getUniqueId(), rawPing);
+        int stabilizedPing = NetworkFairnessManager.getInstance().getStabilizedPing(player);
 
         String footer = "\n" +
                 ChatColor.GRAY + TextUtil.toTiny("Jugadores: ") + ChatColor.AQUA + TextUtil.toTiny(String.valueOf(playingCount)) +
                 ChatColor.DARK_GRAY + "/" + ChatColor.GRAY + TextUtil.toTiny(String.valueOf(maxPlayers)) +
-                ChatColor.DARK_GRAY + "  ▪  " + ChatColor.GRAY + TextUtil.toTiny("Ping: ") + getPingDisplay(smoothedPing) + "\n" +
+                ChatColor.DARK_GRAY + "  ▪  " + ChatColor.GRAY + TextUtil.toTiny("Ping: ") + getPingDisplay(stabilizedPing) + "\n" +
                 ChatColor.DARK_GRAY + "§m                             \n" +
                 animatedFooter + "\n";
 
@@ -229,17 +228,6 @@ public class TTRCustomTab extends BukkitRunnable {
         } else {
             return ChatColor.RED + TextUtil.toTiny("Terminado");
         }
-    }
-
-    private static final Map<UUID, Double> smoothedPings = new ConcurrentHashMap<>();
-
-    private int getSmoothedPing(UUID uuid, int rawPing) {
-        if (rawPing <= 0) return 60;
-        // Filtro de media móvil exponencial para estabilidad visual
-        Double prev = smoothedPings.get(uuid);
-        double smoothed = (prev == null) ? rawPing : (prev * 0.65 + rawPing * 0.35);
-        smoothedPings.put(uuid, smoothed);
-        return (int) Math.round(smoothed);
     }
 
     private String getPingDisplay(int ping) {
