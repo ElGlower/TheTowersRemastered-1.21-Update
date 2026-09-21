@@ -119,12 +119,12 @@ public class TTRCustomTab extends BukkitRunnable {
 
         int playingCount = Bukkit.getOnlinePlayers().size();
         int maxPlayers = Bukkit.getMaxPlayers();
-        int stabilizedPing = NetworkFairnessManager.getInstance().getStabilizedPing(player);
+        int realPing = player.getPing();
 
         String footer = "\n" +
                 ChatColor.GRAY + TextUtil.toTiny("Jugadores: ") + ChatColor.AQUA + TextUtil.toTiny(String.valueOf(playingCount)) +
                 ChatColor.DARK_GRAY + "/" + ChatColor.GRAY + TextUtil.toTiny(String.valueOf(maxPlayers)) +
-                ChatColor.DARK_GRAY + "  ▪  " + ChatColor.GRAY + TextUtil.toTiny("Ping: ") + getPingDisplay(stabilizedPing) + "\n" +
+                ChatColor.DARK_GRAY + "  ▪  " + ChatColor.GRAY + TextUtil.toTiny("Ping: ") + getPingDisplay(realPing) + "\n" +
                 ChatColor.DARK_GRAY + "§m                             \n" +
                 animatedFooter + "\n";
 
@@ -232,7 +232,7 @@ public class TTRCustomTab extends BukkitRunnable {
 
     private String getPingDisplay(int ping) {
         if (ping < 80) return ChatColor.GREEN + TextUtil.toTiny(ping + "ms") + ChatColor.DARK_GRAY + " ▂▃▅";
-        if (ping < 160) return ChatColor.YELLOW + TextUtil.toTiny(ping + "ms") + ChatColor.DARK_GRAY + " ▂▃";
+        if (ping < 180) return ChatColor.YELLOW + TextUtil.toTiny(ping + "ms") + ChatColor.DARK_GRAY + " ▂▃";
         return ChatColor.GOLD + TextUtil.toTiny(ping + "ms") + ChatColor.DARK_GRAY + " ▂";
     }
 }

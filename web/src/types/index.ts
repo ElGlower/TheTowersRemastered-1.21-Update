@@ -3,7 +3,7 @@
  */
 
 export type TabId = 'inicio' | 'modalidad' | 'miembros';
-export type ModalitySubTab = 'partida' | 'leaderboard';
+export type ModalitySubTab = 'partida' | 'leaderboard' | 'partidas';
 export type ThemeMode = 'light' | 'dark';
 
 export interface TeamMember {

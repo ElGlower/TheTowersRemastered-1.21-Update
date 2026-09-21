@@ -131,7 +131,7 @@ export async function copyCardImage(): Promise<void> {
 export function shareOnTwitter(): void {
   if (!currentSharingProfile) return;
   const p = currentSharingProfile;
-  const text = `¡Mira mis estadísticas en The Towers de @DestinyOwners! ⚔️\n\n🏆 ${p.points} PTS ELO • #${p.rank} Ranking\n⚽ ${p.goals} Goles • 🎯 K/D: ${p.kdRatio}\n\nÚnete a la arena: play.destinyowners.com`;
+  const text = `Estadísticas en The Towers - Destiny Owners\n\n${p.points} Puntos • #${p.rank} Ranking\n${p.goals} Goles • K/D: ${p.kdRatio}\n\nArena: play.destinyowners.com`;
   const url = `https://destinyowners-23.web.app/?tab=modalidad&modality=the-towers&profile=${encodeURIComponent(p.name)}`;
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
   window.open(tweetUrl, '_blank', 'noopener,noreferrer');
@@ -330,62 +330,18 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
   const nameW = ctx.measureText(p.name).width;
   drawCheckmark(ctx, rightX + nameW + 20, 153, 12, '#6982B5');
 
-  // Fila de Badges: Rol y Estado
-  const roleText = p.isStaff ? '✦ DESTINY ADMIN' : p.rank <= 3 ? '★ TOP JUGADOR' : 'JUGADOR OFICIAL';
-  const roleW = p.isStaff ? 146 : p.rank <= 3 ? 134 : 138;
-  drawRoundedRect(ctx, rightX, 195, roleW, 30, 15);
-
-  if (p.isStaff) {
-    ctx.fillStyle = isDark ? '#7C3AED' : '#F3E8FF';
-    ctx.fill();
-    ctx.strokeStyle = isDark ? '#7C3AED' : '#DDD6FE';
-    ctx.stroke();
-    ctx.fillStyle = isDark ? '#FFFFFF' : '#7C3AED';
-  } else if (p.rank <= 3) {
-    ctx.fillStyle = isDark ? '#F59E0B' : '#FEF3C7';
-    ctx.fill();
-    ctx.strokeStyle = isDark ? '#F59E0B' : '#FDE68A';
-    ctx.stroke();
-    ctx.fillStyle = isDark ? '#FFFFFF' : '#D97706';
-  } else {
-    ctx.fillStyle = isDark ? '#6982B5' : '#EFF6FF';
-    ctx.fill();
-    ctx.strokeStyle = isDark ? '#6982B5' : '#BFDBFE';
-    ctx.stroke();
-    ctx.fillStyle = isDark ? '#FFFFFF' : '#2563EB';
-  }
-  ctx.font = '800 12px "Plus Jakarta Sans", sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(roleText, rightX + (roleW / 2), 215);
-
-  // Chip de Estado En Línea
-  drawRoundedRect(ctx, rightX + roleW + 12, 195, 102, 30, 15);
-  ctx.fillStyle = isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.12)';
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(rightX + roleW + 26, 210, 4, 0, Math.PI * 2);
-  ctx.fillStyle = '#10B981';
-  ctx.fill();
-  ctx.textAlign = 'left';
-  ctx.font = '700 12px "Plus Jakarta Sans", sans-serif';
-  ctx.fillStyle = isDark ? '#34D399' : '#059669';
-  ctx.fillText('En Línea', rightX + roleW + 36, 215);
-
-  // Sección Elo Monumental
-  ctx.font = '800 12px "Plus Jakarta Sans", sans-serif';
-  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.55)' : '#806E83';
-  ctx.fillText('PUNTOS ELO DE TEMPORADA', rightX, 272);
-
+  // Sección de Puntos Monumental (Limpia, sin ELO ni temporada)
   const ptsStr = p.points.toLocaleString();
-  ctx.font = '900 74px "Outfit", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.font = '900 76px "Outfit", sans-serif';
   ctx.fillStyle = isDark ? '#8FA4D1' : '#6982B5';
-  ctx.fillText(ptsStr, rightX, 345);
+  ctx.fillText(ptsStr, rightX, 305);
 
-  // Medición con la fuente del número para espaciado limpio de PTS ELO
+  // Medición con la fuente del número para espaciado limpio de PUNTOS
   const ptsWidth = ctx.measureText(ptsStr).width;
   ctx.font = '700 18px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.6)' : '#806E83';
-  ctx.fillText('PTS ELO', rightX + ptsWidth + 16, 334);
+  ctx.fillText('PUNTOS', rightX + ptsWidth + 16, 292);
 
   // 5. Panel Amplio de Métricas (215px de altura, sin compresión, espacioso y legible)
   const stripX = 440;
@@ -406,7 +362,7 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
   ctx.textAlign = 'left';
   ctx.font = '800 12px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = '#D97706';
-  ctx.fillText('★ GOLES EN TORRE', stripX + 28, stripY + 40);
+  ctx.fillText('GOLES EN TORRE', stripX + 28, stripY + 40);
 
   ctx.font = '900 42px "Outfit", sans-serif';
   ctx.fillStyle = isDark ? '#FFFFFF' : '#362B3A';
@@ -414,7 +370,7 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
 
   ctx.font = '600 12px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.55)' : '#806E83';
-  ctx.fillText('+150 pts Elo c/u', stripX + 28, stripY + 112);
+  ctx.fillText('+150 pts c/u', stripX + 28, stripY + 112);
 
   // Divisor 1
   ctx.beginPath();
@@ -427,7 +383,7 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
   // Columna 2: Bajas PvP
   ctx.font = '800 12px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = '#E11D48';
-  ctx.fillText('⊕ BAJAS EN ARENA', stripX + colW + 28, stripY + 40);
+  ctx.fillText('BAJAS EN ARENA', stripX + colW + 28, stripY + 40);
 
   ctx.font = '900 42px "Outfit", sans-serif';
   ctx.fillStyle = isDark ? '#FFFFFF' : '#362B3A';
@@ -435,7 +391,7 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
 
   ctx.font = '600 12px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.55)' : '#806E83';
-  ctx.fillText('+15 pts Elo c/u', stripX + colW + 28, stripY + 112);
+  ctx.fillText('+15 pts c/u', stripX + colW + 28, stripY + 112);
 
   // Divisor 2
   ctx.beginPath();
@@ -448,7 +404,7 @@ async function generateCardCanvas(p: DetailedPlayerProfile): Promise<HTMLCanvasE
   // Columna 3: Ratio K/D
   ctx.font = '800 12px "Plus Jakarta Sans", sans-serif';
   ctx.fillStyle = '#6982B5';
-  ctx.fillText('⚡ RATIO K/D', stripX + (colW * 2) + 28, stripY + 40);
+  ctx.fillText('RATIO K/D', stripX + (colW * 2) + 28, stripY + 40);
 
   ctx.font = '900 42px "Outfit", sans-serif';
   ctx.fillStyle = isDark ? '#8FA4D1' : '#6982B5';

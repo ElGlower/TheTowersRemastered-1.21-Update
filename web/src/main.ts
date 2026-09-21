@@ -19,6 +19,7 @@ import {
   startLiveSync, 
   inspectMinecraftPlayer, 
   filterLeaderboard, 
+  filterMatches,
   copyCurrentPlayerName, 
   openNameMCProfile,
   openFullUserProfile,
@@ -44,6 +45,7 @@ const app = {
   selectPlayer: (name: string, title: string, element?: HTMLElement) => selectLeaderboardPlayer(name, title, element),
   inspectMinecraftPlayer: (username: string, element?: HTMLElement) => inspectMinecraftPlayer(username, element),
   filterLeaderboard: (query: string) => filterLeaderboard(query),
+  filterMatches: (filter: 'all' | 'red' | 'blue') => filterMatches(filter),
   copyCurrentPlayerName: (name?: string) => copyCurrentPlayerName(name),
   openNameMCProfile: (name?: string) => openNameMCProfile(name),
   openFullUserProfile: (username?: string) => openFullUserProfile(username),
@@ -71,6 +73,7 @@ const app = {
 (window as any).switchModalitySubTab = app.switchModalitySubTab;
 (window as any).inspectMinecraftPlayer = app.inspectMinecraftPlayer;
 (window as any).filterLeaderboard = app.filterLeaderboard;
+(window as any).filterMatches = app.filterMatches;
 (window as any).copyCurrentPlayerName = app.copyCurrentPlayerName;
 (window as any).openNameMCProfile = app.openNameMCProfile;
 (window as any).openFullUserProfile = app.openFullUserProfile;

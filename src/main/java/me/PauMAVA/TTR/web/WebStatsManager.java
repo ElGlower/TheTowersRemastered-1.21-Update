@@ -142,6 +142,7 @@ public class WebStatsManager {
         }
         state.put("players", players);
         state.put("killfeed", new ArrayList<>(killfeed));
+        state.put("matches", new ArrayList<>(matchHistory));
         state.put("annualMatches", annualMatchCount);
 
         return state;

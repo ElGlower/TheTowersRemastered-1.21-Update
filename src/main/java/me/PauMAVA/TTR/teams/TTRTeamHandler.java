@@ -1,6 +1,7 @@
 package me.PauMAVA.TTR.teams;
 
 import me.PauMAVA.TTR.TTRCore;
+import me.PauMAVA.TTR.match.MatchStatus;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -63,7 +64,8 @@ public class TTRTeamHandler {
             team.addPlayer(player);
             player.sendMessage(ChatColor.GRAY + "Te has unido al equipo " + team.getColor() + team.getIdentifier());
 
-            if (team.getSpawnPoint() != null) {
+            MatchStatus status = TTRCore.getInstance().getCurrentMatch() != null ? TTRCore.getInstance().getCurrentMatch().getStatus() : MatchStatus.STOPPED;
+            if (status == MatchStatus.INGAME && team.getSpawnPoint() != null) {
                 player.teleport(team.getSpawnPoint());
             }
 

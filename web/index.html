@@ -243,16 +243,21 @@
                 </div>
               </div>
 
-              <!-- Píldora subpestañas: Partida vs Leaderboard -->
-              <div class="flex items-center p-1 rounded-full bg-white/70 dark:bg-white/10 border border-pastel-cardBorder shadow-inner">
-                <button id="subtab-btn-partida" onclick="switchModalitySubTab('partida')" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 bg-pastel-denim text-white shadow-sm flex items-center gap-2">
+              <!-- Píldora subpestañas: Partida vs Leaderboard vs Partidas -->
+              <div class="flex items-center p-1 rounded-full bg-white/70 dark:bg-white/10 border border-pastel-cardBorder shadow-inner overflow-x-auto">
+                <button id="subtab-btn-partida" onclick="switchModalitySubTab('partida')" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 bg-pastel-denim text-white shadow-sm flex items-center gap-2 flex-shrink-0">
                   <i class="fa-solid fa-gamepad text-xs"></i>
                   <span>Partida en Vivo</span>
                 </button>
-                <button id="subtab-btn-leaderboard" onclick="switchModalitySubTab('leaderboard')" class="px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2">
+                <button id="subtab-btn-leaderboard" onclick="switchModalitySubTab('leaderboard')" class="px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2 flex-shrink-0">
                   <i class="fa-solid fa-trophy text-xs text-pastel-denim"></i>
-                  <span>Leaderboard Oficial</span>
+                  <span>Leaderboard</span>
                   <span id="leaderboard-badge-count" class="text-[10px] px-1.5 py-0.2 rounded-full bg-pastel-denim/20 font-black">31</span>
+                </button>
+                <button id="subtab-btn-partidas" onclick="switchModalitySubTab('partidas')" class="px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2 flex-shrink-0">
+                  <i class="fa-solid fa-list-check text-xs text-pastel-denim"></i>
+                  <span>Partidas</span>
+                  <span id="matches-badge-count" class="text-[10px] px-1.5 py-0.2 rounded-full bg-pastel-denim/20 font-black">144</span>
                 </button>
               </div>
             </div>
@@ -388,6 +393,36 @@
 
             </div>
 
+            <!-- SUB-VISTA 3: HISTORIAL DE PARTIDAS GENERAL CON FILTROS -->
+            <div id="subview-partidas" class="hidden flex-col gap-4 flex-1 w-full">
+              <div class="leaderboard-deck p-6 sm:p-7 flex flex-col gap-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-pastel-cardBorder/80">
+                  <div>
+                    <h4 class="text-xl font-bold text-pastel-plum font-display">Historial de Partidas</h4>
+                    <p class="text-xs text-pastel-plum/60 mt-0.5">Registro completo de enfrentamientos en la arena The Towers</p>
+                  </div>
+
+                  <!-- Filtros Generales -->
+                  <div class="flex items-center p-1 rounded-xl bg-white/60 dark:bg-white/10 border border-pastel-cardBorder text-xs font-semibold gap-1">
+                    <button id="match-filter-all" onclick="window.destinyApp.filterMatches('all')" class="px-3 py-1 rounded-lg bg-pastel-denim text-white font-bold transition-all shadow-sm">
+                      Todas
+                    </button>
+                    <button id="match-filter-red" onclick="window.destinyApp.filterMatches('red')" class="px-3 py-1 rounded-lg text-pastel-plum hover:text-pastel-denim transition-all">
+                      Victorias Rojas
+                    </button>
+                    <button id="match-filter-blue" onclick="window.destinyApp.filterMatches('blue')" class="px-3 py-1 rounded-lg text-pastel-plum hover:text-pastel-denim transition-all">
+                      Victorias Azules
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Contenedor dinámico de partidas poblado por TypeScript -->
+                <div id="matches-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-h-[520px] overflow-y-auto pr-1">
+                  <!-- Inyectado dinámicamente -->
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <!-- C. VISTA EXPANDIDA: PERFIL DEL JUGADOR (DISEÑO ABIERTO Y EDITORIAL - SIN CARDBOXES) -->
@@ -472,11 +507,11 @@
                   </div>
                 </div>
 
-                <!-- Elo Monumental Tipográfico -->
+                <!-- Puntos Monumental Tipográfico -->
                 <div class="mt-6 pt-5 pb-6 border-y border-pastel-plum/10 dark:border-white/10 flex flex-wrap items-baseline gap-4">
                   <span id="expanded-points" class="text-5xl sm:text-6xl font-black text-pastel-denim font-display tracking-tight leading-none">0</span>
                   <div class="flex flex-col">
-                    <span class="text-xs font-black tracking-widest text-pastel-plum uppercase">Puntos Elo de Temporada</span>
+                    <span class="text-xs font-black tracking-widest text-pastel-plum uppercase">Puntos</span>
                   </div>
                 </div>
 
@@ -489,7 +524,7 @@
                       <i class="fa-solid fa-star text-[10px]"></i> Goles
                     </span>
                     <span id="expanded-goals" class="text-3xl sm:text-4xl font-black text-pastel-plum font-display mt-1">0</span>
-                    <span class="text-[11px] text-pastel-plum/60 font-medium mt-0.5">+150 pts Elo c/u</span>
+                    <span class="text-[11px] text-pastel-plum/60 font-medium mt-0.5">+150 pts c/u</span>
                   </div>
 
                   <!-- Métrica 2: Bajas PvP -->
@@ -498,7 +533,7 @@
                       <i class="fa-solid fa-crosshairs text-[10px]"></i> Bajas PvP
                     </span>
                     <span id="expanded-kills" class="text-3xl sm:text-4xl font-black text-pastel-plum font-display mt-1">0</span>
-                    <span class="text-[11px] text-pastel-plum/60 font-medium mt-0.5">+15 pts Elo c/u</span>
+                    <span class="text-[11px] text-pastel-plum/60 font-medium mt-0.5">+15 pts c/u</span>
                   </div>
 
                   <!-- Métrica 3: Ratio K/D -->

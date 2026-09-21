@@ -5,7 +5,7 @@
 import { ModalitySubTab } from '../types';
 import { showRightShowcase, hideRightShowcase, setRightPanelMode } from './navigation';
 import { getIsDarkMode } from './theme';
-import { renderRealLeaderboard, inspectMinecraftPlayer } from './liveMatch';
+import { renderRealLeaderboard, inspectMinecraftPlayer, renderMatchesHistory } from './liveMatch';
 
 let isDetailOpen = false;
 let currentSubTab: ModalitySubTab = 'partida';
@@ -94,47 +94,56 @@ export function switchModalitySubTab(subTabId: ModalitySubTab): void {
   const isDark = getIsDarkMode();
   const btnPartida = document.getElementById('subtab-btn-partida');
   const btnLeaderboard = document.getElementById('subtab-btn-leaderboard');
+  const btnPartidas = document.getElementById('subtab-btn-partidas');
   const viewPartida = document.getElementById('subview-partida');
   const viewLeaderboard = document.getElementById('subview-leaderboard');
+  const viewPartidas = document.getElementById('subview-partidas');
 
-  if (subTabId === 'partida') {
-    if (btnPartida) {
-      btnPartida.className = 'px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 bg-pastel-denim text-white shadow-sm flex items-center gap-2';
-    }
-    if (btnLeaderboard) {
-      btnLeaderboard.className = isDark
-        ? 'px-4 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white transition-all duration-200 flex items-center gap-2'
-        : 'px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2';
-    }
+  const activeBtnClass = 'px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 bg-pastel-denim text-white shadow-sm flex items-center gap-2 flex-shrink-0';
+  const inactiveBtnClass = isDark
+    ? 'px-4 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white transition-all duration-200 flex items-center gap-2 flex-shrink-0'
+    : 'px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2 flex-shrink-0';
 
-    if (viewLeaderboard) {
-      viewLeaderboard.classList.add('hidden');
-      viewLeaderboard.classList.remove('flex');
-    }
-    if (viewPartida) {
+  if (btnPartida) btnPartida.className = (subTabId === 'partida') ? activeBtnClass : inactiveBtnClass;
+  if (btnLeaderboard) btnLeaderboard.className = (subTabId === 'leaderboard') ? activeBtnClass : inactiveBtnClass;
+  if (btnPartidas) btnPartidas.className = (subTabId === 'partidas') ? activeBtnClass : inactiveBtnClass;
+
+  if (viewPartida) {
+    if (subTabId === 'partida') {
       viewPartida.classList.remove('hidden');
       viewPartida.classList.add('flex');
-    }
-  } else if (subTabId === 'leaderboard') {
-    if (btnLeaderboard) {
-      btnLeaderboard.className = 'px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 bg-pastel-denim text-white shadow-sm flex items-center gap-2';
-    }
-    if (btnPartida) {
-      btnPartida.className = isDark
-        ? 'px-4 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white transition-all duration-200 flex items-center gap-2'
-        : 'px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2';
-    }
-
-    if (viewPartida) {
+    } else {
       viewPartida.classList.add('hidden');
       viewPartida.classList.remove('flex');
     }
-    if (viewLeaderboard) {
+  }
+
+  if (viewLeaderboard) {
+    if (subTabId === 'leaderboard') {
       viewLeaderboard.classList.remove('hidden');
       viewLeaderboard.classList.add('flex');
+    } else {
+      viewLeaderboard.classList.add('hidden');
+      viewLeaderboard.classList.remove('flex');
     }
+  }
 
+  if (viewPartidas) {
+    if (subTabId === 'partidas') {
+      viewPartidas.classList.remove('hidden');
+      viewPartidas.classList.add('flex');
+    } else {
+      viewPartidas.classList.add('hidden');
+      viewPartidas.classList.remove('flex');
+    }
+  }
+
+  if (subTabId === 'leaderboard') {
     renderRealLeaderboard();
+    setRightPanelMode('leaderboard');
+    showRightShowcase();
+  } else if (subTabId === 'partidas') {
+    renderMatchesHistory();
     setRightPanelMode('leaderboard');
     showRightShowcase();
   }

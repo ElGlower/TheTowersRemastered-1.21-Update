@@ -142,10 +142,13 @@ public class ModesGUIListener implements Listener {
                 case "reroll_teams": {
                     List<Player> eligible = new ArrayList<>();
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        if (p.getGameMode() != GameMode.SPECTATOR) eligible.add(p);
+                        if (p.getGameMode() != GameMode.SPECTATOR && !TTRCore.isAdmin(p)) {
+                            eligible.add(p);
+                        }
                     }
                     if (eligible.isEmpty()) {
-                        eligible.addAll(Bukkit.getOnlinePlayers());
+                        player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No hay suficientes jugadores (no admins) para barajar."));
+                        break;
                     }
                     Collections.shuffle(eligible);
                     plugin.getTeamHandler().clearTeams();

@@ -99,13 +99,11 @@ public class MainCommand implements CommandExecutor {
                 }
                 me.PauMAVA.TTR.network.NetworkFairnessManager nfm = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance();
                 int rawPing = target.getPing();
-                int stabilizedPing = nfm.getStabilizedPing(target);
-                String pingColor = (stabilizedPing < 80) ? "§a" : (stabilizedPing < 130 ? "§a" : "§e");
+                String pingColor = (rawPing < 80) ? "§a" : (rawPing < 180 ? "§e" : "§c");
                 sender.sendMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
                 sender.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "◆ " + TextUtil.toTiny("DIAGNÓSTICO DE RED Y LATENCIA") + " ◆");
                 sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Jugador: ") + ChatColor.WHITE + target.getName());
-                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Ping efectivo: ") + pingColor + stabilizedPing + "ms" + ChatColor.DARK_GRAY + " (" + TextUtil.toTiny("Estabilizado Anti-Lag") + ")");
-                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Latencia Socket ISP: ") + ChatColor.DARK_GRAY + rawPing + "ms");
+                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Ping real: ") + pingColor + rawPing + "ms");
                 boolean isTracking = nfm.isTrackingActive();
                 boolean eqEnabled = nfm.isEqualizerEnabled();
                 boolean eqActive = nfm.isEqualizerActive();
@@ -367,10 +365,13 @@ public class MainCommand implements CommandExecutor {
             case "reroll": {
                 List<Player> eligible = new ArrayList<>();
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (p.getGameMode() != GameMode.SPECTATOR) eligible.add(p);
+                    if (p.getGameMode() != GameMode.SPECTATOR && !TTRCore.isAdmin(p)) {
+                        eligible.add(p);
+                    }
                 }
                 if (eligible.isEmpty()) {
-                    eligible.addAll(Bukkit.getOnlinePlayers());
+                    sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No hay suficientes jugadores (no admins) para barajar."));
+                    return true;
                 }
                 Collections.shuffle(eligible);
                 TTRCore.getInstance().getTeamHandler().clearTeams();

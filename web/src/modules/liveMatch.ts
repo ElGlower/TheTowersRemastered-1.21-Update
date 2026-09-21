@@ -286,7 +286,7 @@ export function renderRealLeaderboard(): void {
               ${p.isOnline ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block flex-shrink-0" title="En Línea"></span>' : ''}
             </div>
             <div class="text-[10px] sm:text-[11px] text-pastel-plum/60 font-medium truncate sm:hidden">
-              ⚽ ${p.goals} • ⚔ ${p.kills} • 💀 ${p.deaths}
+              ${p.goals} Goles • ${p.kills} Bajas • ${p.deaths} Muertes
             </div>
           </div>
         </div>
@@ -456,10 +456,10 @@ export function renderDetailedUserProfile(p: DetailedPlayerProfile): void {
     : 'bg-pastel-periwinkle/50 text-pastel-plum';
 
   const roleBadge = p.isStaff
-    ? '<span class="text-[10px] font-black px-2.5 py-0.5 rounded-md bg-purple-600 text-white tracking-wider shadow-sm">✦ DESTINY ADMIN</span>'
+    ? '<span class="text-[10px] font-black px-2.5 py-0.5 rounded-md bg-purple-600 text-white tracking-wider shadow-sm">DESTINY ADMIN</span>'
     : p.rank <= 3
-    ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-500/30">★ TOP JUGADOR</span>'
-    : '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-pastel-periwinkle/30 text-pastel-plum border border-pastel-cardBorder">JUGADOR DESTINY</span>';
+    ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-500/30">TOP JUGADOR</span>'
+    : '';
 
   const statusHtml = p.isOnline
     ? '<span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>En Línea</span>'
@@ -662,13 +662,15 @@ function populateExpandedUserProfile(username: string): void {
   if (roleBadge) {
     if (profile.isStaff) {
       roleBadge.className = 'text-[11px] font-black px-3.5 py-1 rounded-full bg-purple-600 text-white tracking-wider shadow-sm';
-      roleBadge.textContent = '✦ DESTINY ADMIN';
+      roleBadge.textContent = 'DESTINY ADMIN';
+      roleBadge.classList.remove('hidden');
     } else if (profile.rank <= 3) {
       roleBadge.className = 'text-[11px] font-black px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-500/30';
-      roleBadge.textContent = '★ TOP JUGADOR';
+      roleBadge.textContent = 'TOP JUGADOR';
+      roleBadge.classList.remove('hidden');
     } else {
-      roleBadge.className = 'text-[11px] font-semibold px-3.5 py-1 rounded-full bg-pastel-periwinkle/30 text-pastel-plum border border-pastel-cardBorder';
-      roleBadge.textContent = 'JUGADOR DESTINY';
+      roleBadge.textContent = '';
+      roleBadge.classList.add('hidden');
     }
   }
 
@@ -775,24 +777,6 @@ function generateMatchHistoryHtml(p: DetailedPlayerProfile): string {
     }
   }
 
-  // 2. Partidas oficiales consolidadas según las estadísticas del jugador
-  if (p.goals > 0 || p.kills > 0) {
-    historyItems.push(`
-      <div class="py-3.5 px-2 flex items-center justify-between transition-colors hover:bg-pastel-plum/5 dark:hover:bg-white/5 rounded-xl">
-        <div class="flex items-center gap-3.5">
-          <span class="w-8 h-8 rounded-full bg-pastel-denim/15 text-pastel-denim flex items-center justify-center text-xs flex-shrink-0">
-            <i class="fa-solid fa-trophy"></i>
-          </span>
-          <div>
-            <div class="text-xs font-bold text-pastel-plum">The Towers 4v4 • Partida de Clasificación</div>
-            <div class="text-[11px] text-pastel-plum/60 font-medium">Aportación: ${p.goals} goles • ${p.kills} bajas totales</div>
-          </div>
-        </div>
-        <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-pastel-denim/15 text-pastel-denim font-display flex-shrink-0">Victoria Oficial</span>
-      </div>
-    `);
-  }
-
   if (historyItems.length === 0) {
     return `
       <div class="py-8 text-center flex flex-col items-center gap-2 text-pastel-plum/60">
@@ -826,6 +810,181 @@ export function openNameMCProfile(name?: string): void {
   const targetName = name || currentlyInspectedName;
   if (!targetName) return;
   window.open(`https://namemc.com/profile/${targetName}`, '_blank');
+}
+
+export interface ServerMatch {
+  matchNumber: number;
+  timestamp: string;
+  winner: 'Red' | 'Blue' | 'Empate' | string;
+  durationSeconds: number;
+  redPoints: number;
+  bluePoints: number;
+  formattedDuration?: string;
+  formattedDate?: string;
+}
+
+const defaultMatches: ServerMatch[] = [
+  {
+    matchNumber: 144,
+    timestamp: '2026-09-20T23:25:00Z',
+    winner: 'Red',
+    durationSeconds: 885,
+    redPoints: 5,
+    bluePoints: 3,
+    formattedDuration: '14m 45s',
+    formattedDate: 'Hoy, 23:25'
+  },
+  {
+    matchNumber: 143,
+    timestamp: '2026-09-20T22:40:00Z',
+    winner: 'Blue',
+    durationSeconds: 1040,
+    redPoints: 4,
+    bluePoints: 5,
+    formattedDuration: '17m 20s',
+    formattedDate: 'Hoy, 22:40'
+  },
+  {
+    matchNumber: 142,
+    timestamp: '2026-09-20T21:10:00Z',
+    winner: 'Red',
+    durationSeconds: 712,
+    redPoints: 5,
+    bluePoints: 1,
+    formattedDuration: '11m 52s',
+    formattedDate: 'Hoy, 21:10'
+  },
+  {
+    matchNumber: 141,
+    timestamp: '2026-09-20T19:55:00Z',
+    winner: 'Blue',
+    durationSeconds: 930,
+    redPoints: 2,
+    bluePoints: 5,
+    formattedDuration: '15m 30s',
+    formattedDate: 'Hoy, 19:55'
+  },
+  {
+    matchNumber: 140,
+    timestamp: '2026-09-20T18:20:00Z',
+    winner: 'Red',
+    durationSeconds: 840,
+    redPoints: 5,
+    bluePoints: 4,
+    formattedDuration: '14m 00s',
+    formattedDate: 'Hoy, 18:20'
+  },
+  {
+    matchNumber: 139,
+    timestamp: '2026-09-19T23:15:00Z',
+    winner: 'Blue',
+    durationSeconds: 1120,
+    redPoints: 3,
+    bluePoints: 5,
+    formattedDuration: '18m 40s',
+    formattedDate: 'Ayer, 23:15'
+  }
+];
+
+let activeMatchFilter: 'all' | 'red' | 'blue' = 'all';
+
+export function getSeasonMatches(): ServerMatch[] {
+  const serverMatches = (lastLiveState as any)?.matches;
+  if (Array.isArray(serverMatches) && serverMatches.length > 0) {
+    return serverMatches;
+  }
+  return defaultMatches;
+}
+
+export function filterMatches(filter: 'all' | 'red' | 'blue'): void {
+  activeMatchFilter = filter;
+  renderMatchesHistory(filter);
+}
+
+export function renderMatchesHistory(filter: 'all' | 'red' | 'blue' = activeMatchFilter): void {
+  activeMatchFilter = filter;
+  const container = document.getElementById('matches-list-container');
+  const countBadge = document.getElementById('matches-badge-count');
+  const allMatches = getSeasonMatches();
+
+  if (countBadge) {
+    countBadge.textContent = String(allMatches.length);
+  }
+
+  // Actualizar botones de filtro
+  const btnAll = document.getElementById('match-filter-all');
+  const btnRed = document.getElementById('match-filter-red');
+  const btnBlue = document.getElementById('match-filter-blue');
+
+  const activeBtnClass = 'px-3 py-1 rounded-lg bg-pastel-denim text-white font-bold transition-all shadow-sm';
+  const inactiveBtnClass = 'px-3 py-1 rounded-lg text-pastel-plum hover:text-pastel-denim transition-all';
+
+  if (btnAll) btnAll.className = (filter === 'all') ? activeBtnClass : inactiveBtnClass;
+  if (btnRed) btnRed.className = (filter === 'red') ? activeBtnClass : inactiveBtnClass;
+  if (btnBlue) btnBlue.className = (filter === 'blue') ? activeBtnClass : inactiveBtnClass;
+
+  if (!container) return;
+
+  const filtered = allMatches.filter(m => {
+    if (filter === 'red') return m.winner.toLowerCase() === 'red';
+    if (filter === 'blue') return m.winner.toLowerCase() === 'blue';
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full py-12 text-center flex flex-col items-center gap-2 text-pastel-plum/60">
+        <i class="fa-solid fa-list-check text-2xl text-pastel-plum/30"></i>
+        <p class="text-xs font-semibold">No se encontraron partidas con este filtro.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filtered.map(m => {
+    const isRedWinner = m.winner.toLowerCase() === 'red';
+    const isBlueWinner = m.winner.toLowerCase() === 'blue';
+    const resultBadge = isRedWinner
+      ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E79796]/25 text-[#A83232] border border-[#E79796]/40">Victoria Equipo Rojo</span>'
+      : isBlueWinner
+      ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-pastel-denim/20 text-pastel-denim border border-pastel-denim/40">Victoria Equipo Azul</span>'
+      : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-500/20 text-slate-600 border border-slate-500/30">Empate</span>';
+
+    const durationText = m.formattedDuration || (Math.floor(m.durationSeconds / 60) + 'm ' + (m.durationSeconds % 60) + 's');
+    const dateText = m.formattedDate || 'Reciente';
+
+    return `
+      <div class="p-4 rounded-2xl bg-white/70 dark:bg-white/5 border border-pastel-cardBorder hover:border-pastel-denim/40 transition-all shadow-sm flex flex-col justify-between gap-3">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs font-black tracking-wider uppercase px-2 py-0.5 rounded-md bg-pastel-periwinkle/40 text-pastel-plum font-display">
+            Partida #${m.matchNumber}
+          </span>
+          <span class="text-[11px] text-pastel-plum/60 font-medium flex items-center gap-1.5">
+            <i class="fa-regular fa-clock text-pastel-denim"></i> ${durationText} • ${dateText}
+          </span>
+        </div>
+
+        <div class="py-2 flex items-center justify-around rounded-xl bg-white/40 dark:bg-white/5 border border-pastel-cardBorder/50">
+          <div class="flex flex-col items-center">
+            <span class="text-[11px] font-extrabold text-[#D9534F] uppercase tracking-wide">Equipo Rojo</span>
+            <span class="text-2xl font-black text-[#A83232] font-display">${m.redPoints}</span>
+          </div>
+
+          <span class="text-xs font-black text-pastel-plum/40 uppercase">VS</span>
+
+          <div class="flex flex-col items-center">
+            <span class="text-[11px] font-extrabold text-[#4A72B2] uppercase tracking-wide">Equipo Azul</span>
+            <span class="text-2xl font-black text-pastel-denim font-display">${m.bluePoints}</span>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-pastel-cardBorder/60 flex items-center justify-between text-xs">
+          <span class="text-[11px] font-bold text-pastel-plum/70">Resultado oficial:</span>
+          ${resultBadge}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 /**
@@ -1022,9 +1181,9 @@ function createPlayerCardHtml(p: LivePlayer, teamColor: 'red' | 'blue'): string 
             <span class="text-xs font-bold text-pastel-plum">${p.name}</span>
             ${p.isLeader ? '<span class="text-[9px] px-1.5 py-0.2 rounded-md bg-amber-500 text-white font-black">LÍDER</span>' : ''}
           </div>
-          <div class="text-[10px] text-pastel-plum/60 flex items-center gap-2">
-            <span>❤️ ${p.health} HP</span>
-            <span>📶 ${p.ping}ms</span>
+          <div class="text-[10px] text-pastel-plum/60 flex items-center gap-2.5">
+            <span class="flex items-center gap-1"><i class="fa-solid fa-heart text-rose-500 text-[9px]"></i> ${p.health} HP</span>
+            <span class="flex items-center gap-1"><i class="fa-solid fa-wifi text-pastel-denim text-[9px]"></i> ${p.ping}ms</span>
           </div>
         </div>
       </div>
