@@ -168,10 +168,9 @@ public class ScoreboardHandler {
                 newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + (playerTeam != null ? TextUtil.toTiny("Tu Equipo: ") : TextUtil.toTiny("Tu Rol: ")) + teamName);
             }
 
-            // Footer DestinyOwners
+            // Footer DestinyOwners (Estático para evitar reseteo continuo de líneas y saturación de paquetes)
             newLines.add(ChatColor.DARK_GRAY + "§m                      §r");
-            String animatedFooter = DestinyTheme.FOOTER_FRAMES[(animStep / 2) % DestinyTheme.FOOTER_FRAMES.length];
-            newLines.add(animatedFooter);
+            newLines.add(TextUtil.color("&#888888§lᴅᴇsᴛɪɴʏᴏᴡɴᴇʀs.ᴄᴏᴍ"));
 
             // Comparar con líneas anteriores para evitar parpadeo
             List<String> lastLines = playerLastLines.getOrDefault(player.getUniqueId(), Collections.emptyList());

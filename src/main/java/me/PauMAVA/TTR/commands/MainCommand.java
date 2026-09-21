@@ -103,10 +103,20 @@ public class MainCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "◆ " + TextUtil.toTiny("DIAGNÓSTICO DE RED Y LATENCIA") + " ◆");
                 sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Jugador: ") + ChatColor.WHITE + target.getName());
                 sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Ping actual: ") + pingColor + ping + "ms");
-                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Compensación de Lag: ") + ChatColor.GREEN + "ACTIVA " + ChatColor.GRAY + "(Historial 1.25s / BoundingBox Rewind)");
-                boolean eq = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().isEqualizerEnabled();
-                int targetMs = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance().getTargetPing();
-                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Ping Equalizer: ") + (eq ? ChatColor.GREEN + "ACTIVADO " + ChatColor.GRAY + "(Objetivo: " + targetMs + "ms)" : ChatColor.RED + "DESACTIVADO"));
+                me.PauMAVA.TTR.network.NetworkFairnessManager nfm = me.PauMAVA.TTR.network.NetworkFairnessManager.getInstance();
+                boolean isTracking = nfm.isTrackingActive();
+                boolean eqEnabled = nfm.isEqualizerEnabled();
+                boolean eqActive = nfm.isEqualizerActive();
+                int targetMs = nfm.getTargetPing();
+
+                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Compensación de Lag: ") + 
+                        (isTracking ? ChatColor.GREEN + "ACTIVA " + ChatColor.GRAY + "(En combate - Historial 1.25s / BoundingBox Rewind)" 
+                                    : ChatColor.YELLOW + "EN ESPERA " + ChatColor.GRAY + "(Inactiva en lobby - Se activa solo en combate)"));
+
+                sender.sendMessage(ChatColor.GRAY + " » " + TextUtil.toTiny("Ping Equalizer: ") + 
+                        (eqActive ? ChatColor.GREEN + "ACTIVO " + ChatColor.GRAY + "(Objetivo: " + targetMs + "ms)" 
+                                  : (eqEnabled ? ChatColor.YELLOW + "CONFIGURADO " + ChatColor.GRAY + "(" + targetMs + "ms - se activa al combatir)" 
+                                               : ChatColor.RED + "DESACTIVADO")));
                 sender.sendMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
                 return true;
             }

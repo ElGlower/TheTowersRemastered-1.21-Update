@@ -74,6 +74,15 @@ public class NetworkFairnessManager implements Listener {
     public int getTargetPing() { return targetPing; }
     public void setTargetPing(int target) { this.targetPing = Math.max(30, Math.min(300, target)); }
 
+    public boolean isTrackingActive() {
+        TTRCore core = TTRCore.getInstance();
+        return trackingTask != null && core.getCurrentMatch() != null && core.getCurrentMatch().getStatus() == MatchStatus.INGAME;
+    }
+
+    public boolean isEqualizerActive() {
+        return equalizerEnabled && isTrackingActive();
+    }
+
     public void startTracking() {
         stopTracking();
         trackingTask = new BukkitRunnable() {
@@ -106,6 +115,7 @@ public class NetworkFairnessManager implements Listener {
             trackingTask = null;
         }
         positionHistory.clear();
+        lastHitTimes.clear();
     }
 
     @EventHandler
@@ -123,11 +133,10 @@ public class NetworkFairnessManager implements Listener {
     public void onPlayerSwing(PlayerInteractEvent event) {
         if (event.getAction() != Action.LEFT_CLICK_AIR && event.getAction() != Action.LEFT_CLICK_BLOCK) return;
 
+        if (!isTrackingActive()) return;
+
         Player attacker = event.getPlayer();
         if (attacker.getGameMode() != GameMode.SURVIVAL) return;
-
-        TTRCore core = TTRCore.getInstance();
-        if (core.getCurrentMatch() == null || core.getCurrentMatch().getStatus() != MatchStatus.INGAME) return;
 
         int ping = attacker.getPing();
         // Solo compensar si el jugador tiene latencia perceptible (> 35ms)
@@ -195,7 +204,7 @@ public class NetworkFairnessManager implements Listener {
             final Player victim = bestTarget;
 
             // Si el modo Ping Equalizer está activo y el atacante tiene menos ping que el objetivo
-            if (equalizerEnabled && ping < targetPing) {
+            if (isEqualizerActive() && ping < targetPing) {
                 long delayMs = (targetPing - ping) / 2;
                 long delayTicks = Math.max(1, delayMs / 50);
                 Bukkit.getScheduler().runTaskLater(core, () -> {
@@ -241,9 +250,8 @@ public class NetworkFairnessManager implements Listener {
             }
         }
 
-        // Ejecutar ataque nativo
+        // Ejecutar ataque nativo (disparará EntityDamageByEntityEvent que aplica el knockback)
         attacker.attack(victim);
-        applyFairKnockback(attacker, victim);
     }
 
     /**
@@ -255,8 +263,7 @@ public class NetworkFairnessManager implements Listener {
         if (!(event.getEntity() instanceof Player victim)) return;
         if (!(event.getDamager() instanceof Player attacker)) return;
 
-        TTRCore core = TTRCore.getInstance();
-        if (core.getCurrentMatch() == null || core.getCurrentMatch().getStatus() != MatchStatus.INGAME) return;
+        if (!isTrackingActive()) return;
 
         // Aplicar knockback justo y sincronizado
         applyFairKnockback(attacker, victim);
