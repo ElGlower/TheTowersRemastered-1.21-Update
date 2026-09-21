@@ -22,6 +22,12 @@ public class ScoreboardHandler {
     private final Map<UUID, List<String>> playerLastLines = new ConcurrentHashMap<>();
 
     private int animStep = 0;
+    private static final net.kyori.adventure.text.Component[] TITLE_COMPONENTS = new net.kyori.adventure.text.Component[DestinyTheme.SHINE_FRAMES.length];
+    static {
+        for (int i = 0; i < DestinyTheme.SHINE_FRAMES.length; i++) {
+            TITLE_COMPONENTS[i] = net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(DestinyTheme.SHINE_FRAMES[i]);
+        }
+    }
 
     public ScoreboardHandler(TTRCore plugin) {
         this.plugin = plugin;
@@ -39,7 +45,7 @@ public class ScoreboardHandler {
                     // Prevenir que el task muera ante cualquier excepción
                 }
             }
-        }.runTaskTimer(plugin, 0L, 5L).getTaskId();
+        }.runTaskTimer(plugin, 0L, 20L).getTaskId();
     }
 
     public void stopScoreboardTask() {
@@ -79,12 +85,12 @@ public class ScoreboardHandler {
             }
 
             Objective obj = board.getObjective("TTR");
-            String animatedTitle = DestinyTheme.SHINE_FRAMES[animStep % DestinyTheme.SHINE_FRAMES.length];
+            net.kyori.adventure.text.Component titleComp = TITLE_COMPONENTS[animStep % TITLE_COMPONENTS.length];
             if (obj == null) {
-                obj = board.registerNewObjective("TTR", Criteria.DUMMY, net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(animatedTitle));
+                obj = board.registerNewObjective("TTR", Criteria.DUMMY, titleComp);
                 obj.setDisplaySlot(DisplaySlot.SIDEBAR);
             } else {
-                obj.displayName(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(animatedTitle));
+                obj.displayName(titleComp);
                 if (obj.getDisplaySlot() != DisplaySlot.SIDEBAR) {
                     obj.setDisplaySlot(DisplaySlot.SIDEBAR);
                 }

@@ -85,8 +85,11 @@ public class GameJoinListener implements Listener {
                     player.teleport(lobby);
                 }
 
-                // Dar estrella para selector de equipo
-                if (status == MatchStatus.LOBBY || status == MatchStatus.INGAME) {
+                // Dar estrella para selector de equipo o ítem de subasta si la subasta está activa
+                if (plugin.getAuctionDraftManager() != null && plugin.getAuctionDraftManager().isActive()) {
+                    plugin.getAuctionDraftManager().giveViewerAuctionItem(player);
+                    me.PauMAVA.TTR.ui.AuctionDraftGUI.open(player, plugin.getAuctionDraftManager());
+                } else if (status == MatchStatus.LOBBY || status == MatchStatus.INGAME) {
                     giveTeamSelector(player);
                     if (status == MatchStatus.INGAME) {
                         player.sendMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + TextUtil.toTiny("Partida en curso. Usa la Estrella para unirte."));

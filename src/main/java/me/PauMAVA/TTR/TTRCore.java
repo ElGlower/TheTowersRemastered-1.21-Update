@@ -94,6 +94,7 @@ public class TTRCore extends JavaPlugin {
             }
             this.worldHandler = new TTRWorldHandler(this, w);
             this.worldHandler.setUpWorld();
+            me.PauMAVA.TTR.match.ChestRestockManager.getInstance().captureInitialChests(w);
         }
 
         registerCommands();
@@ -106,6 +107,7 @@ public class TTRCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TeamCombatListener(), this);
         getServer().getPluginManager().registerEvents(new TeamSelectListener(this), this);
         getServer().getPluginManager().registerEvents(new me.PauMAVA.TTR.ui.ModesGUIListener(), this);
+        getServer().getPluginManager().registerEvents(me.PauMAVA.TTR.match.ChestRestockManager.getInstance(), this);
 
         // Simple Voice Chat API Integration
         me.PauMAVA.TTR.voice.VoiceChatManager.getInstance().init();

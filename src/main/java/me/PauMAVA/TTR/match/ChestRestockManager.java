@@ -9,23 +9,27 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Container;
-import org.bukkit.block.DoubleChest;
-import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Gestor de Limpieza de Líquidos y Re-Stock de Cofres de la Arena.
- * Elimina automáticamente cualquier cubo de agua o lava y permite restaurar cofres.
+ * Elimina automáticamente cualquier cubo de agua o lava y garantiza
+ * que todos los cofres (incluso en chunks no cargados o destruidos) se regeneren al 100%.
  */
-public class ChestRestockManager {
+public class ChestRestockManager implements Listener {
 
     private static ChestRestockManager instance;
     private final Map<Location, ItemStack[]> initialChestSnapshots = new HashMap<>();
@@ -67,43 +71,49 @@ public class ChestRestockManager {
     }
 
     /**
-     * Captura el estado original de los cofres la primera vez que se cargan.
+     * Guarda el snapshot del inventario del cofre si no existía previamente.
+     */
+    public void snapshotChest(Chest chest) {
+        if (chest == null) return;
+        Location loc = chest.getLocation();
+        if (!initialChestSnapshots.containsKey(loc)) {
+            ItemStack[] contents = chest.getBlockInventory().getContents();
+            ItemStack[] copy = new ItemStack[contents.length];
+            for (int i = 0; i < contents.length; i++) {
+                if (contents[i] != null && !isLiquidBucket(contents[i].getType())) {
+                    copy[i] = contents[i].clone();
+                } else {
+                    copy[i] = null;
+                }
+            }
+            initialChestSnapshots.put(loc, copy);
+        }
+    }
+
+    /**
+     * Captura el estado original de todos los cofres de la arena.
      */
     public void captureInitialChests(World world) {
         if (world == null) return;
+
+        // 1. Chunks cargados actualmente
         for (Chunk chunk : world.getLoadedChunks()) {
             for (BlockState state : chunk.getTileEntities()) {
                 if (state instanceof Chest chest) {
-                    Location loc = chest.getLocation();
-                    if (!initialChestSnapshots.containsKey(loc)) {
-                        ItemStack[] contents = chest.getBlockInventory().getContents();
-                        ItemStack[] copy = new ItemStack[contents.length];
-                        for (int i = 0; i < contents.length; i++) {
-                            if (contents[i] != null && !isLiquidBucket(contents[i].getType())) {
-                                copy[i] = contents[i].clone();
-                            } else {
-                                copy[i] = null;
-                            }
-                        }
-                        initialChestSnapshots.put(loc, copy);
-                    }
+                    snapshotChest(chest);
                 }
             }
         }
 
+        // 2. Todos los cofres configurados explícitamente en la arena
         if (TTRCore.getInstance().getConfigManager() != null) {
             java.util.List<Location> configured = TTRCore.getInstance().getConfigManager().getAllConfiguredChests();
             for (Location loc : configured) {
                 if (loc != null && loc.getWorld() != null) {
                     if (!loc.isChunkLoaded()) loc.getChunk().load();
                     BlockState state = loc.getBlock().getState();
-                    if (state instanceof Chest chest && !initialChestSnapshots.containsKey(loc)) {
-                        ItemStack[] contents = chest.getBlockInventory().getContents();
-                        ItemStack[] copy = new ItemStack[contents.length];
-                        for (int i = 0; i < contents.length; i++) {
-                            copy[i] = (contents[i] != null && !isLiquidBucket(contents[i].getType())) ? contents[i].clone() : null;
-                        }
-                        initialChestSnapshots.put(loc, copy);
+                    if (state instanceof Chest chest) {
+                        snapshotChest(chest);
                     }
                 }
             }
@@ -111,9 +121,29 @@ public class ChestRestockManager {
     }
 
     /**
-     * Barre todos los cofres cargados en el mundo de la arena:
-     * 1. Elimina todos los cubos de agua y lava.
-     * 2. Si se solicita restock completo, restaura los ítems iniciales.
+     * Escucha la carga dinámica de chunks para capturar cofres si aún no estaban registrados.
+     */
+    @EventHandler
+    public void onChunkLoad(ChunkLoadEvent event) {
+        World arenaWorld = getArenaWorld();
+        if (arenaWorld == null || !event.getWorld().equals(arenaWorld)) return;
+
+        TTRMatch match = TTRCore.getInstance().getCurrentMatch();
+        if (match != null && match.getStatus() == MatchStatus.LOBBY) {
+            for (BlockState state : event.getChunk().getTileEntities()) {
+                if (state instanceof Chest chest) {
+                    snapshotChest(chest);
+                }
+            }
+        }
+    }
+
+    /**
+     * Regenera y limpia todos los cofres de la arena:
+     * 1. Carga chunks correspondientes para no perder cofres de torres alejadas.
+     * 2. Si el bloque fue destruido o reemplazado por aire, lo vuelve a colocar.
+     * 3. Restaura fielmente todos los ítems del snapshot inicial (incluyendo ambas mitades de cofres dobles).
+     * 4. Purga cubos de agua y lava.
      */
     public int restockAndPurgeArenaChests(boolean restoreFromSnapshot) {
         World arenaWorld = getArenaWorld();
@@ -122,23 +152,74 @@ public class ChestRestockManager {
         captureInitialChests(arenaWorld);
 
         int chestsTouched = 0;
-        for (Chunk chunk : arenaWorld.getLoadedChunks()) {
-            for (BlockState state : chunk.getTileEntities()) {
-                if (state instanceof Container container) {
-                    Inventory inv = container.getInventory();
-                    purgeLiquids(inv);
+        Set<Location> processed = new HashSet<>();
 
-                    if (restoreFromSnapshot && state instanceof Chest chest) {
-                        ItemStack[] snapshot = initialChestSnapshots.get(chest.getLocation());
-                        if (snapshot != null) {
-                            chest.getBlockInventory().clear();
-                            for (int i = 0; i < snapshot.length; i++) {
-                                if (snapshot[i] != null && !isLiquidBucket(snapshot[i].getType())) {
-                                    chest.getBlockInventory().setItem(i, snapshot[i].clone());
-                                }
+        // 1. Restaurar todos los cofres de los cuales tenemos snapshot
+        for (Map.Entry<Location, ItemStack[]> entry : initialChestSnapshots.entrySet()) {
+            Location loc = entry.getKey();
+            ItemStack[] snapshot = entry.getValue();
+            if (loc == null || loc.getWorld() == null) continue;
+
+            if (!loc.isChunkLoaded()) {
+                loc.getChunk().load();
+            }
+
+            Block b = loc.getBlock();
+            // Si el bloque fue destruido (aire u otro bloque), reconstruirlo como cofre
+            if (b.getType() != Material.CHEST && b.getType() != Material.TRAPPED_CHEST) {
+                b.setType(Material.CHEST, false);
+            }
+
+            if (b.getState() instanceof Chest chest) {
+                Inventory inv = chest.getBlockInventory();
+                inv.clear();
+                for (int i = 0; i < Math.min(inv.getSize(), snapshot.length); i++) {
+                    if (snapshot[i] != null && !isLiquidBucket(snapshot[i].getType())) {
+                        inv.setItem(i, snapshot[i].clone());
+                    }
+                }
+                purgeLiquids(inv);
+                processed.add(loc);
+                chestsTouched++;
+            }
+        }
+
+        // 2. Asegurar que los cofres configurados en config.yml también existan y se limpien
+        if (TTRCore.getInstance().getConfigManager() != null) {
+            java.util.List<Location> configured = TTRCore.getInstance().getConfigManager().getAllConfiguredChests();
+            for (Location loc : configured) {
+                if (loc == null || loc.getWorld() == null || processed.contains(loc)) continue;
+
+                if (!loc.isChunkLoaded()) loc.getChunk().load();
+
+                Block b = loc.getBlock();
+                if (b.getType() != Material.CHEST && b.getType() != Material.TRAPPED_CHEST) {
+                    b.setType(Material.CHEST, false);
+                }
+
+                if (b.getState() instanceof Chest chest) {
+                    if (restoreFromSnapshot && initialChestSnapshots.containsKey(loc)) {
+                        ItemStack[] snapshot = initialChestSnapshots.get(loc);
+                        Inventory inv = chest.getBlockInventory();
+                        inv.clear();
+                        for (int i = 0; i < Math.min(inv.getSize(), snapshot.length); i++) {
+                            if (snapshot[i] != null && !isLiquidBucket(snapshot[i].getType())) {
+                                inv.setItem(i, snapshot[i].clone());
                             }
                         }
                     }
+                    purgeLiquids(chest.getBlockInventory());
+                    processed.add(loc);
+                    chestsTouched++;
+                }
+            }
+        }
+
+        // 3. Purga adicional de cualquier otro contenedor cargado (barriles, dispensers, etc.)
+        for (Chunk chunk : arenaWorld.getLoadedChunks()) {
+            for (BlockState state : chunk.getTileEntities()) {
+                if (state instanceof Container container && !processed.contains(container.getLocation())) {
+                    purgeLiquids(container.getInventory());
                     chestsTouched++;
                 }
             }

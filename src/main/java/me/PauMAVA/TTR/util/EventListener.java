@@ -6,6 +6,7 @@ import me.PauMAVA.TTR.teams.TTRTeam;
 import me.PauMAVA.TTR.ui.BeaconShop;
 import me.PauMAVA.TTR.ui.ConfigGUI;
 import me.PauMAVA.TTR.listeners.TeamSelectListener;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import java.util.List;
 import org.bukkit.GameMode;
@@ -295,6 +296,19 @@ public class EventListener implements Listener {
         // Control de caída al vacío en Lobby o Fuera de Partida
         if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
             Location lobby = plugin.getConfigManager().getLobbyLocation();
+
+            // Mantener a todos los jugadores en el spawn durante la fase de subasta hasta que inicie la estrategia
+            if (plugin.getAuctionDraftManager() != null && plugin.getAuctionDraftManager().isActive() && !TTRCore.isAdmin(p)) {
+                if (lobby != null && lobby.getWorld() != null) {
+                    if (!p.getWorld().equals(lobby.getWorld()) || p.getLocation().distanceSquared(lobby) > 1225.0) {
+                        p.teleport(lobby);
+                        p.setVelocity(new Vector(0, 0, 0));
+                        p.setFallDistance(0f);
+                        return;
+                    }
+                }
+            }
+
             if (lobby != null && lobby.getWorld() != null && p.getWorld().equals(lobby.getWorld())) {
                 if (p.getLocation().getY() < (lobby.getY() - 15.0) || p.getLocation().getY() < 60.0) {
                     if (LobbyParkourManager.getInstance().isDoingParkour(p)) {
@@ -679,9 +693,14 @@ public class EventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
     public void onChat(org.bukkit.event.player.AsyncPlayerChatEvent event) {
         if (!plugin.enabled()) return;
+        // Garantizar que el chat NUNCA esté cancelado para nadie en ningún momento ni fase
+        event.setCancelled(false);
+        // Garantizar que todos los jugadores conectados reciban siempre el mensaje
+        event.getRecipients().addAll(Bukkit.getOnlinePlayers());
+
         Player p = event.getPlayer();
         TTRTeam team = plugin.getTeamHandler().getPlayerTeam(p);
         boolean isStaff = p.isOp() || p.hasPermission("destinytowers.admin") || p.hasPermission("ttr.admin");
@@ -693,8 +712,14 @@ public class EventListener implements Listener {
         } else if (team != null) {
             String teamPrefix = ChatColor.DARK_GRAY + "[" + team.getColor() + TextUtil.toTiny(team.getIdentifier()) + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
             event.setFormat(staffPrefix + teamPrefix + team.getColor() + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
+        } else if (p.getGameMode() == GameMode.SPECTATOR) {
+            String specPrefix = ChatColor.DARK_GRAY + "[" + ChatColor.GRAY + TextUtil.toTiny("Espectador") + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
+            event.setFormat(staffPrefix + specPrefix + ChatColor.GRAY + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
         } else if (isStaff) {
             event.setFormat(staffPrefix + ChatColor.WHITE + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
+        } else {
+            // Jugador en lobby o sin equipo asignado
+            event.setFormat(staffPrefix + ChatColor.GRAY + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
         }
     }
 }

@@ -7,6 +7,7 @@ import me.PauMAVA.TTR.util.TextUtil;
 import me.PauMAVA.TTR.util.TTRPrefix;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -102,9 +103,21 @@ public class AuctionDraftManager {
         Collections.shuffle(pool);
         this.active = true;
 
-        // Entregar ítem interactivo del panel de subasta a los líderes
-        giveLeaderAuctionItem(red);
-        giveLeaderAuctionItem(blue);
+        // Retirar la estrella del nether a TODOS los jugadores y teletransportar a spawn
+        Location lobby = plugin.getConfigManager().getLobbyLocation();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.getInventory().remove(Material.NETHER_STAR);
+            if (lobby != null && lobby.getWorld() != null) {
+                p.teleport(lobby);
+                p.setVelocity(new org.bukkit.util.Vector(0, 0, 0));
+                p.setFallDistance(0f);
+            }
+            if (isCaptain(p)) {
+                giveLeaderAuctionItem(p);
+            } else {
+                giveViewerAuctionItem(p);
+            }
+        }
 
         Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
         Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "⚖ " +
@@ -191,9 +204,7 @@ public class AuctionDraftManager {
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
-            if (isCaptain(p) || p.getOpenInventory().getTitle().equals(AuctionDraftGUI.TITLE)) {
-                AuctionDraftGUI.open(p, this);
-            }
+            AuctionDraftGUI.open(p, this);
         }
     }
 
@@ -344,21 +355,32 @@ public class AuctionDraftManager {
         refreshGUI();
     }
 
-    private void giveLeaderAuctionItem(TTRTeam team) {
-        if (team == null || team.getLeader() == null) return;
-        Player leader = Bukkit.getPlayer(team.getLeader());
-        if (leader != null) {
-            org.bukkit.inventory.ItemStack panelItem = new org.bukkit.inventory.ItemStack(Material.GOLD_INGOT);
-            org.bukkit.inventory.meta.ItemMeta meta = panelItem.getItemMeta();
-            if (meta != null) {
-                meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "⚖ " + TextUtil.toTiny("Panel de Subasta") + ChatColor.GRAY + " (" + TextUtil.toTiny("Clic Derecho") + ")");
-                List<String> lore = new ArrayList<>();
-                lore.add(ChatColor.GRAY + TextUtil.toTiny("Haz clic derecho para abrir la mesa de pujas en cualquier momento."));
-                meta.setLore(lore);
-                panelItem.setItemMeta(meta);
-            }
-            leader.getInventory().setItem(0, panelItem);
+    public void giveLeaderAuctionItem(Player leader) {
+        if (leader == null) return;
+        org.bukkit.inventory.ItemStack panelItem = new org.bukkit.inventory.ItemStack(Material.GOLD_INGOT);
+        org.bukkit.inventory.meta.ItemMeta meta = panelItem.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "⚖ " + TextUtil.toTiny("Panel de Subasta") + ChatColor.GRAY + " (" + TextUtil.toTiny("Clic Derecho") + ")");
+            List<String> lore = new ArrayList<>();
+            lore.add(ChatColor.GRAY + TextUtil.toTiny("Haz clic derecho para abrir la mesa de pujas en cualquier momento."));
+            meta.setLore(lore);
+            panelItem.setItemMeta(meta);
         }
+        leader.getInventory().setItem(0, panelItem);
+    }
+
+    public void giveViewerAuctionItem(Player player) {
+        if (player == null) return;
+        org.bukkit.inventory.ItemStack panelItem = new org.bukkit.inventory.ItemStack(Material.GOLD_INGOT);
+        org.bukkit.inventory.meta.ItemMeta meta = panelItem.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "👁 " + TextUtil.toTiny("Ver Subasta en Vivo") + ChatColor.GRAY + " (" + TextUtil.toTiny("Clic Derecho") + ")");
+            List<String> lore = new ArrayList<>();
+            lore.add(ChatColor.GRAY + TextUtil.toTiny("Haz clic derecho para ver el avance de la subasta en tiempo real."));
+            meta.setLore(lore);
+            panelItem.setItemMeta(meta);
+        }
+        player.getInventory().setItem(0, panelItem);
     }
 
     public boolean bid(Player captain, int amountToAdd) {
@@ -397,7 +419,14 @@ public class AuctionDraftManager {
                 ChatColor.YELLOW + TextUtil.toTiny("puja ") + ChatColor.GREEN + currentBid + " créditos" +
                 ChatColor.GRAY + " (⏱ " + secondsRemaining + "s)");
 
+        // Sincronización instantánea de actionbar para todos
+        Player candPlayer = (currentCandidate != null) ? Bukkit.getPlayer(currentCandidate) : null;
+        String cName = (candPlayer != null) ? candPlayer.getName() : "Jugador";
+        String ab = TextUtil.color("&#FFFFFF⚖ " + TextUtil.toTiny("Subasta: ") + "&#FFFF55" + cName +
+                " &#888888| " + "&#FFFFFF⏱ " + "&#FF2E2E§l" + secondsRemaining + "s" +
+                " &#888888| " + TextUtil.toTiny("Oferta: ") + "&#55FF55" + currentBid + "c (" + teamId.toUpperCase() + ")");
         for (Player p : Bukkit.getOnlinePlayers()) {
+            p.sendActionBar(net.kyori.adventure.text.Component.text(ab));
             p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.5f);
         }
 
@@ -426,7 +455,8 @@ public class AuctionDraftManager {
 
     public void refreshGUI() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.getOpenInventory().getTitle().contains(TextUtil.toTiny("Subasta de Miembros"))) {
+            if (p.getOpenInventory().getTopInventory().getHolder() instanceof AuctionDraftGUI.AuctionDraftHolder ||
+                p.getOpenInventory().getTitle().contains(TextUtil.toTiny("Subasta de Miembros"))) {
                 AuctionDraftGUI.update(p, this);
             }
         }

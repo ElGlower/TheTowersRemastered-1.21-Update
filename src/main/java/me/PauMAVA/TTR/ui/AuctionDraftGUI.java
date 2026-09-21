@@ -12,6 +12,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -28,14 +29,29 @@ public class AuctionDraftGUI {
     public static final NamespacedKey KEY_ACTION = new NamespacedKey(TTRCore.getInstance(), "ttr_auction_action");
     public static final NamespacedKey KEY_BID_AMOUNT = new NamespacedKey(TTRCore.getInstance(), "ttr_auction_amount");
 
+    public static class AuctionDraftHolder implements InventoryHolder {
+        private Inventory inventory;
+
+        @Override
+        public Inventory getInventory() {
+            return inventory;
+        }
+
+        public void setInventory(Inventory inventory) {
+            this.inventory = inventory;
+        }
+    }
+
     public static void open(Player player, AuctionDraftManager draft) {
-        Inventory gui = Bukkit.createInventory(null, 27, TITLE);
+        AuctionDraftHolder holder = new AuctionDraftHolder();
+        Inventory gui = Bukkit.createInventory(holder, 27, TITLE);
+        holder.setInventory(gui);
         render(gui, player, draft);
         player.openInventory(gui);
     }
 
     public static void update(Player player, AuctionDraftManager draft) {
-        if (player.getOpenInventory().getTitle().equals(TITLE)) {
+        if (player.getOpenInventory().getTopInventory().getHolder() instanceof AuctionDraftHolder) {
             render(player.getOpenInventory().getTopInventory(), player, draft);
         }
     }
@@ -101,7 +117,7 @@ public class AuctionDraftGUI {
                             ChatColor.DARK_GRAY + TextUtil.toTiny("Sin pujas"));
                 }
                 lore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-                lore.add(ChatColor.WHITE + TextUtil.toTiny("¡Capitanes, pujen con los botones inferiores!"));
+                lore.add(ChatColor.WHITE + TextUtil.toTiny("¡Capitanes, decidan el destino de su equipo!"));
 
                 sm.setLore(lore);
                 skull.setItemMeta(sm);
@@ -136,7 +152,20 @@ public class AuctionDraftGUI {
             gui.setItem(24, createActionItem(Material.BARRIER, ChatColor.RED + "" + ChatColor.BOLD + "✖ " + TextUtil.toTiny("Cancelar Subasta"), "admin_cancel_draft", 0, List.of(ChatColor.GRAY + TextUtil.toTiny("Detener subasta inmediatamente"))));
             gui.setItem(26, createActionItem(Material.IRON_DOOR, ChatColor.WHITE + "" + ChatColor.BOLD + "🚪 " + TextUtil.toTiny("Cerrar Screen"), "close_gui", 0, List.of(ChatColor.GRAY + TextUtil.toTiny("Puedes volver a abrir con /dt auction gui"))));
         } else {
-            ItemStack spectatorItem = new ItemStack(Material.PAPER);
+            // Modo Espectador para Miembros y Visitantes (Monitoreo en Vivo)
+            ItemStack liveStatus = new ItemStack(Material.EMERALD);
+            ItemMeta lsMeta = liveStatus.getItemMeta();
+            if (lsMeta != null) {
+                lsMeta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "💰 " + TextUtil.toTiny("Oferta Actual: ") + draft.getCurrentBid() + "c");
+                String winning = draft.getHighestBidderTeam();
+                List<String> lsl = new ArrayList<>();
+                lsl.add(ChatColor.GRAY + TextUtil.toTiny("Líder actual: ") + (winning != null ? (winning.equalsIgnoreCase("red") ? ChatColor.RED : ChatColor.BLUE) + winning.toUpperCase() : ChatColor.DARK_GRAY + "Ninguno"));
+                lsMeta.setLore(lsl);
+                liveStatus.setItemMeta(lsMeta);
+            }
+            gui.setItem(20, liveStatus);
+
+            ItemStack spectatorItem = new ItemStack(Material.ENDER_EYE);
             ItemMeta spMeta = spectatorItem.getItemMeta();
             if (spMeta != null) {
                 spMeta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "👁 " + TextUtil.toTiny("Modo Espectador"));
@@ -149,6 +178,21 @@ public class AuctionDraftGUI {
                 spectatorItem.setItemMeta(spMeta);
             }
             gui.setItem(22, spectatorItem);
+
+            ItemStack teamInfo = new ItemStack(Material.PAPER);
+            ItemMeta tiMeta = teamInfo.getItemMeta();
+            if (tiMeta != null) {
+                tiMeta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "👥 " + TextUtil.toTiny("Estado Equipos"));
+                int rCount = red != null ? red.getPlayers().size() : 0;
+                int bCount = blue != null ? blue.getPlayers().size() : 0;
+                List<String> til = new ArrayList<>();
+                til.add(ChatColor.RED + "Rojo: " + ChatColor.WHITE + rCount + " miembros " + ChatColor.GRAY + "(" + redCredits + "c)");
+                til.add(ChatColor.BLUE + "Azul: " + ChatColor.WHITE + bCount + " miembros " + ChatColor.GRAY + "(" + blueCredits + "c)");
+                tiMeta.setLore(til);
+                teamInfo.setItemMeta(tiMeta);
+            }
+            gui.setItem(24, teamInfo);
+
             gui.setItem(26, createActionItem(Material.IRON_DOOR, ChatColor.GRAY + TextUtil.toTiny("Cerrar (ESC)"), "close_gui", 0, null));
         }
     }

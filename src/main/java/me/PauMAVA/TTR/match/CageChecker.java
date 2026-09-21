@@ -21,19 +21,30 @@ public class CageChecker {
         this.checkerTaskPID = new BukkitRunnable() {
             @Override
             public void run() {
-                if (Bukkit.getOnlinePlayers().isEmpty()) return;
+                if (Bukkit.getOnlinePlayers().isEmpty() || cages.isEmpty()) return;
 
+                // 1. Efectos visuales de jaula emitidos UNA sola vez por jaula (nunca dentro del bucle de jugadores)
+                for (Cage cage : cages) {
+                    if (cage == null || cage.getLocation() == null || cage.getLocation().getWorld() == null) continue;
+                    try {
+                        Location particleLoc = cage.getLocation().clone().add(0.5, 1.0, 0.5);
+                        cage.getLocation().getWorld().spawnParticle(Particle.END_ROD, particleLoc, 3, 0.3, 0.3, 0.3, 0.02);
+                    } catch (Exception ignored) {}
+                }
+
+                // 2. Comprobación de jugadores dentro de jaula con filtro rápido de distancia
                 for (Player p : Bukkit.getServer().getOnlinePlayers()) {
                     if (p.getGameMode() == GameMode.SPECTATOR) continue;
-                    if (cages.isEmpty()) continue;
 
                     for (Cage cage : cages) {
                         if (cage == null || cage.getLocation() == null || cage.getLocation().getWorld() == null)
                             continue;
-                        try {
-                            Location particleLoc = cage.getLocation().clone().add(0.5, 1.0, 0.5);
-                            cage.getLocation().getWorld().spawnParticle(Particle.END_ROD, particleLoc, 5, 0.3, 0.3, 0.3, 0.05);
+                        if (!p.getWorld().equals(cage.getLocation().getWorld())) continue;
 
+                        // Pre-filtro de distancia para evitar cálculos innecesarios si el jugador está lejos
+                        if (p.getLocation().distanceSquared(cage.getLocation()) > 64.0) continue;
+
+                        try {
                             if (cage.isInCage(p)) {
                                 TTRTeam pTeam = TTRCore.getInstance().getTeamHandler().getPlayerTeam(p);
                                 if (pTeam != null) {

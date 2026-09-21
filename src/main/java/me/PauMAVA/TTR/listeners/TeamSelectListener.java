@@ -44,6 +44,11 @@ public class TeamSelectListener implements Listener {
             ItemStack item = event.getItem();
             if (item != null && item.getType() == Material.NETHER_STAR) {
                 event.setCancelled(true);
+                if (plugin.getAuctionDraftManager() != null && plugin.getAuctionDraftManager().isActive()) {
+                    event.getPlayer().sendMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + TextUtil.toTiny("La subasta está activa. Los capitanes están armando los equipos."));
+                    me.PauMAVA.TTR.ui.AuctionDraftGUI.open(event.getPlayer(), plugin.getAuctionDraftManager());
+                    return;
+                }
                 openTeamGUI(event.getPlayer());
             }
         }

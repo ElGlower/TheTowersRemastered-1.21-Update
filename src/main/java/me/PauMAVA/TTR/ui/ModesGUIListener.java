@@ -59,7 +59,7 @@ public class ModesGUIListener implements Listener {
         }
 
         // 2. Auction Draft GUI
-        if (title.equals(AuctionDraftGUI.TITLE)) {
+        if (event.getInventory().getHolder() instanceof AuctionDraftGUI.AuctionDraftHolder || title.equals(AuctionDraftGUI.TITLE)) {
             event.setCancelled(true);
             ItemStack item = event.getCurrentItem();
             if (item == null || !item.hasItemMeta()) return;
