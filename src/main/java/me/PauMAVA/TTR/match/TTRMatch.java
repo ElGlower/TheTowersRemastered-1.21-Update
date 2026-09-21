@@ -669,15 +669,8 @@ public class TTRMatch {
         p.getInventory().setArmorContents(null);
         p.getInventory().setItemInOffHand(null);
 
-        ItemStack star = new ItemStack(Material.NETHER_STAR);
-        ItemMeta meta = star.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "★ " + TextUtil.toTiny("Elegir Equipo") + ChatColor.GRAY + " (" + TextUtil.toTiny("Clic Derecho") + ")");
-            star.setItemMeta(meta);
-        }
-        p.getInventory().setItem(4, star);
-
-        if (p.hasPermission("ttr.admin")) {
+        // Ya NO se entrega la estrella del Nether para elegir equipo
+        if (TTRCore.isAdmin(p) || p.hasPermission("ttr.admin")) {
             ItemStack config = new ItemStack(Material.COMPARATOR);
             ItemMeta cMeta = config.getItemMeta();
             if (cMeta != null) {
@@ -695,6 +688,7 @@ public class TTRMatch {
     public MatchStatus getStatus() { return this.status; }
     public int getKills(Player player) { return this.kills.getOrDefault(player, 0); }
     public BossBar getBossBar() { return this.gameBar; }
+    public BossBar getPrepBar() { return this.prepBar; }
     public String getFormattedTime() {
         int minutes = remainingTime / 60;
         int seconds = remainingTime % 60;
