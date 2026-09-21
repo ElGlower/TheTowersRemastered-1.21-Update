@@ -360,10 +360,15 @@ public class TTRMatch {
         }
 
         if (teamSpawn != null) {
-            player.teleport(teamSpawn);
+            // Si el jugador ya está en la base (fase de preparación previa), evitar teletransporte redundante que satura la red de chunks
+            if (!player.getWorld().equals(teamSpawn.getWorld()) || player.getLocation().distanceSquared(teamSpawn) > 36.0) {
+                player.teleport(teamSpawn);
+            }
         } else {
             Location lobby = TTRCore.getInstance().getConfigManager().getLobbyLocation();
-            if (lobby != null) player.teleport(lobby);
+            if (lobby != null && (!player.getWorld().equals(lobby.getWorld()) || player.getLocation().distanceSquared(lobby) > 36.0)) {
+                player.teleport(lobby);
+            }
         }
 
         player.getInventory().clear();
@@ -492,7 +497,7 @@ public class TTRMatch {
                     if (team == null) continue;
                     Location spawn = TTRCore.getInstance().getConfigManager().getTeamSpawn(team.getIdentifier());
                     if (spawn != null && p.getWorld().equals(spawn.getWorld())) {
-                        if (p.getLocation().distance(spawn) < 8) {
+                        if (p.getLocation().distanceSquared(spawn) < 64.0) {
                             p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 40, 2, true, false));
                         }
                     }
