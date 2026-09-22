@@ -158,11 +158,11 @@
               </div>
             </div>
 
-            <!-- CUADRÍCULA DE MODALIDADES (2 CARDS LADO A LADO) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
+            <!-- CUADRÍCULA DE MODALIDADES (2 CARDS LADO A LADO ESTILO DECK) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-7 modality-cards-container">
               
               <!-- CARD 1: THE TOWERS -->
-              <div onclick="openModalityDetail('the-towers')" class="modality-card group flex flex-col justify-between gap-6">
+              <div onclick="openModalityDetail('the-towers')" class="modality-card modality-card-towers group flex flex-col justify-between gap-6">
                 <!-- Ribete Zigzag Ornamental -->
                 <svg class="zigzag-border-trim" viewBox="0 0 140 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M0 0 L140 0 L140 14 L130 26 L120 14 L110 26 L100 14 L90 26 L80 14 L70 26 L60 14 L50 26 L40 14 L30 26 L20 14 L10 26 L0 14 Z" fill="currentColor" class="text-pastel-denim/35"/>
@@ -180,8 +180,8 @@
                 </div>
 
                 <div class="pt-4 border-t border-pastel-cardBorder/80 flex items-center justify-end text-xs">
-                  <span class="font-bold text-pastel-denim group-hover:translate-x-1 transition-transform flex items-center gap-1.5">
-                    Ver Partida / Leaderboard <i class="fa-solid fa-arrow-right text-[11px]"></i>
+                  <span class="modality-action-link font-bold text-pastel-denim flex items-center gap-1.5 transition-all">
+                    Ver Partida / Leaderboard <i class="fa-solid fa-arrow-right text-[11px] transition-transform"></i>
                   </span>
                 </div>
               </div>
