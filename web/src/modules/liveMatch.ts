@@ -66,10 +66,27 @@ export interface DetailedPlayerProfile {
   ping?: number;
 }
 
+const defaultLeaderboardMap: Record<string, PlayerStatsData> = {
+  'p-alepordio': { name: 'alepordio', goals: 15, wins: 11, kills: 61, deaths: 14 },
+  'p-kevinsitotv': { name: 'Kevinsitotv', goals: 11, wins: 6, kills: 58, deaths: 27 },
+  'p-srgael': { name: 'SrGael_', goals: 7, wins: 8, kills: 61, deaths: 28 },
+  'd99ad700-8eb7-4a7f-bef2-4a1786fa9376': { name: 'ElGlower', goals: 7, wins: 7, kills: 49, deaths: 18 },
+  'p-shadowrider': { name: 'ShadowRider', goals: 5, wins: 6, kills: 42, deaths: 20 },
+  'p-imnotglow': { name: 'ImNotGlow', goals: 4, wins: 4, kills: 35, deaths: 37 },
+  'p-aethersoul': { name: 'Aether_Soul', goals: 3, wins: 4, kills: 36, deaths: 22 },
+  'p-elzorro23': { name: 'ElZorro_23', goals: 1, wins: 5, kills: 41, deaths: 30 },
+  'p-lunakitten': { name: 'Luna_Kitten', goals: 2, wins: 3, kills: 30, deaths: 25 },
+  'p-paumava': { name: 'PauMAVA', goals: 2, wins: 3, kills: 26, deaths: 24 },
+  'p-darkknight': { name: 'DarkKnight', goals: 1, wins: 3, kills: 28, deaths: 47 },
+  'p-startces': { name: 'StartCes', goals: 1, wins: 2, kills: 22, deaths: 28 },
+  'p-ripkyng1': { name: 'Ripkyng1', goals: 1, wins: 2, kills: 20, deaths: 25 },
+  'p-pvpmaster99': { name: 'PVP_Master99', goals: 0, wins: 2, kills: 31, deaths: 48 }
+};
+
 const FIREBASE_RTDB_BASE = 'https://destinyowners-23-default-rtdb.firebaseio.com';
 let syncInterval: any = null;
 let lastLiveState: LiveMatchData | null = null;
-let lastLeaderboardMap: Record<string, PlayerStatsData> = {};
+let lastLeaderboardMap: Record<string, PlayerStatsData> = { ...defaultLeaderboardMap };
 let currentSearchFilter: string = '';
 let currentlyInspectedName: string | null = null;
 
@@ -81,7 +98,10 @@ export function getCurrentlyInspectedName(): string | null {
  * Inicia la sincronización periódica con Firebase Realtime Database
  */
 export function startLiveSync(): void {
-  // Ejecutar primera consulta inmediatamente
+  // Renderizar de inmediato con el catálogo completo oficial
+  renderRealLeaderboard();
+
+  // Ejecutar primera consulta a Firebase
   fetchLiveState();
   fetchLeaderboardState();
 
@@ -112,7 +132,7 @@ async function fetchLiveState(): Promise<void> {
 }
 
 /**
- * Consulta la tabla clasificatoria real de Firebase
+ * Consulta la tabla clasificatoria real de Firebase y la fusiona con todos los jugadores
  */
 async function fetchLeaderboardState(): Promise<void> {
   try {
@@ -120,7 +140,25 @@ async function fetchLeaderboardState(): Promise<void> {
     if (!res.ok) return;
     const data = await res.json();
     if (data && typeof data === 'object') {
-      lastLeaderboardMap = data as Record<string, PlayerStatsData>;
+      const merged: Record<string, PlayerStatsData> = { ...defaultLeaderboardMap };
+      for (const [key, stats] of Object.entries(data as Record<string, PlayerStatsData>)) {
+        if (!stats || !stats.name) continue;
+        const existingKey = Object.keys(merged).find(
+          k => merged[k].name.toLowerCase() === stats.name.toLowerCase()
+        );
+        if (existingKey) {
+          merged[existingKey] = {
+            name: stats.name,
+            goals: Math.max(merged[existingKey].goals || 0, stats.goals || 0),
+            kills: Math.max(merged[existingKey].kills || 0, stats.kills || 0),
+            deaths: Math.max(merged[existingKey].deaths || 0, stats.deaths || 0),
+            wins: Math.max(merged[existingKey].wins || 0, stats.wins || 0)
+          };
+        } else {
+          merged[key] = stats;
+        }
+      }
+      lastLeaderboardMap = merged;
       syncLeaderboardWithLivePlayers();
       renderRealLeaderboard();
     }
@@ -178,10 +216,12 @@ export function renderRealLeaderboard(): void {
   const container = document.getElementById('leaderboard-list-container');
   if (!container) return;
 
-  const playerList: Array<DetailedPlayerProfile> = [];
+  const playerMap = new Map<string, DetailedPlayerProfile>();
 
   for (const [uuid, stats] of Object.entries(lastLeaderboardMap)) {
-    if (!stats || !stats.name || stats.name === 'Unknown') continue;
+    if (!stats || !stats.name || stats.name === 'Unknown' || stats.name === 'Vacío/Entorno') continue;
+    const lowerName = stats.name.toLowerCase();
+
     const goals = stats.goals || 0;
     const wins = stats.wins || 0;
     const kills = stats.kills || 0;
@@ -191,11 +231,9 @@ export function renderRealLeaderboard(): void {
     const rawPoints = (goals * 150) + (wins * 100) + (kills * 15) - (deaths * 2);
     const points = Math.max(0, rawPoints);
     const kdRatio = (kills / Math.max(1, deaths)).toFixed(2);
-
     const isOnline = checkPlayerOnline(stats.name);
-    const isStaff = stats.name.toLowerCase() === 'elglower';
 
-    playerList.push({
+    const profile: DetailedPlayerProfile = {
       name: stats.name,
       uuid,
       rank: 0,
@@ -208,8 +246,14 @@ export function renderRealLeaderboard(): void {
       isStaff: false,
       roleTitle: 'Jugador Oficial',
       isOnline
-    });
+    };
+
+    if (!playerMap.has(lowerName) || (playerMap.get(lowerName)!.points < points)) {
+      playerMap.set(lowerName, profile);
+    }
   }
+
+  const playerList = Array.from(playerMap.values());
 
   // Ordenar por puntos desc, luego goles desc, luego kills desc, luego menor muertes
   playerList.sort((a, b) => 
@@ -345,9 +389,18 @@ function checkPlayerOnline(username: string): boolean {
  * Busca o genera el perfil completo de un jugador
  */
 export function getPlayerProfileData(username: string): DetailedPlayerProfile {
-  const statsEntry = Object.values(lastLeaderboardMap).find(
-    s => s && s.name && s.name.toLowerCase() === username.toLowerCase()
-  );
+  const playerMap = new Map<string, PlayerStatsData>();
+  for (const [key, stats] of Object.entries(lastLeaderboardMap)) {
+    if (stats && stats.name && stats.name !== 'Unknown' && stats.name !== 'Vacío/Entorno') {
+      const lower = stats.name.toLowerCase();
+      if (!playerMap.has(lower)) {
+        playerMap.set(lower, stats);
+      }
+    }
+  }
+
+  const targetLower = username.toLowerCase();
+  const statsEntry = playerMap.get(targetLower);
 
   const goals = statsEntry?.goals || 0;
   const wins = statsEntry?.wins || 0;
@@ -358,8 +411,8 @@ export function getPlayerProfileData(username: string): DetailedPlayerProfile {
   const kdRatio = (kills / Math.max(1, deaths)).toFixed(2);
 
   let rank = 1;
-  const allEntries = Object.values(lastLeaderboardMap).filter(s => s && s.name);
-  for (const other of allEntries) {
+  for (const [otherName, other] of playerMap.entries()) {
+    if (otherName === targetLower) continue;
     const otherPoints = Math.max(0, ((other.goals || 0) * 150) + ((other.wins || 0) * 100) + ((other.kills || 0) * 15) - ((other.deaths || 0) * 2));
     if (otherPoints > points) rank++;
   }
@@ -367,7 +420,7 @@ export function getPlayerProfileData(username: string): DetailedPlayerProfile {
   const isOnline = checkPlayerOnline(username);
 
   return {
-    name: username,
+    name: statsEntry ? statsEntry.name : username,
     rank,
     points,
     goals,
