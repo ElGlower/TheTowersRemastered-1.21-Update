@@ -176,7 +176,7 @@
 
                   <div class="flex-1">
                     <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                      <span class="text-[10px] uppercase font-black tracking-wider px-2.5 py-0.5 rounded-full bg-pastel-blush text-pastel-plum border border-[#E79796]/40">4v4 Equipos</span>
+                      <span class="text-[10px] uppercase font-black tracking-wider px-2.5 py-0.5 rounded-full bg-pastel-blush text-pastel-plum border border-[#E79796]/40">Equipos Competitivos</span>
                       <span class="flex items-center gap-1.5 text-[11px] font-bold text-[#48BB78]">
                         <span class="w-2 h-2 rounded-full bg-[#48BB78] animate-pulse"></span>
                         <span>En Vivo</span>
@@ -293,7 +293,7 @@
                     </span>
                     <div class="flex items-center gap-2">
                       <span id="live-red-score" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-[#E79796]/30 text-[#A83232]">0 pts</span>
-                      <span id="live-red-count" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-pastel-blush/60 border border-[#E79796]/30">0 / 4</span>
+                      <span id="live-red-count" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-pastel-blush/60 border border-[#E79796]/30">0 Jugadores</span>
                     </div>
                   </div>
 
@@ -320,7 +320,7 @@
                     </span>
                     <div class="flex items-center gap-2">
                       <span id="live-blue-score" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-pastel-denim/25 text-pastel-denim">0 pts</span>
-                      <span id="live-blue-count" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-pastel-periwinkle/50 border border-pastel-cornflower/30">0 / 4</span>
+                      <span id="live-blue-count" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-pastel-periwinkle/50 border border-pastel-cornflower/30">0 Jugadores</span>
                     </div>
                   </div>
 
@@ -355,71 +355,106 @@
 
             </div>
 
-            <!-- SUB-VISTA 2: LEADERBOARD OFICIAL (TABLA CLASIFICATORIA CON BUSCADOR) -->
-            <div id="subview-leaderboard" class="hidden flex-col gap-4 flex-1 w-full">
+            <!-- SUB-VISTA 2: LEADERBOARD ABIERTO EDITORIAL (SIN CARDBOX) -->
+            <div id="subview-leaderboard" class="hidden flex-col gap-6 flex-1 w-full">
               
-              <div class="leaderboard-deck p-6 sm:p-7 flex flex-col gap-4">
-                <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-pastel-cardBorder/80">
-                  <div>
-                    <h4 class="text-xl font-bold text-pastel-plum font-display">Clasificación General</h4>
-                  </div>
-
-                  <!-- Buscador en Tiempo Real -->
-                  <div class="relative min-w-[220px]">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-pastel-plum/40"></i>
-                    <input 
-                      type="text" 
-                      id="leaderboard-search-input" 
-                      placeholder="Buscar jugador..." 
-                      oninput="window.destinyApp.filterLeaderboard(this.value)"
-                      class="w-full pl-9 pr-3 py-1.5 rounded-xl text-xs bg-white/60 dark:bg-white/10 border border-pastel-cardBorder text-pastel-plum placeholder:text-pastel-plum/40 focus:outline-none focus:border-pastel-denim transition-all"
-                    />
+              <!-- Cabecera de Clasificación y Selector General vs Por Partida -->
+              <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-pastel-plum/10 dark:border-white/10">
+                <div class="flex items-center gap-3">
+                  <!-- Píldora selector de modo: General vs Por Partida -->
+                  <div class="flex items-center p-1 rounded-full bg-white/70 dark:bg-white/10 border border-pastel-cardBorder shadow-sm">
+                    <button id="leaderboard-mode-general" onclick="window.destinyApp.setLeaderboardMode('general')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-pastel-denim text-white shadow-sm transition-all flex items-center gap-1.5">
+                      <i class="fa-solid fa-trophy text-[11px]"></i>
+                      <span>General Temporada</span>
+                    </button>
+                    <button id="leaderboard-mode-match" onclick="window.destinyApp.setLeaderboardMode('match')" class="px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all flex items-center gap-1.5">
+                      <i class="fa-solid fa-list-ol text-[11px]"></i>
+                      <span>Por Partida</span>
+                    </button>
                   </div>
                 </div>
 
-                <!-- Cabecera de Columnas -->
-                <div class="px-4 py-2 flex items-center justify-between text-[11px] font-bold text-pastel-plum/60 uppercase tracking-wider">
-                  <span>Posición & Jugador</span>
-                  <span class="hidden sm:inline">Goles • Bajas • Muertes</span>
-                  <span>Puntuación</span>
+                <!-- Buscador en Tiempo Real (Modo General) -->
+                <div id="leaderboard-search-box" class="relative min-w-[220px]">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-pastel-plum/40"></i>
+                  <input 
+                    type="text" 
+                    id="leaderboard-search-input" 
+                    placeholder="Buscar jugador..." 
+                    oninput="window.destinyApp.filterLeaderboard(this.value)"
+                    class="w-full pl-9 pr-3 py-1.5 rounded-xl text-xs bg-white/60 dark:bg-white/10 border border-pastel-cardBorder text-pastel-plum placeholder:text-pastel-plum/40 focus:outline-none focus:border-pastel-denim transition-all"
+                  />
                 </div>
 
-                <!-- Contenedor dinámico del Leaderboard poblado por TypeScript -->
-                <div id="leaderboard-list-container" class="space-y-2 max-h-[460px] overflow-y-auto pr-1">
+                <!-- Selector de Partida Específica (Modo Por Partida) -->
+                <div id="leaderboard-match-select-box" class="hidden items-center gap-2">
+                  <span class="text-xs font-bold text-pastel-plum/70">Partida:</span>
+                  <select 
+                    id="leaderboard-match-selector" 
+                    onchange="window.destinyApp.selectMatchLeaderboard(this.value)"
+                    class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white/80 dark:bg-white/10 border border-pastel-cardBorder text-pastel-plum focus:outline-none focus:border-pastel-denim transition-all shadow-sm cursor-pointer"
+                  >
+                    <!-- Inyectado dinámicamente -->
+                  </select>
+                </div>
+              </div>
+
+              <!-- VISTA A: CONTENEDOR GENERAL DE JUGADORES (TABLA ABIERTA CON TODA LA INFO) -->
+              <div id="leaderboard-general-view" class="flex flex-col w-full">
+                <!-- Cabecera de Columnas Completa y Detallada -->
+                <div class="px-3 py-2.5 grid grid-cols-12 items-center text-[11px] font-extrabold text-pastel-plum/60 uppercase tracking-wider border-b border-pastel-plum/10 dark:border-white/10">
+                  <span class="col-span-4 sm:col-span-3">Posición & Jugador</span>
+                  <span class="col-span-2 text-right">Puntos</span>
+                  <span class="col-span-2 text-center hidden sm:inline">Goles</span>
+                  <span class="col-span-2 text-center hidden sm:inline">K / D</span>
+                  <span class="col-span-2 text-center hidden sm:inline">Ratio K/D</span>
+                  <span class="col-span-6 sm:col-span-1 text-right sm:text-center">Victorias</span>
+                </div>
+
+                <!-- Filas del Leaderboard General -->
+                <div id="leaderboard-list-container" class="divide-y divide-pastel-plum/5 dark:divide-white/5 max-h-[520px] overflow-y-auto pr-1">
                   <!-- Inyectado dinámicamente -->
                 </div>
+              </div>
 
+              <!-- VISTA B: CONTENEDOR POR PARTIDA (CADA PARTIDA BIEN SEPARADA CON SUS EQUIPOS) -->
+              <div id="leaderboard-match-view" class="hidden flex-col gap-6 w-full">
+                <div id="match-leaderboard-header" class="pb-2">
+                  <!-- Info del encuentro actual -->
+                </div>
+                
+                <div id="match-leaderboard-container" class="flex flex-col gap-6">
+                  <!-- Tablas de Equipo Rojo y Equipo Azul de esa partida bien separadas -->
+                </div>
               </div>
 
             </div>
 
-            <!-- SUB-VISTA 3: HISTORIAL DE PARTIDAS GENERAL CON FILTROS -->
-            <div id="subview-partidas" class="hidden flex-col gap-4 flex-1 w-full">
-              <div class="leaderboard-deck p-6 sm:p-7 flex flex-col gap-4">
-                <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-pastel-cardBorder/80">
-                  <div>
-                    <h4 class="text-xl font-bold text-pastel-plum font-display">Historial de Partidas</h4>
-                    <p class="text-xs text-pastel-plum/60 mt-0.5">Registro completo de enfrentamientos en la arena The Towers</p>
-                  </div>
-
-                  <!-- Filtros Generales -->
-                  <div class="flex items-center p-1 rounded-xl bg-white/60 dark:bg-white/10 border border-pastel-cardBorder text-xs font-semibold gap-1">
-                    <button id="match-filter-all" onclick="window.destinyApp.filterMatches('all')" class="px-3 py-1 rounded-lg bg-pastel-denim text-white font-bold transition-all shadow-sm">
-                      Todas
-                    </button>
-                    <button id="match-filter-red" onclick="window.destinyApp.filterMatches('red')" class="px-3 py-1 rounded-lg text-pastel-plum hover:text-pastel-denim transition-all">
-                      Victorias Rojas
-                    </button>
-                    <button id="match-filter-blue" onclick="window.destinyApp.filterMatches('blue')" class="px-3 py-1 rounded-lg text-pastel-plum hover:text-pastel-denim transition-all">
-                      Victorias Azules
-                    </button>
-                  </div>
+            <!-- SUB-VISTA 3: HISTORIAL DE PARTIDAS GENERAL CON FILTROS (SIN CARDBOX) -->
+            <div id="subview-partidas" class="hidden flex-col gap-6 flex-1 w-full">
+              <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-pastel-plum/10 dark:border-white/10">
+                <div>
+                  <h4 class="text-xl font-bold text-pastel-plum font-display">Historial de Partidas</h4>
+                  <p class="text-xs text-pastel-plum/60 mt-0.5">Registro completo de enfrentamientos en la arena The Towers</p>
                 </div>
 
-                <!-- Contenedor dinámico de partidas poblado por TypeScript -->
-                <div id="matches-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-h-[520px] overflow-y-auto pr-1">
-                  <!-- Inyectado dinámicamente -->
+                <!-- Filtros Generales -->
+                <div class="flex items-center p-1 rounded-xl bg-white/60 dark:bg-white/10 border border-pastel-cardBorder text-xs font-semibold gap-1">
+                  <button id="match-filter-all" onclick="window.destinyApp.filterMatches('all')" class="px-3 py-1 rounded-lg bg-pastel-denim text-white font-bold transition-all shadow-sm">
+                    Todas
+                  </button>
+                  <button id="match-filter-red" onclick="window.destinyApp.filterMatches('red')" class="px-3 py-1 rounded-lg text-pastel-plum hover:text-pastel-denim transition-all">
+                    Victorias Rojas
+                  </button>
+                  <button id="match-filter-blue" onclick="window.destinyApp.filterMatches('blue')" class="px-3 py-1 rounded-lg text-pastel-plum hover:text-pastel-denim transition-all">
+                    Victorias Azules
+                  </button>
                 </div>
+              </div>
+
+              <!-- Contenedor dinámico de partidas poblado por TypeScript -->
+              <div id="matches-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-h-[520px] overflow-y-auto pr-1">
+                <!-- Inyectado dinámicamente -->
               </div>
             </div>
 

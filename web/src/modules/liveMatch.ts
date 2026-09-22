@@ -205,8 +205,8 @@ export function renderRealLeaderboard(): void {
       deaths,
       kdRatio,
       wins,
-      isStaff,
-      roleTitle: isStaff ? 'Destiny Admin' : 'Jugador Oficial',
+      isStaff: false,
+      roleTitle: 'Jugador Oficial',
       isOnline
     });
   }
@@ -246,7 +246,7 @@ export function renderRealLeaderboard(): void {
     return;
   }
 
-  // Renderizar filas
+  // Renderizar filas con las 12 columnas completas y diseño abierto sin card boxes
   container.innerHTML = displayList.map(p => {
     const isSelected = currentlyInspectedName 
       ? p.name.toLowerCase() === currentlyInspectedName.toLowerCase()
@@ -265,47 +265,50 @@ export function renderRealLeaderboard(): void {
     return `
       <div 
         data-username="${p.name}" 
-        class="leaderboard-row ${isSelected ? 'active-player' : ''} p-3 sm:p-3.5 rounded-2xl flex items-center justify-between gap-3 cursor-pointer transition-all border border-transparent hover:border-pastel-cardBorder/60"
+        class="leaderboard-row ${isSelected ? 'active-player' : ''} px-3 py-3 grid grid-cols-12 items-center text-xs font-semibold cursor-pointer transition-all border-b border-pastel-plum/5 dark:border-white/5 hover:bg-pastel-plum/5 dark:hover:bg-white/5"
         onclick="window.destinyApp.inspectMinecraftPlayer('${p.name}', this)"
       >
-        <div class="flex items-center gap-3.5 min-w-0">
-          <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full ${rankBadgeClass} border border-pastel-cardBorder flex items-center justify-center text-xs flex-shrink-0">
+        <!-- Posición & Jugador (col-span-4 sm:col-span-3) -->
+        <div class="col-span-4 sm:col-span-3 flex items-center gap-2.5 min-w-0 pr-1">
+          <span class="w-6 h-6 rounded-full ${rankBadgeClass} flex items-center justify-center text-[10px] font-black flex-shrink-0">
             #${p.rank}
           </span>
           <img 
             src="${avatarUrl}" 
             alt="${p.name}" 
-            class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg shadow-sm flex-shrink-0"
-            onerror="this.src='https://minotar.net/avatar/${p.name}/36'"
+            class="w-6 h-6 rounded shadow-xs flex-shrink-0"
+            onerror="this.src='https://minotar.net/avatar/${p.name}/32'"
           />
-          <div class="min-w-0">
-            <div class="text-xs sm:text-sm font-bold text-pastel-plum flex items-center gap-1.5 truncate">
-              <span>${p.name}</span>
-              ${p.rank === 1 ? '<i class="fa-solid fa-crown text-[11px] text-amber-500 flex-shrink-0" title="Líder del Ranking"></i>' : ''}
-              ${p.isStaff ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-600 text-white font-black">ADMIN</span>' : ''}
-              ${p.isOnline ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block flex-shrink-0" title="En Línea"></span>' : ''}
-            </div>
-            <div class="text-[10px] sm:text-[11px] text-pastel-plum/60 font-medium truncate sm:hidden">
-              ${p.goals} Goles • ${p.kills} Bajas • ${p.deaths} Muertes
-            </div>
+          <div class="min-w-0 truncate">
+            <span class="font-bold text-pastel-plum truncate block sm:inline">${p.name}</span>
+            ${p.rank === 1 ? '<i class="fa-solid fa-crown text-[10px] text-amber-500 ml-1 flex-shrink-0" title="Líder"></i>' : ''}
+            ${p.isOnline ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block ml-1 flex-shrink-0" title="En Línea"></span>' : ''}
           </div>
         </div>
 
-        <div class="hidden sm:flex items-center gap-4 text-xs font-semibold text-pastel-plum/75">
-          <span class="flex items-center gap-1 text-amber-600 dark:text-amber-400" title="Goles en The Towers">
-            <i class="fa-solid fa-trophy text-[10px]"></i> ${p.goals}
-          </span>
-          <span class="flex items-center gap-1 text-rose-500" title="Asesinatos">
-            <i class="fa-solid fa-crosshairs text-[10px]"></i> ${p.kills}
-          </span>
-          <span class="flex items-center gap-1 text-slate-500" title="Muertes">
-            <i class="fa-solid fa-skull text-[10px]"></i> ${p.deaths}
-          </span>
+        <!-- Puntos (col-span-2 text-right) -->
+        <div class="col-span-2 text-right font-black text-pastel-denim font-display">
+          ${p.points.toLocaleString()}
         </div>
 
-        <div class="flex items-center gap-3 flex-shrink-0">
-          <span class="text-xs sm:text-sm font-extrabold text-pastel-denim font-display">${p.points} pts</span>
-          <i class="fa-solid fa-chevron-right text-[10px] text-pastel-plum/30"></i>
+        <!-- Goles (col-span-2 text-center hidden sm:inline) -->
+        <div class="col-span-2 text-center hidden sm:block text-amber-600 dark:text-amber-400 font-bold">
+          ${p.goals}
+        </div>
+
+        <!-- K / D (col-span-2 text-center hidden sm:inline) -->
+        <div class="col-span-2 text-center hidden sm:block text-pastel-plum/80 font-medium">
+          <span class="text-rose-500 font-bold">${p.kills}</span> / <span class="text-slate-500">${p.deaths}</span>
+        </div>
+
+        <!-- Ratio K/D (col-span-2 text-center hidden sm:inline) -->
+        <div class="col-span-2 text-center hidden sm:block font-bold text-pastel-plum">
+          ${p.kdRatio}
+        </div>
+
+        <!-- Victorias (col-span-6 sm:col-span-1 text-right sm:text-center) -->
+        <div class="col-span-6 sm:col-span-1 text-right sm:text-center font-bold text-emerald-600 dark:text-emerald-400">
+          <span class="sm:hidden text-[10px] text-pastel-plum/50 font-normal mr-1">Vict:</span>${p.wins}
         </div>
       </div>
     `;
@@ -362,7 +365,6 @@ export function getPlayerProfileData(username: string): DetailedPlayerProfile {
   }
 
   const isOnline = checkPlayerOnline(username);
-  const isStaff = username.toLowerCase() === 'elglower';
 
   return {
     name: username,
@@ -373,8 +375,8 @@ export function getPlayerProfileData(username: string): DetailedPlayerProfile {
     deaths,
     kdRatio,
     wins,
-    isStaff,
-    roleTitle: isStaff ? 'Destiny Admin' : 'Jugador Oficial',
+    isStaff: false,
+    roleTitle: 'Jugador Oficial',
     isOnline
   };
 }
@@ -455,9 +457,7 @@ export function renderDetailedUserProfile(p: DetailedPlayerProfile): void {
     ? 'bg-amber-700 text-white'
     : 'bg-pastel-periwinkle/50 text-pastel-plum';
 
-  const roleBadge = p.isStaff
-    ? '<span class="text-[10px] font-black px-2.5 py-0.5 rounded-md bg-purple-600 text-white tracking-wider shadow-sm">DESTINY ADMIN</span>'
-    : p.rank <= 3
+  const roleBadge = p.rank <= 3
     ? '<span class="text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-500/30">TOP JUGADOR</span>'
     : '';
 
@@ -660,11 +660,7 @@ function populateExpandedUserProfile(username: string): void {
   if (usernameEl) usernameEl.textContent = profile.name;
 
   if (roleBadge) {
-    if (profile.isStaff) {
-      roleBadge.className = 'text-[11px] font-black px-3.5 py-1 rounded-full bg-purple-600 text-white tracking-wider shadow-sm';
-      roleBadge.textContent = 'DESTINY ADMIN';
-      roleBadge.classList.remove('hidden');
-    } else if (profile.rank <= 3) {
+    if (profile.rank <= 3) {
       roleBadge.className = 'text-[11px] font-black px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-500/30';
       roleBadge.textContent = 'TOP JUGADOR';
       roleBadge.classList.remove('hidden');
@@ -812,6 +808,16 @@ export function openNameMCProfile(name?: string): void {
   window.open(`https://namemc.com/profile/${targetName}`, '_blank');
 }
 
+export interface MatchPlayerStats {
+  name: string;
+  team: 'Red' | 'Blue';
+  goals: number;
+  kills: number;
+  deaths: number;
+  points: number;
+  kdRatio: string;
+}
+
 export interface ServerMatch {
   matchNumber: number;
   timestamp: string;
@@ -821,6 +827,7 @@ export interface ServerMatch {
   bluePoints: number;
   formattedDuration?: string;
   formattedDate?: string;
+  players?: MatchPlayerStats[];
 }
 
 const defaultMatches: ServerMatch[] = [
@@ -832,7 +839,17 @@ const defaultMatches: ServerMatch[] = [
     redPoints: 5,
     bluePoints: 3,
     formattedDuration: '14m 45s',
-    formattedDate: 'Hoy, 23:25'
+    formattedDate: 'Hoy, 23:25',
+    players: [
+      { name: 'alepordio', team: 'Red', goals: 3, kills: 8, deaths: 2, points: 566, kdRatio: '4.00' },
+      { name: 'SrGael_', team: 'Red', goals: 1, kills: 12, deaths: 4, points: 422, kdRatio: '3.00' },
+      { name: 'ElGlower', team: 'Red', goals: 1, kills: 7, deaths: 1, points: 353, kdRatio: '7.00' },
+      { name: 'ElZorro_23', team: 'Red', goals: 0, kills: 9, deaths: 5, points: 225, kdRatio: '1.80' },
+      { name: 'Kevinsitotv', team: 'Blue', goals: 2, kills: 10, deaths: 6, points: 438, kdRatio: '1.67' },
+      { name: 'ImNotGlow', team: 'Blue', goals: 1, kills: 5, deaths: 7, points: 211, kdRatio: '0.71' },
+      { name: 'PVP_Master99', team: 'Blue', goals: 0, kills: 8, deaths: 8, points: 104, kdRatio: '1.00' },
+      { name: 'DarkKnight', team: 'Blue', goals: 0, kills: 4, deaths: 10, points: 40, kdRatio: '0.40' }
+    ]
   },
   {
     matchNumber: 143,
@@ -842,7 +859,17 @@ const defaultMatches: ServerMatch[] = [
     redPoints: 4,
     bluePoints: 5,
     formattedDuration: '17m 20s',
-    formattedDate: 'Hoy, 22:40'
+    formattedDate: 'Hoy, 22:40',
+    players: [
+      { name: 'SrGael_', team: 'Red', goals: 2, kills: 14, deaths: 5, points: 490, kdRatio: '2.80' },
+      { name: 'ElGlower', team: 'Red', goals: 1, kills: 9, deaths: 4, points: 277, kdRatio: '2.25' },
+      { name: 'ElZorro_23', team: 'Red', goals: 1, kills: 6, deaths: 6, points: 228, kdRatio: '1.00' },
+      { name: 'DarkKnight', team: 'Red', goals: 0, kills: 5, deaths: 8, points: 59, kdRatio: '0.63' },
+      { name: 'Kevinsitotv', team: 'Blue', goals: 3, kills: 11, deaths: 3, points: 709, kdRatio: '3.67' },
+      { name: 'alepordio', team: 'Blue', goals: 1, kills: 8, deaths: 4, points: 362, kdRatio: '2.00' },
+      { name: 'ImNotGlow', team: 'Blue', goals: 1, kills: 6, deaths: 5, points: 330, kdRatio: '1.20' },
+      { name: 'PVP_Master99', team: 'Blue', goals: 0, kills: 7, deaths: 6, points: 193, kdRatio: '1.17' }
+    ]
   },
   {
     matchNumber: 142,
@@ -852,7 +879,17 @@ const defaultMatches: ServerMatch[] = [
     redPoints: 5,
     bluePoints: 1,
     formattedDuration: '11m 52s',
-    formattedDate: 'Hoy, 21:10'
+    formattedDate: 'Hoy, 21:10',
+    players: [
+      { name: 'alepordio', team: 'Red', goals: 3, kills: 11, deaths: 1, points: 713, kdRatio: '11.00' },
+      { name: 'ElGlower', team: 'Red', goals: 2, kills: 8, deaths: 2, points: 516, kdRatio: '4.00' },
+      { name: 'SrGael_', team: 'Red', goals: 0, kills: 10, deaths: 3, points: 244, kdRatio: '3.33' },
+      { name: 'ElZorro_23', team: 'Red', goals: 0, kills: 7, deaths: 2, points: 201, kdRatio: '3.50' },
+      { name: 'Kevinsitotv', team: 'Blue', goals: 1, kills: 7, deaths: 8, points: 239, kdRatio: '0.88' },
+      { name: 'ImNotGlow', team: 'Blue', goals: 0, kills: 5, deaths: 9, points: 57, kdRatio: '0.56' },
+      { name: 'PVP_Master99', team: 'Blue', goals: 0, kills: 4, deaths: 9, points: 42, kdRatio: '0.44' },
+      { name: 'DarkKnight', team: 'Blue', goals: 0, kills: 3, deaths: 10, points: 25, kdRatio: '0.30' }
+    ]
   },
   {
     matchNumber: 141,
@@ -862,7 +899,17 @@ const defaultMatches: ServerMatch[] = [
     redPoints: 2,
     bluePoints: 5,
     formattedDuration: '15m 30s',
-    formattedDate: 'Hoy, 19:55'
+    formattedDate: 'Hoy, 19:55',
+    players: [
+      { name: 'ElGlower', team: 'Red', goals: 1, kills: 8, deaths: 5, points: 260, kdRatio: '1.60' },
+      { name: 'SrGael_', team: 'Red', goals: 1, kills: 6, deaths: 7, points: 226, kdRatio: '0.86' },
+      { name: 'DarkKnight', team: 'Red', goals: 0, kills: 4, deaths: 8, points: 44, kdRatio: '0.50' },
+      { name: 'PVP_Master99', team: 'Red', goals: 0, kills: 5, deaths: 9, points: 57, kdRatio: '0.56' },
+      { name: 'Kevinsitotv', team: 'Blue', goals: 2, kills: 12, deaths: 3, points: 574, kdRatio: '4.00' },
+      { name: 'alepordio', team: 'Blue', goals: 2, kills: 9, deaths: 2, points: 531, kdRatio: '4.50' },
+      { name: 'ImNotGlow', team: 'Blue', goals: 1, kills: 7, deaths: 4, points: 347, kdRatio: '1.75' },
+      { name: 'ElZorro_23', team: 'Blue', goals: 0, kills: 8, deaths: 5, points: 210, kdRatio: '1.60' }
+    ]
   },
   {
     matchNumber: 140,
@@ -872,7 +919,17 @@ const defaultMatches: ServerMatch[] = [
     redPoints: 5,
     bluePoints: 4,
     formattedDuration: '14m 00s',
-    formattedDate: 'Hoy, 18:20'
+    formattedDate: 'Hoy, 18:20',
+    players: [
+      { name: 'alepordio', team: 'Red', goals: 2, kills: 13, deaths: 4, points: 587, kdRatio: '3.25' },
+      { name: 'Kevinsitotv', team: 'Red', goals: 2, kills: 8, deaths: 3, points: 514, kdRatio: '2.67' },
+      { name: 'SrGael_', team: 'Red', goals: 1, kills: 9, deaths: 4, points: 377, kdRatio: '2.25' },
+      { name: 'ElZorro_23', team: 'Red', goals: 0, kills: 6, deaths: 5, points: 180, kdRatio: '1.20' },
+      { name: 'ElGlower', team: 'Blue', goals: 2, kills: 10, deaths: 5, points: 440, kdRatio: '2.00' },
+      { name: 'ImNotGlow', team: 'Blue', goals: 1, kills: 7, deaths: 7, points: 241, kdRatio: '1.00' },
+      { name: 'DarkKnight', team: 'Blue', goals: 1, kills: 5, deaths: 9, points: 207, kdRatio: '0.56' },
+      { name: 'PVP_Master99', team: 'Blue', goals: 0, kills: 6, deaths: 8, points: 74, kdRatio: '0.75' }
+    ]
   },
   {
     matchNumber: 139,
@@ -882,11 +939,23 @@ const defaultMatches: ServerMatch[] = [
     redPoints: 3,
     bluePoints: 5,
     formattedDuration: '18m 40s',
-    formattedDate: 'Ayer, 23:15'
+    formattedDate: 'Ayer, 23:15',
+    players: [
+      { name: 'SrGael_', team: 'Red', goals: 2, kills: 10, deaths: 6, points: 438, kdRatio: '1.67' },
+      { name: 'ElGlower', team: 'Red', goals: 1, kills: 7, deaths: 5, points: 245, kdRatio: '1.40' },
+      { name: 'ElZorro_23', team: 'Red', goals: 0, kills: 5, deaths: 7, points: 61, kdRatio: '0.71' },
+      { name: 'PVP_Master99', team: 'Red', goals: 0, kills: 4, deaths: 8, points: 44, kdRatio: '0.50' },
+      { name: 'alepordio', team: 'Blue', goals: 3, kills: 12, deaths: 3, points: 724, kdRatio: '4.00' },
+      { name: 'Kevinsitotv', team: 'Blue', goals: 1, kills: 9, deaths: 4, points: 377, kdRatio: '2.25' },
+      { name: 'ImNotGlow', team: 'Blue', goals: 1, kills: 6, deaths: 5, points: 330, kdRatio: '1.20' },
+      { name: 'DarkKnight', team: 'Blue', goals: 0, kills: 6, deaths: 6, points: 178, kdRatio: '1.00' }
+    ]
   }
 ];
 
 let activeMatchFilter: 'all' | 'red' | 'blue' = 'all';
+let currentLeaderboardMode: 'general' | 'match' = 'general';
+let selectedMatchNumber: number = 144;
 
 export function getSeasonMatches(): ServerMatch[] {
   const serverMatches = (lastLiveState as any)?.matches;
@@ -899,6 +968,213 @@ export function getSeasonMatches(): ServerMatch[] {
 export function filterMatches(filter: 'all' | 'red' | 'blue'): void {
   activeMatchFilter = filter;
   renderMatchesHistory(filter);
+}
+
+export function setLeaderboardMode(mode: 'general' | 'match'): void {
+  currentLeaderboardMode = mode;
+
+  const btnGeneral = document.getElementById('leaderboard-tab-general');
+  const btnMatch = document.getElementById('leaderboard-tab-match');
+  const searchBox = document.getElementById('leaderboard-search-box');
+  const matchSelectBox = document.getElementById('leaderboard-match-select-box');
+  const generalView = document.getElementById('leaderboard-general-view');
+  const matchView = document.getElementById('leaderboard-match-view');
+
+  const activeBtnClass = 'px-3 py-1 rounded-lg bg-pastel-denim text-white font-bold transition-all shadow-sm';
+  const inactiveBtnClass = 'px-3 py-1 rounded-lg text-pastel-plum hover:text-pastel-denim transition-all';
+
+  if (btnGeneral) btnGeneral.className = (mode === 'general') ? activeBtnClass : inactiveBtnClass;
+  if (btnMatch) btnMatch.className = (mode === 'match') ? activeBtnClass : inactiveBtnClass;
+
+  if (mode === 'general') {
+    if (searchBox) searchBox.classList.remove('hidden');
+    if (matchSelectBox) {
+      matchSelectBox.classList.add('hidden');
+      matchSelectBox.classList.remove('flex');
+    }
+    if (generalView) {
+      generalView.classList.remove('hidden');
+      generalView.classList.add('flex');
+    }
+    if (matchView) {
+      matchView.classList.add('hidden');
+      matchView.classList.remove('flex');
+    }
+    renderRealLeaderboard();
+  } else {
+    if (searchBox) searchBox.classList.add('hidden');
+    if (matchSelectBox) {
+      matchSelectBox.classList.remove('hidden');
+      matchSelectBox.classList.add('flex');
+    }
+    if (generalView) {
+      generalView.classList.add('hidden');
+      generalView.classList.remove('flex');
+    }
+    if (matchView) {
+      matchView.classList.remove('hidden');
+      matchView.classList.add('flex');
+    }
+    populateMatchSelector();
+    renderMatchLeaderboard(selectedMatchNumber);
+  }
+}
+
+export function selectMatchLeaderboard(matchNumStr: string | number): void {
+  const num = parseInt(String(matchNumStr), 10);
+  if (!isNaN(num)) {
+    selectedMatchNumber = num;
+    renderMatchLeaderboard(num);
+  }
+}
+
+export function populateMatchSelector(): void {
+  const selector = document.getElementById('leaderboard-match-selector') as HTMLSelectElement;
+  if (!selector) return;
+
+  const matches = getSeasonMatches();
+  selector.innerHTML = matches.map(m => {
+    const outcome = m.winner.toLowerCase() === 'red' ? 'Victoria Roja' : m.winner.toLowerCase() === 'blue' ? 'Victoria Azul' : 'Empate';
+    return `<option value="${m.matchNumber}" ${m.matchNumber === selectedMatchNumber ? 'selected' : ''}>Partida #${m.matchNumber} (${m.formattedDate || 'Reciente'}) - ${outcome}</option>`;
+  }).join('');
+}
+
+export function renderMatchLeaderboard(matchNum?: number): void {
+  const matches = getSeasonMatches();
+  const targetNum = matchNum || selectedMatchNumber;
+  const match = matches.find(m => m.matchNumber === targetNum) || matches[0];
+  if (!match) return;
+
+  selectedMatchNumber = match.matchNumber;
+
+  const selector = document.getElementById('leaderboard-match-selector') as HTMLSelectElement;
+  if (selector && selector.value !== String(match.matchNumber)) {
+    selector.value = String(match.matchNumber);
+  }
+
+  const header = document.getElementById('match-leaderboard-header');
+  const container = document.getElementById('match-leaderboard-container');
+
+  const isRedWinner = match.winner.toLowerCase() === 'red';
+  const isBlueWinner = match.winner.toLowerCase() === 'blue';
+  const resultBadge = isRedWinner
+    ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E79796]/25 text-[#A83232] border border-[#E79796]/40">Victoria Equipo Rojo</span>'
+    : isBlueWinner
+    ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-pastel-denim/20 text-pastel-denim border border-pastel-denim/40">Victoria Equipo Azul</span>'
+    : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-500/20 text-slate-600 border border-slate-500/30">Empate</span>';
+
+  if (header) {
+    header.innerHTML = `
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-pastel-plum/10 dark:border-white/10">
+        <div class="flex items-center gap-2.5">
+          <span class="text-base font-extrabold text-pastel-plum font-display">Partida #${match.matchNumber}</span>
+          <span class="text-xs text-pastel-plum/60 font-medium">${match.formattedDate || 'Reciente'} • Duración: ${match.formattedDuration || '15m'}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          ${resultBadge}
+        </div>
+      </div>
+
+      <div class="py-3 flex items-center justify-center gap-8 text-center">
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-black text-[#D9534F] uppercase tracking-wider">Equipo Rojo</span>
+          <span class="text-3xl font-black text-[#A83232] font-display">${match.redPoints}</span>
+        </div>
+        <span class="text-xs font-black text-pastel-plum/40 uppercase tracking-widest">VS</span>
+        <div class="flex items-center gap-3">
+          <span class="text-3xl font-black text-pastel-denim font-display">${match.bluePoints}</span>
+          <span class="text-xs font-black text-[#4A72B2] uppercase tracking-wider">Equipo Azul</span>
+        </div>
+      </div>
+    `;
+  }
+
+  if (container) {
+    const players = match.players || [];
+    const redPlayers = players.filter(p => p.team === 'Red');
+    const bluePlayers = players.filter(p => p.team === 'Blue');
+
+    const renderTeamTable = (teamTitle: string, teamPlayers: MatchPlayerStats[], isRedTeam: boolean, teamPoints: number) => {
+      const borderAccent = isRedTeam ? 'border-[#E79796]/40' : 'border-pastel-denim/40';
+      const textAccent = isRedTeam ? 'text-[#A83232] dark:text-red-400' : 'text-pastel-denim';
+      const dotBg = isRedTeam ? 'bg-[#D9534F]' : 'bg-[#4A72B2]';
+
+      return `
+        <div class="flex flex-col w-full">
+          <div class="flex items-center justify-between pb-2 mb-1 border-b ${borderAccent}">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full ${dotBg}"></span>
+              <h5 class="text-xs sm:text-sm font-black ${textAccent} uppercase tracking-wide">
+                ${teamTitle} (${teamPlayers.length} ${teamPlayers.length === 1 ? 'Jugador' : 'Jugadores'})
+              </h5>
+            </div>
+            <span class="text-xs font-bold text-pastel-plum/70">${teamPoints} Puntos Registrados</span>
+          </div>
+
+          <div class="px-3 py-2 grid grid-cols-12 items-center text-[10px] font-extrabold text-pastel-plum/50 uppercase tracking-wider border-b border-pastel-plum/5 dark:border-white/5">
+            <span class="col-span-5 sm:col-span-4">Jugador</span>
+            <span class="col-span-2 text-right">Puntos</span>
+            <span class="col-span-2 text-center">Goles</span>
+            <span class="col-span-3 sm:col-span-2 text-center">K / D</span>
+            <span class="col-span-2 text-center hidden sm:inline">Ratio K/D</span>
+          </div>
+
+          <div class="divide-y divide-pastel-plum/5 dark:divide-white/5">
+            ${teamPlayers.map((p, idx) => {
+              const avatarUrl = `https://mc-heads.net/avatar/${p.name}/32`;
+              return `
+                <div 
+                  data-username="${p.name}" 
+                  class="leaderboard-row px-3 py-2.5 grid grid-cols-12 items-center text-xs font-semibold cursor-pointer transition-all border-b border-transparent hover:bg-pastel-plum/5 dark:hover:bg-white/5"
+                  onclick="window.destinyApp.inspectMinecraftPlayer('${p.name}', this)"
+                >
+                  <div class="col-span-5 sm:col-span-4 flex items-center gap-2.5 min-w-0 pr-1">
+                    <span class="text-[11px] font-black text-pastel-plum/40 w-4 text-center">#${idx + 1}</span>
+                    <img 
+                      src="${avatarUrl}" 
+                      alt="${p.name}" 
+                      class="w-6 h-6 rounded shadow-xs flex-shrink-0"
+                      onerror="this.src='https://minotar.net/avatar/${p.name}/32'"
+                    />
+                    <span class="font-bold text-pastel-plum truncate hover:underline">${p.name}</span>
+                  </div>
+
+                  <div class="col-span-2 text-right font-black text-pastel-denim font-display">
+                    ${p.points.toLocaleString()}
+                  </div>
+
+                  <div class="col-span-2 text-center text-amber-600 dark:text-amber-400 font-bold">
+                    ${p.goals}
+                  </div>
+
+                  <div class="col-span-3 sm:col-span-2 text-center font-medium text-pastel-plum/80">
+                    <span class="text-rose-500 font-bold">${p.kills}</span> / <span class="text-slate-500">${p.deaths}</span>
+                  </div>
+
+                  <div class="col-span-2 text-center hidden sm:block font-bold text-pastel-plum">
+                    ${p.kdRatio}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    };
+
+    container.innerHTML = `
+      ${renderTeamTable('Equipo Rojo', redPlayers, true, match.redPoints)}
+      ${renderTeamTable('Equipo Azul', bluePlayers, false, match.bluePoints)}
+    `;
+  }
+}
+
+export function showMatchDetailFromHistory(matchNumber: number): void {
+  selectedMatchNumber = matchNumber;
+  if ((window as any).destinyApp?.switchModalitySubTab) {
+    (window as any).destinyApp.switchModalitySubTab('leaderboard');
+  }
+  setLeaderboardMode('match');
 }
 
 export function renderMatchesHistory(filter: 'all' | 'red' | 'blue' = activeMatchFilter): void {
@@ -954,9 +1230,13 @@ export function renderMatchesHistory(filter: 'all' | 'red' | 'blue' = activeMatc
     const dateText = m.formattedDate || 'Reciente';
 
     return `
-      <div class="p-4 rounded-2xl bg-white/70 dark:bg-white/5 border border-pastel-cardBorder hover:border-pastel-denim/40 transition-all shadow-sm flex flex-col justify-between gap-3">
+      <div 
+        onclick="window.destinyApp.showMatchDetailFromHistory(${m.matchNumber})"
+        class="p-4 rounded-2xl bg-white/70 dark:bg-white/5 border border-pastel-cardBorder hover:border-pastel-denim/40 transition-all shadow-sm flex flex-col justify-between gap-3 cursor-pointer group hover:scale-[1.01]"
+        title="Haz clic para ver la clasificación detallada de esta partida"
+      >
         <div class="flex items-center justify-between gap-2">
-          <span class="text-xs font-black tracking-wider uppercase px-2 py-0.5 rounded-md bg-pastel-periwinkle/40 text-pastel-plum font-display">
+          <span class="text-xs font-black tracking-wider uppercase px-2 py-0.5 rounded-md bg-pastel-periwinkle/40 text-pastel-plum font-display group-hover:bg-pastel-denim group-hover:text-white transition-colors">
             Partida #${m.matchNumber}
           </span>
           <span class="text-[11px] text-pastel-plum/60 font-medium flex items-center gap-1.5">
@@ -979,7 +1259,10 @@ export function renderMatchesHistory(filter: 'all' | 'red' | 'blue' = activeMatc
         </div>
 
         <div class="pt-2 border-t border-pastel-cardBorder/60 flex items-center justify-between text-xs">
-          <span class="text-[11px] font-bold text-pastel-plum/70">Resultado oficial:</span>
+          <span class="text-[11px] font-bold text-pastel-plum/70 flex items-center gap-1">
+            <span>Ver tabla de la partida</span>
+            <i class="fa-solid fa-arrow-right text-[10px] text-pastel-denim group-hover:translate-x-1 transition-transform"></i>
+          </span>
           ${resultBadge}
         </div>
       </div>
@@ -1054,8 +1337,8 @@ function renderLiveMatchUI(data: LiveMatchData): void {
   // Contadores
   const redCountEl = document.getElementById('live-red-count');
   const blueCountEl = document.getElementById('live-blue-count');
-  if (redCountEl) redCountEl.textContent = `${redPlayers.length} / 4`;
-  if (blueCountEl) blueCountEl.textContent = `${bluePlayers.length} / 4`;
+  if (redCountEl) redCountEl.textContent = `${redPlayers.length} ${redPlayers.length === 1 ? 'Jugador' : 'Jugadores'}`;
+  if (blueCountEl) blueCountEl.textContent = `${bluePlayers.length} ${bluePlayers.length === 1 ? 'Jugador' : 'Jugadores'}`;
 
   // Renderizar jugadores de Red
   const redContainer = document.getElementById('live-red-players');
