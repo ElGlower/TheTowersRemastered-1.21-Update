@@ -23,7 +23,7 @@ export async function openShareModal(username?: string): Promise<void> {
     previewContainer.innerHTML = `
       <div class="flex flex-col items-center justify-center p-12 text-pastel-plum">
         <i class="fa-solid fa-circle-notch fa-spin text-3xl text-pastel-denim mb-3"></i>
-        <p class="text-xs font-semibold">Cargando estadísticas oficiales y generando tarjeta...</p>
+        <p class="text-xs font-semibold">Cargando estadísticas y generando tarjeta...</p>
       </div>
     `;
   }

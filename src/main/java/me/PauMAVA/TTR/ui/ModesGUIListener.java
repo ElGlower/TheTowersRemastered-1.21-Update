@@ -8,6 +8,7 @@ import me.PauMAVA.TTR.util.TTRPrefix;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -142,7 +143,7 @@ public class ModesGUIListener implements Listener {
                 case "reroll_teams": {
                     List<Player> eligible = new ArrayList<>();
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        if (p.getGameMode() != GameMode.SPECTATOR && !TTRCore.isAdmin(p)) {
+                        if (p.getGameMode() != GameMode.SPECTATOR && !TTRCore.isAdmin(p) && !p.equals(player)) {
                             eligible.add(p);
                         }
                     }
@@ -155,7 +156,22 @@ public class ModesGUIListener implements Listener {
                     for (int i = 0; i < eligible.size(); i++) {
                         Player target = eligible.get(i);
                         String teamId = (i % 2 == 0) ? "Red" : "Blue";
-                        plugin.getTeamHandler().addPlayerToTeam(target, teamId);
+                        plugin.getTeamHandler().addPlayerToTeam(target, teamId, false);
+                    }
+                    // Quitar estrictamente a todos los administradores de los equipos
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (TTRCore.isAdmin(p) || p.equals(player)) {
+                            plugin.getTeamHandler().removePlayer(p);
+                        }
+                    }
+                    // Asegurar que todos los participantes permanezcan en el LOBBY (no en spawns de equipo)
+                    Location lobby = plugin.getConfigManager().getLobbyLocation();
+                    if (lobby != null) {
+                        for (Player p : Bukkit.getOnlinePlayers()) {
+                            if (!TTRCore.isAdmin(p) && !p.equals(player)) {
+                                p.teleport(lobby);
+                            }
+                        }
                     }
                     Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + "" + ChatColor.BOLD +
                             TextUtil.toTiny("¡Equipos barajados aleatoriamente por la administración!"));
@@ -291,9 +307,6 @@ public class ModesGUIListener implements Listener {
 
                                 targetTeam.getPlayers().add(targetUuid);
                                 if (targetPlayer != null) {
-                                    if (targetTeam.getSpawnPoint() != null) {
-                                        targetPlayer.teleport(targetTeam.getSpawnPoint());
-                                    }
                                     me.PauMAVA.TTR.voice.VoiceChatManager.getInstance().assignPlayerToTeamVoice(targetPlayer, other);
                                 }
                                 player.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Jugador transferido a ") + targetTeam.getColor() + targetTeam.getIdentifier());

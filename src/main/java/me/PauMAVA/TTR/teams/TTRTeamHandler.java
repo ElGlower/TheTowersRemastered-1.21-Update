@@ -57,6 +57,10 @@ public class TTRTeamHandler {
     }
 
     public void addPlayerToTeam(Player player, String teamIdentifier) {
+        addPlayerToTeam(player, teamIdentifier, true);
+    }
+
+    public void addPlayerToTeam(Player player, String teamIdentifier, boolean allowTeleport) {
         removePlayer(player);
         TTRTeam team = getTeam(teamIdentifier);
 
@@ -65,7 +69,7 @@ public class TTRTeamHandler {
             player.sendMessage(ChatColor.GRAY + "Te has unido al equipo " + team.getColor() + team.getIdentifier());
 
             MatchStatus status = TTRCore.getInstance().getCurrentMatch() != null ? TTRCore.getInstance().getCurrentMatch().getStatus() : MatchStatus.STOPPED;
-            if (status == MatchStatus.INGAME && team.getSpawnPoint() != null) {
+            if (allowTeleport && status == MatchStatus.INGAME && team.getSpawnPoint() != null) {
                 player.teleport(team.getSpawnPoint());
             }
 

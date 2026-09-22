@@ -175,21 +175,11 @@
                   </div>
 
                   <div class="flex-1">
-                    <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                      <span class="text-[10px] uppercase font-black tracking-wider px-2.5 py-0.5 rounded-full bg-pastel-blush text-pastel-plum border border-[#E79796]/40">Equipos Competitivos</span>
-                      <span class="flex items-center gap-1.5 text-[11px] font-bold text-[#48BB78]">
-                        <span class="w-2 h-2 rounded-full bg-[#48BB78] animate-pulse"></span>
-                        <span>En Vivo</span>
-                      </span>
-                    </div>
                     <h4 class="text-3xl font-extrabold text-pastel-plum tracking-tight font-display group-hover:text-pastel-denim transition-colors">THE TOWERS</h4>
                   </div>
                 </div>
 
-                <div class="pt-4 border-t border-pastel-cardBorder/80 flex items-center justify-between text-xs">
-                  <span class="text-pastel-plum/70 font-medium">
-                    <i class="fa-solid fa-users text-pastel-denim mr-1.5"></i>8 Jugadores por Partida
-                  </span>
+                <div class="pt-4 border-t border-pastel-cardBorder/80 flex items-center justify-end text-xs">
                   <span class="font-bold text-pastel-denim group-hover:translate-x-1 transition-transform flex items-center gap-1.5">
                     Ver Partida / Leaderboard <i class="fa-solid fa-arrow-right text-[11px]"></i>
                   </span>
@@ -247,17 +237,17 @@
               <div class="flex items-center p-1 rounded-full bg-white/70 dark:bg-white/10 border border-pastel-cardBorder shadow-inner overflow-x-auto">
                 <button id="subtab-btn-partida" onclick="switchModalitySubTab('partida')" class="px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 bg-pastel-denim text-white shadow-sm flex items-center gap-2 flex-shrink-0">
                   <i class="fa-solid fa-gamepad text-xs"></i>
-                  <span>Partida en Vivo</span>
+                  <span>Partida</span>
                 </button>
                 <button id="subtab-btn-leaderboard" onclick="switchModalitySubTab('leaderboard')" class="px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2 flex-shrink-0">
                   <i class="fa-solid fa-trophy text-xs text-pastel-denim"></i>
                   <span>Leaderboard</span>
-                  <span id="leaderboard-badge-count" class="text-[10px] px-1.5 py-0.2 rounded-full bg-pastel-denim/20 font-black">31</span>
+                  <span id="leaderboard-badge-count" class="text-[10px] px-1.5 py-0.2 rounded-full bg-pastel-denim/20 font-black">38</span>
                 </button>
                 <button id="subtab-btn-partidas" onclick="switchModalitySubTab('partidas')" class="px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2 flex-shrink-0">
                   <i class="fa-solid fa-list-check text-xs text-pastel-denim"></i>
                   <span>Partidas</span>
-                  <span id="matches-badge-count" class="text-[10px] px-1.5 py-0.2 rounded-full bg-pastel-denim/20 font-black">144</span>
+                  <span id="matches-badge-count" class="text-[10px] px-1.5 py-0.2 rounded-full bg-pastel-denim/20 font-black">6</span>
                 </button>
               </div>
             </div>
@@ -363,11 +353,11 @@
                 <div class="flex items-center gap-3">
                   <!-- Píldora selector de modo: General vs Por Partida -->
                   <div class="flex items-center p-1 rounded-full bg-white/70 dark:bg-white/10 border border-pastel-cardBorder shadow-sm">
-                    <button id="leaderboard-mode-general" onclick="window.destinyApp.setLeaderboardMode('general')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-pastel-denim text-white shadow-sm transition-all flex items-center gap-1.5">
+                    <button id="leaderboard-tab-general" onclick="window.destinyApp.setLeaderboardMode('general')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-pastel-denim text-white shadow-sm transition-all flex items-center gap-1.5">
                       <i class="fa-solid fa-trophy text-[11px]"></i>
-                      <span>General Temporada</span>
+                      <span>General</span>
                     </button>
-                    <button id="leaderboard-mode-match" onclick="window.destinyApp.setLeaderboardMode('match')" class="px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all flex items-center gap-1.5">
+                    <button id="leaderboard-tab-match" onclick="window.destinyApp.setLeaderboardMode('match')" class="px-4 py-1.5 rounded-full text-xs font-medium text-pastel-plum hover:text-pastel-denim transition-all flex items-center gap-1.5">
                       <i class="fa-solid fa-list-ol text-[11px]"></i>
                       <span>Por Partida</span>
                     </button>
@@ -435,7 +425,6 @@
               <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-pastel-plum/10 dark:border-white/10">
                 <div>
                   <h4 class="text-xl font-bold text-pastel-plum font-display">Historial de Partidas</h4>
-                  <p class="text-xs text-pastel-plum/60 mt-0.5">Registro completo de enfrentamientos en la arena The Towers</p>
                 </div>
 
                 <!-- Filtros Generales -->
@@ -658,7 +647,7 @@
               DO
             </div>
             <div class="flex items-center gap-1.5">
-              <span id="notch-player-title" class="text-xs font-bold text-pastel-plum">Perfil Oficial</span>
+              <span id="notch-player-title" class="text-xs font-bold text-pastel-plum">Perfil</span>
               <i id="notch-player-icon" class="fa-solid fa-circle-check text-[11px] text-pastel-denim"></i>
             </div>
           </div>
@@ -717,7 +706,7 @@
           </div>
           <div>
             <h3 class="text-lg font-bold text-pastel-plum dark:text-white font-display">Compartir Tarjeta en Redes</h3>
-            <p class="text-xs text-pastel-plum/60 dark:text-white/60">Estadísticas oficiales de <strong id="share-modal-player-name" class="text-pastel-denim font-bold">--</strong></p>
+            <p class="text-xs text-pastel-plum/60 dark:text-white/60">Estadísticas de <strong id="share-modal-player-name" class="text-pastel-denim font-bold">--</strong></p>
           </div>
         </div>
         <button onclick="window.destinyApp.closeShareModal()" class="w-8 h-8 rounded-full bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 flex items-center justify-center text-pastel-plum dark:text-white transition-all" title="Cerrar ventana">

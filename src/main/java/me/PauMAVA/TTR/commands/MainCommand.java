@@ -363,9 +363,10 @@ public class MainCommand implements CommandExecutor {
                 return true;
             }
             case "reroll": {
+                Player execPlayer = (sender instanceof Player pl) ? pl : null;
                 List<Player> eligible = new ArrayList<>();
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (p.getGameMode() != GameMode.SPECTATOR && !TTRCore.isAdmin(p)) {
+                    if (p.getGameMode() != GameMode.SPECTATOR && !TTRCore.isAdmin(p) && (execPlayer == null || !p.equals(execPlayer))) {
                         eligible.add(p);
                     }
                 }
@@ -378,7 +379,20 @@ public class MainCommand implements CommandExecutor {
                 for (int i = 0; i < eligible.size(); i++) {
                     Player target = eligible.get(i);
                     String teamId = (i % 2 == 0) ? "Red" : "Blue";
-                    TTRCore.getInstance().getTeamHandler().addPlayerToTeam(target, teamId);
+                    TTRCore.getInstance().getTeamHandler().addPlayerToTeam(target, teamId, false);
+                }
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (TTRCore.isAdmin(p) || (execPlayer != null && p.equals(execPlayer))) {
+                        TTRCore.getInstance().getTeamHandler().removePlayer(p);
+                    }
+                }
+                Location lobby = TTRCore.getInstance().getConfigManager().getLobbyLocation();
+                if (lobby != null) {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (!TTRCore.isAdmin(p) && (execPlayer == null || !p.equals(execPlayer))) {
+                            p.teleport(lobby);
+                        }
+                    }
                 }
                 Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + "" + ChatColor.BOLD +
                         TextUtil.toTiny("¡Equipos barajados aleatoriamente por la administración!"));

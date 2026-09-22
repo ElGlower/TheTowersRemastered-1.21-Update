@@ -67,20 +67,44 @@ export interface DetailedPlayerProfile {
 }
 
 const defaultLeaderboardMap: Record<string, PlayerStatsData> = {
-  'p-alepordio': { name: 'alepordio', goals: 15, wins: 11, kills: 61, deaths: 14 },
-  'p-kevinsitotv': { name: 'Kevinsitotv', goals: 11, wins: 6, kills: 58, deaths: 27 },
-  'p-srgael': { name: 'SrGael_', goals: 7, wins: 8, kills: 61, deaths: 28 },
-  'd99ad700-8eb7-4a7f-bef2-4a1786fa9376': { name: 'ElGlower', goals: 7, wins: 7, kills: 49, deaths: 18 },
-  'p-shadowrider': { name: 'ShadowRider', goals: 5, wins: 6, kills: 42, deaths: 20 },
-  'p-imnotglow': { name: 'ImNotGlow', goals: 4, wins: 4, kills: 35, deaths: 37 },
-  'p-aethersoul': { name: 'Aether_Soul', goals: 3, wins: 4, kills: 36, deaths: 22 },
-  'p-elzorro23': { name: 'ElZorro_23', goals: 1, wins: 5, kills: 41, deaths: 30 },
-  'p-lunakitten': { name: 'Luna_Kitten', goals: 2, wins: 3, kills: 30, deaths: 25 },
-  'p-paumava': { name: 'PauMAVA', goals: 2, wins: 3, kills: 26, deaths: 24 },
-  'p-darkknight': { name: 'DarkKnight', goals: 1, wins: 3, kills: 28, deaths: 47 },
-  'p-startces': { name: 'StartCes', goals: 1, wins: 2, kills: 22, deaths: 28 },
-  'p-ripkyng1': { name: 'Ripkyng1', goals: 1, wins: 2, kills: 20, deaths: 25 },
-  'p-pvpmaster99': { name: 'PVP_Master99', goals: 0, wins: 2, kills: 31, deaths: 48 }
+  'd3360920-c320-453b-aff5-ee837e786eea': { name: 'iEfra', kills: 48, deaths: 26, goals: 12, wins: 9 },
+  '3cbca042-ef89-4e36-9d64-af0d4181676c': { name: 'Evancini67', kills: 37, deaths: 21, goals: 10, wins: 7 },
+  '677efecc-c344-4e39-a003-862df8347f95': { name: 'JerePlays_1', kills: 33, deaths: 7, goals: 9, wins: 6 },
+  'a78eac94-fd9b-4971-82a7-cab742513c23': { name: 'idarkrex', kills: 32, deaths: 42, goals: 8, wins: 6 },
+  '01f67d8e-6c6f-4b64-bf8c-eff65105ead0': { name: 'Jeffersy56', kills: 30, deaths: 11, goals: 8, wins: 6 },
+  'd99ad700-8eb7-4a7f-bef2-4a1786fa9376': { name: 'ElGlower', kills: 27, deaths: 37, goals: 7, wins: 5 },
+  '42a03d8b-0e74-4157-9d02-d0181853e3a9': { name: 'GranVRZ', kills: 26, deaths: 25, goals: 7, wins: 5 },
+  'a5db673c-1b7f-4cf6-9db9-d3b53916b780': { name: 'ddivex', kills: 23, deaths: 42, goals: 6, wins: 4 },
+  '28052bd2-6510-4a9e-84a1-4d8f94fc12d2': { name: 'Kadficaaa', kills: 22, deaths: 29, goals: 6, wins: 4 },
+  'f7f8637b-562f-4f87-8c02-958e4ff2da2c': { name: 'Zkjoonie', kills: 21, deaths: 12, goals: 5, wins: 4 },
+  '4be65db6-b7ad-4aea-853e-7db74ceef457': { name: 'jersogamer', kills: 21, deaths: 15, goals: 5, wins: 4 },
+  'e26edf96-9f58-4942-8a28-6ddc1d04dd41': { name: 'InkognitoMC', kills: 20, deaths: 33, goals: 5, wins: 4 },
+  '52dc8ac1-850b-4f3e-851a-bd50a5056074': { name: 'alepordio', kills: 19, deaths: 10, goals: 5, wins: 3 },
+  'eacecec6-ee2f-44e4-b6e0-084f6a393fd5': { name: 'Ultralin', kills: 19, deaths: 35, goals: 5, wins: 3 },
+  'd3e2abf3-a00e-4d6f-82ac-d34f35c97370': { name: 'Sombradr', kills: 19, deaths: 39, goals: 5, wins: 3 },
+  'f602c4ea-f6b4-42f9-b581-b872e95e7b6d': { name: 'Feliibeltran', kills: 18, deaths: 23, goals: 5, wins: 3 },
+  'a2b2cc8c-0df5-473e-9be2-e37d1fa39310': { name: 'FlamedCOL', kills: 17, deaths: 25, goals: 4, wins: 3 },
+  '66c13c4e-d41f-4e48-83ed-d91bd9c97124': { name: 'Faray1', kills: 16, deaths: 4, goals: 4, wins: 3 },
+  'e32633bb-2cbc-4c77-8ff0-5d8480296e33': { name: 'HolaSoyRedlando', kills: 15, deaths: 10, goals: 4, wins: 3 },
+  'b4b8ad0b-a3c1-4920-939f-0316f2136ca5': { name: 'CeStart', kills: 15, deaths: 28, goals: 4, wins: 3 },
+  'ae96437d-d4a9-4f8a-98d4-fb2c46e0611a': { name: 'PipeAS', kills: 13, deaths: 23, goals: 3, wins: 2 },
+  '542b72dc-c2f7-49a4-a547-58a822468d20': { name: 'Leizer94', kills: 13, deaths: 42, goals: 3, wins: 2 },
+  '1ba16c7c-54b4-4966-a7a8-c09889dd530c': { name: 'Uimpi', kills: 12, deaths: 25, goals: 3, wins: 2 },
+  '8df36c0d-8c26-4c4e-805d-6a86509e5ebf': { name: 'pilaHD14', kills: 10, deaths: 24, goals: 3, wins: 2 },
+  '2d468b2d-602b-4914-988f-b7cc02bc164e': { name: 'ZippSxin', kills: 10, deaths: 27, goals: 3, wins: 2 },
+  '4808bf53-65ef-4bd7-96ca-2681611fe7f7': { name: 'LordBionick', kills: 9, deaths: 6, goals: 2, wins: 2 },
+  'e0040f11-c71f-4a43-9c12-30046092aaf7': { name: 'SrRocca', kills: 9, deaths: 34, goals: 2, wins: 2 },
+  'a42cb364-71ed-4561-b43a-d6cc71ee252c': { name: 'carlosprolol36', kills: 9, deaths: 35, goals: 2, wins: 2 },
+  'acdfcd66-e073-4dac-bc0b-0f9efeadf0d6': { name: 'ElBalam15', kills: 8, deaths: 31, goals: 2, wins: 1 },
+  'b3139650-d9cf-4e4e-b037-1e9b3d93acab': { name: 'zDragonSkillz', kills: 7, deaths: 29, goals: 2, wins: 1 },
+  '6c238d7d-ce4f-4a6d-8aa5-40cb7f1b5ed2': { name: 'xDysthy', kills: 6, deaths: 3, goals: 2, wins: 1 },
+  '85a09a4e-8e4a-4dd9-9790-14c1cc06b34e': { name: 'iNic0_', kills: 6, deaths: 6, goals: 2, wins: 1 },
+  '445c8bed-e0a5-41df-9488-792914591ff4': { name: 'SrFredbear', kills: 5, deaths: 5, goals: 1, wins: 1 },
+  'a591f2c3-ee41-47c4-8505-c5d4bdd7738d': { name: 'hey_enderxd', kills: 4, deaths: 17, goals: 1, wins: 1 },
+  'b67b9261-8d0c-45dd-a270-aa6b9d54a852': { name: 'OkaVT', kills: 1, deaths: 9, goals: 0, wins: 0 },
+  'c4012c8d-6240-4a91-ae93-da80d1c8af00': { name: 'MxreFPS', kills: 0, deaths: 0, goals: 0, wins: 0 },
+  'd3b20573-28db-4788-bcde-183e872072cc': { name: 'elayvt', kills: 0, deaths: 0, goals: 0, wins: 0 },
+  '76b83a94-f0c7-4efd-ac0d-3556cff41a9d': { name: 'vYurita', kills: 0, deaths: 2, goals: 0, wins: 0 }
 };
 
 const FIREBASE_RTDB_BASE = 'https://destinyowners-23-default-rtdb.firebaseio.com';
@@ -244,7 +268,7 @@ export function renderRealLeaderboard(): void {
       kdRatio,
       wins,
       isStaff: false,
-      roleTitle: 'Jugador Oficial',
+      roleTitle: 'Jugador',
       isOnline
     };
 
@@ -429,7 +453,7 @@ export function getPlayerProfileData(username: string): DetailedPlayerProfile {
     kdRatio,
     wins,
     isStaff: false,
-    roleTitle: 'Jugador Oficial',
+    roleTitle: 'Jugador',
     isOnline
   };
 }
@@ -894,14 +918,14 @@ const defaultMatches: ServerMatch[] = [
     formattedDuration: '14m 45s',
     formattedDate: 'Hoy, 23:25',
     players: [
-      { name: 'alepordio', team: 'Red', goals: 3, kills: 8, deaths: 2, points: 566, kdRatio: '4.00' },
-      { name: 'SrGael_', team: 'Red', goals: 1, kills: 12, deaths: 4, points: 422, kdRatio: '3.00' },
-      { name: 'ElGlower', team: 'Red', goals: 1, kills: 7, deaths: 1, points: 353, kdRatio: '7.00' },
-      { name: 'ElZorro_23', team: 'Red', goals: 0, kills: 9, deaths: 5, points: 225, kdRatio: '1.80' },
-      { name: 'Kevinsitotv', team: 'Blue', goals: 2, kills: 10, deaths: 6, points: 438, kdRatio: '1.67' },
-      { name: 'ImNotGlow', team: 'Blue', goals: 1, kills: 5, deaths: 7, points: 211, kdRatio: '0.71' },
-      { name: 'PVP_Master99', team: 'Blue', goals: 0, kills: 8, deaths: 8, points: 104, kdRatio: '1.00' },
-      { name: 'DarkKnight', team: 'Blue', goals: 0, kills: 4, deaths: 10, points: 40, kdRatio: '0.40' }
+      { name: 'iEfra', team: 'Red', goals: 3, kills: 14, deaths: 4, points: 640, kdRatio: '3.50' },
+      { name: 'ElGlower', team: 'Red', goals: 1, kills: 9, deaths: 2, points: 367, kdRatio: '4.50' },
+      { name: 'JerePlays_1', team: 'Red', goals: 1, kills: 8, deaths: 1, points: 368, kdRatio: '8.00' },
+      { name: 'CeStart', team: 'Red', goals: 0, kills: 6, deaths: 5, points: 180, kdRatio: '1.20' },
+      { name: 'Evancini67', team: 'Blue', goals: 2, kills: 10, deaths: 6, points: 438, kdRatio: '1.67' },
+      { name: 'idarkrex', team: 'Blue', goals: 1, kills: 8, deaths: 8, points: 254, kdRatio: '1.00' },
+      { name: 'Jeffersy56', team: 'Blue', goals: 0, kills: 7, deaths: 5, points: 195, kdRatio: '1.40' },
+      { name: 'GranVRZ', team: 'Blue', goals: 0, kills: 6, deaths: 7, points: 176, kdRatio: '0.86' }
     ]
   },
   {
@@ -914,14 +938,14 @@ const defaultMatches: ServerMatch[] = [
     formattedDuration: '17m 20s',
     formattedDate: 'Hoy, 22:40',
     players: [
-      { name: 'SrGael_', team: 'Red', goals: 2, kills: 14, deaths: 5, points: 490, kdRatio: '2.80' },
-      { name: 'ElGlower', team: 'Red', goals: 1, kills: 9, deaths: 4, points: 277, kdRatio: '2.25' },
-      { name: 'ElZorro_23', team: 'Red', goals: 1, kills: 6, deaths: 6, points: 228, kdRatio: '1.00' },
-      { name: 'DarkKnight', team: 'Red', goals: 0, kills: 5, deaths: 8, points: 59, kdRatio: '0.63' },
-      { name: 'Kevinsitotv', team: 'Blue', goals: 3, kills: 11, deaths: 3, points: 709, kdRatio: '3.67' },
-      { name: 'alepordio', team: 'Blue', goals: 1, kills: 8, deaths: 4, points: 362, kdRatio: '2.00' },
-      { name: 'ImNotGlow', team: 'Blue', goals: 1, kills: 6, deaths: 5, points: 330, kdRatio: '1.20' },
-      { name: 'PVP_Master99', team: 'Blue', goals: 0, kills: 7, deaths: 6, points: 193, kdRatio: '1.17' }
+      { name: 'ddivex', team: 'Red', goals: 2, kills: 10, deaths: 6, points: 438, kdRatio: '1.67' },
+      { name: 'ElGlower', team: 'Red', goals: 1, kills: 8, deaths: 4, points: 262, kdRatio: '2.00' },
+      { name: 'Kadficaaa', team: 'Red', goals: 1, kills: 6, deaths: 6, points: 228, kdRatio: '1.00' },
+      { name: 'InkognitoMC', team: 'Red', goals: 0, kills: 5, deaths: 7, points: 161, kdRatio: '0.71' },
+      { name: 'iEfra', team: 'Blue', goals: 3, kills: 12, deaths: 3, points: 624, kdRatio: '4.00' },
+      { name: 'alepordio', team: 'Blue', goals: 1, kills: 7, deaths: 4, points: 307, kdRatio: '1.75' },
+      { name: 'Zkjoonie', team: 'Blue', goals: 1, kills: 6, deaths: 3, points: 334, kdRatio: '2.00' },
+      { name: 'jersogamer', team: 'Blue', goals: 0, kills: 5, deaths: 4, points: 167, kdRatio: '1.25' }
     ]
   },
   {
@@ -934,14 +958,14 @@ const defaultMatches: ServerMatch[] = [
     formattedDuration: '11m 52s',
     formattedDate: 'Hoy, 21:10',
     players: [
-      { name: 'alepordio', team: 'Red', goals: 3, kills: 11, deaths: 1, points: 713, kdRatio: '11.00' },
-      { name: 'ElGlower', team: 'Red', goals: 2, kills: 8, deaths: 2, points: 516, kdRatio: '4.00' },
-      { name: 'SrGael_', team: 'Red', goals: 0, kills: 10, deaths: 3, points: 244, kdRatio: '3.33' },
-      { name: 'ElZorro_23', team: 'Red', goals: 0, kills: 7, deaths: 2, points: 201, kdRatio: '3.50' },
-      { name: 'Kevinsitotv', team: 'Blue', goals: 1, kills: 7, deaths: 8, points: 239, kdRatio: '0.88' },
-      { name: 'ImNotGlow', team: 'Blue', goals: 0, kills: 5, deaths: 9, points: 57, kdRatio: '0.56' },
-      { name: 'PVP_Master99', team: 'Blue', goals: 0, kills: 4, deaths: 9, points: 42, kdRatio: '0.44' },
-      { name: 'DarkKnight', team: 'Blue', goals: 0, kills: 3, deaths: 10, points: 25, kdRatio: '0.30' }
+      { name: 'Evancini67', team: 'Red', goals: 3, kills: 11, deaths: 2, points: 711, kdRatio: '5.50' },
+      { name: 'ElGlower', team: 'Red', goals: 2, kills: 7, deaths: 2, points: 501, kdRatio: '3.50' },
+      { name: 'Sombradr', team: 'Red', goals: 0, kills: 8, deaths: 4, points: 212, kdRatio: '2.00' },
+      { name: 'Feliibeltran', team: 'Red', goals: 0, kills: 6, deaths: 3, points: 184, kdRatio: '2.00' },
+      { name: 'idarkrex', team: 'Blue', goals: 1, kills: 7, deaths: 8, points: 239, kdRatio: '0.88' },
+      { name: 'Ultralin', team: 'Blue', goals: 0, kills: 5, deaths: 9, points: 57, kdRatio: '0.56' },
+      { name: 'PipeAS', team: 'Blue', goals: 0, kills: 4, deaths: 8, points: 44, kdRatio: '0.50' },
+      { name: 'Leizer94', team: 'Blue', goals: 0, kills: 3, deaths: 10, points: 25, kdRatio: '0.30' }
     ]
   },
   {
@@ -954,14 +978,14 @@ const defaultMatches: ServerMatch[] = [
     formattedDuration: '15m 30s',
     formattedDate: 'Hoy, 19:55',
     players: [
-      { name: 'ElGlower', team: 'Red', goals: 1, kills: 8, deaths: 5, points: 260, kdRatio: '1.60' },
-      { name: 'SrGael_', team: 'Red', goals: 1, kills: 6, deaths: 7, points: 226, kdRatio: '0.86' },
-      { name: 'DarkKnight', team: 'Red', goals: 0, kills: 4, deaths: 8, points: 44, kdRatio: '0.50' },
-      { name: 'PVP_Master99', team: 'Red', goals: 0, kills: 5, deaths: 9, points: 57, kdRatio: '0.56' },
-      { name: 'Kevinsitotv', team: 'Blue', goals: 2, kills: 12, deaths: 3, points: 574, kdRatio: '4.00' },
-      { name: 'alepordio', team: 'Blue', goals: 2, kills: 9, deaths: 2, points: 531, kdRatio: '4.50' },
-      { name: 'ImNotGlow', team: 'Blue', goals: 1, kills: 7, deaths: 4, points: 347, kdRatio: '1.75' },
-      { name: 'ElZorro_23', team: 'Blue', goals: 0, kills: 8, deaths: 5, points: 210, kdRatio: '1.60' }
+      { name: 'JerePlays_1', team: 'Red', goals: 1, kills: 8, deaths: 3, points: 264, kdRatio: '2.67' },
+      { name: 'ElGlower', team: 'Red', goals: 1, kills: 6, deaths: 5, points: 230, kdRatio: '1.20' },
+      { name: 'Uimpi', team: 'Red', goals: 0, kills: 4, deaths: 7, points: 46, kdRatio: '0.57' },
+      { name: 'pilaHD14', team: 'Red', goals: 0, kills: 5, deaths: 8, points: 59, kdRatio: '0.63' },
+      { name: 'iEfra', team: 'Blue', goals: 2, kills: 13, deaths: 3, points: 589, kdRatio: '4.33' },
+      { name: 'FlamedCOL', team: 'Blue', goals: 2, kills: 7, deaths: 2, points: 501, kdRatio: '3.50' },
+      { name: 'Faray1', team: 'Blue', goals: 1, kills: 6, deaths: 2, points: 336, kdRatio: '3.00' },
+      { name: 'HolaSoyRedlando', team: 'Blue', goals: 0, kills: 7, deaths: 4, points: 197, kdRatio: '1.75' }
     ]
   },
   {
@@ -974,14 +998,14 @@ const defaultMatches: ServerMatch[] = [
     formattedDuration: '14m 00s',
     formattedDate: 'Hoy, 18:20',
     players: [
-      { name: 'alepordio', team: 'Red', goals: 2, kills: 13, deaths: 4, points: 587, kdRatio: '3.25' },
-      { name: 'Kevinsitotv', team: 'Red', goals: 2, kills: 8, deaths: 3, points: 514, kdRatio: '2.67' },
-      { name: 'SrGael_', team: 'Red', goals: 1, kills: 9, deaths: 4, points: 377, kdRatio: '2.25' },
-      { name: 'ElZorro_23', team: 'Red', goals: 0, kills: 6, deaths: 5, points: 180, kdRatio: '1.20' },
-      { name: 'ElGlower', team: 'Blue', goals: 2, kills: 10, deaths: 5, points: 440, kdRatio: '2.00' },
-      { name: 'ImNotGlow', team: 'Blue', goals: 1, kills: 7, deaths: 7, points: 241, kdRatio: '1.00' },
-      { name: 'DarkKnight', team: 'Blue', goals: 1, kills: 5, deaths: 9, points: 207, kdRatio: '0.56' },
-      { name: 'PVP_Master99', team: 'Blue', goals: 0, kills: 6, deaths: 8, points: 74, kdRatio: '0.75' }
+      { name: 'alepordio', team: 'Red', goals: 2, kills: 12, deaths: 3, points: 574, kdRatio: '4.00' },
+      { name: 'Jeffersy56', team: 'Red', goals: 2, kills: 8, deaths: 3, points: 514, kdRatio: '2.67' },
+      { name: 'ZippSxin', team: 'Red', goals: 1, kills: 7, deaths: 4, points: 347, kdRatio: '1.75' },
+      { name: 'LordBionick', team: 'Red', goals: 0, kills: 6, deaths: 3, points: 184, kdRatio: '2.00' },
+      { name: 'ElGlower', team: 'Blue', goals: 2, kills: 9, deaths: 5, points: 425, kdRatio: '1.80' },
+      { name: 'SrRocca', team: 'Blue', goals: 1, kills: 6, deaths: 7, points: 226, kdRatio: '0.86' },
+      { name: 'carlosprolol36', team: 'Blue', goals: 1, kills: 5, deaths: 8, points: 209, kdRatio: '0.63' },
+      { name: 'ElBalam15', team: 'Blue', goals: 0, kills: 5, deaths: 8, points: 59, kdRatio: '0.63' }
     ]
   },
   {
@@ -994,14 +1018,14 @@ const defaultMatches: ServerMatch[] = [
     formattedDuration: '18m 40s',
     formattedDate: 'Ayer, 23:15',
     players: [
-      { name: 'SrGael_', team: 'Red', goals: 2, kills: 10, deaths: 6, points: 438, kdRatio: '1.67' },
+      { name: 'GranVRZ', team: 'Red', goals: 2, kills: 9, deaths: 5, points: 425, kdRatio: '1.80' },
       { name: 'ElGlower', team: 'Red', goals: 1, kills: 7, deaths: 5, points: 245, kdRatio: '1.40' },
-      { name: 'ElZorro_23', team: 'Red', goals: 0, kills: 5, deaths: 7, points: 61, kdRatio: '0.71' },
-      { name: 'PVP_Master99', team: 'Red', goals: 0, kills: 4, deaths: 8, points: 44, kdRatio: '0.50' },
-      { name: 'alepordio', team: 'Blue', goals: 3, kills: 12, deaths: 3, points: 724, kdRatio: '4.00' },
-      { name: 'Kevinsitotv', team: 'Blue', goals: 1, kills: 9, deaths: 4, points: 377, kdRatio: '2.25' },
-      { name: 'ImNotGlow', team: 'Blue', goals: 1, kills: 6, deaths: 5, points: 330, kdRatio: '1.20' },
-      { name: 'DarkKnight', team: 'Blue', goals: 0, kills: 6, deaths: 6, points: 178, kdRatio: '1.00' }
+      { name: 'zDragonSkillz', team: 'Red', goals: 0, kills: 5, deaths: 6, points: 163, kdRatio: '0.83' },
+      { name: 'xDysthy', team: 'Red', goals: 0, kills: 4, deaths: 5, points: 150, kdRatio: '0.80' },
+      { name: 'Evancini67', team: 'Blue', goals: 3, kills: 12, deaths: 3, points: 724, kdRatio: '4.00' },
+      { name: 'iNic0_', team: 'Blue', goals: 1, kills: 7, deaths: 3, points: 349, kdRatio: '2.33' },
+      { name: 'SrFredbear', team: 'Blue', goals: 1, kills: 5, deaths: 3, points: 319, kdRatio: '1.67' },
+      { name: 'hey_enderxd', team: 'Blue', goals: 0, kills: 4, deaths: 6, points: 48, kdRatio: '0.67' }
     ]
   }
 ];

@@ -153,16 +153,111 @@ public class WebStatsManager {
             .build();
 
     public void startSyncTask() {
+        loadPersistedStats();
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::saveLiveJson, 40L, 60L);
+    }
+
+    public void loadPersistedStats() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                File worldContainer = Bukkit.getWorldContainer();
+                File[] candidates = new File[] {
+                    new File(worldContainer, "the-towers/stats"),
+                    new File(worldContainer, "the-towers/players/stats"),
+                    new File("the-towers/stats"),
+                    new File("the-towers/players/stats"),
+                    new File(worldContainer, "world/stats"),
+                    new File("world/stats")
+                };
+                File statsDir = null;
+                for (File c : candidates) {
+                    if (c.exists() && c.isDirectory()) {
+                        statsDir = c;
+                        break;
+                    }
+                }
+                if (statsDir == null) return;
+
+                File usercacheFile = new File(worldContainer, "usercache.json");
+                if (!usercacheFile.exists()) {
+                    usercacheFile = new File("usercache.json");
+                }
+
+                Map<String, String> uuidToName = new HashMap<>();
+                if (usercacheFile.exists()) {
+                    try {
+                        String cacheContent = java.nio.file.Files.readString(usercacheFile.toPath(), StandardCharsets.UTF_8);
+                        java.util.regex.Pattern p = java.util.regex.Pattern.compile("\"uuid\"\\s*:\\s*\"([^\"]+)\"\\s*,\\s*\"name\"\\s*:\\s*\"([^\"]+)\"");
+                        java.util.regex.Matcher m = p.matcher(cacheContent);
+                        while (m.find()) {
+                            uuidToName.put(m.group(1).toLowerCase(), m.group(2));
+                        }
+                    } catch (Exception ignored) {}
+                }
+
+                File[] files = statsDir.listFiles((dir, name) -> name.endsWith(".json"));
+                if (files == null) return;
+
+                for (File f : files) {
+                    try {
+                        String fileName = f.getName();
+                        String uuidStr = fileName.substring(0, fileName.length() - 5);
+                        UUID uuid = UUID.fromString(uuidStr);
+
+                        String content = java.nio.file.Files.readString(f.toPath(), StandardCharsets.UTF_8);
+                        int kills = extractJsonInt(content, "minecraft:player_kills");
+                        int deaths = extractJsonInt(content, "minecraft:deaths");
+
+                        String name = uuidToName.get(uuidStr.toLowerCase());
+                        if (name == null) {
+                            try {
+                                name = Bukkit.getOfflinePlayer(uuid).getName();
+                            } catch (Exception ignored) {}
+                        }
+                        if (name == null || name.isBlank() || name.startsWith("Unknown_")) continue;
+
+                        final String playerName = name;
+                        Map<String, Object> stats = playerStats.computeIfAbsent(uuid, k -> createDefaultPlayerStats(playerName));
+                        stats.put("name", playerName);
+                        stats.put("kills", kills);
+                        stats.put("deaths", deaths);
+                    } catch (Exception ignored) {}
+                }
+
+                saveLiveJson();
+            } catch (Exception ignored) {}
+        });
+    }
+
+    private int extractJsonInt(String json, String key) {
+        try {
+            int idx = json.indexOf("\"" + key + "\"");
+            if (idx == -1) return 0;
+            int colon = json.indexOf(":", idx);
+            if (colon == -1) return 0;
+            int end = colon + 1;
+            while (end < json.length() && Character.isWhitespace(json.charAt(end))) {
+                end++;
+            }
+            int numStart = end;
+            while (end < json.length() && (Character.isDigit(json.charAt(end)) || json.charAt(end) == '-')) {
+                end++;
+            }
+            if (numStart < end) {
+                return Integer.parseInt(json.substring(numStart, end));
+            }
+        } catch (Exception ignored) {}
+        return 0;
     }
 
     private void syncToFirebase(String path, String json) {
         try {
             java.net.URI uri = java.net.URI.create("https://destinyowners-23-default-rtdb.firebaseio.com/" + path + ".json");
+            String method = path.equals("leaderboard") ? "PATCH" : "PUT";
             java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
                     .uri(uri)
                     .header("Content-Type", "application/json")
-                    .PUT(java.net.http.HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                    .method(method, java.net.http.HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
                     .timeout(java.time.Duration.ofSeconds(5))
                     .build();
             httpClient.sendAsync(request, java.net.http.HttpResponse.BodyHandlers.discarding());
