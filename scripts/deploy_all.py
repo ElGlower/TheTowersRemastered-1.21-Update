@@ -27,6 +27,7 @@ JARS = [
     (r"C:\Users\javif\Documentos\destinycosmetics\target\destinycosmetics-1.0.0.jar", "plugins/destinycosmetics-1.0.0.jar"),
     (r"C:\Users\javif\Documentos\destinylobby\src\main\resources\config.yml", "plugins/DestinyLobby/config.yml"),
     (r"C:\Users\javif\Documentos\destinyperms\editor.html", "plugins/DestinyPerms/editor.html"),
+    (r"C:\Users\javif\Documentos\destinyperms\src\main\resources\config.yml", "plugins/DestinyPerms/config.yml"),
     (r"C:\Users\javif\Documentos\destinywars\src\main\resources\chests.yml", "plugins/DestinyWars/chests.yml"),
     (r"C:\Users\javif\Documentos\destinywars\src\main\resources\config.yml", "plugins/DestinyWars/config.yml"),
 ]
