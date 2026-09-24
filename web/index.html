@@ -81,15 +81,18 @@
         </h1>
       </div>
 
-      <!-- Centro: Píldora de Navegación (INICIO - MODALIDAD - MIEMBROS) -->
+      <!-- Centro: Píldora de Navegación (INICIO - LEADERBOARD - MODALIDAD - MIEMBROS) -->
       <nav class="flex items-center bg-white/85 backdrop-blur-md p-1.5 rounded-full border border-pastel-cardBorder/70 shadow-sm">
-        <button id="nav-btn-inicio" onclick="switchTab('inicio')" class="px-7 py-2 rounded-full text-sm font-semibold transition-all duration-200 bg-pastel-denim text-white shadow-md flex items-center gap-2">
+        <button id="nav-btn-inicio" onclick="switchTab('inicio')" class="px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 bg-pastel-denim text-white shadow-md flex items-center gap-2">
           <span>Inicio</span>
         </button>
-        <button id="nav-btn-modalidad" onclick="switchTab('modalidad')" class="px-7 py-2 rounded-full text-sm font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2">
+        <button id="nav-btn-leaderboard" onclick="switchTab('modalidad'); openModalityDetail('the-towers', true); switchModalitySubTab('leaderboard');" class="px-6 py-2 rounded-full text-sm font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2">
+          <span>Leaderboard</span>
+        </button>
+        <button id="nav-btn-modalidad" onclick="switchTab('modalidad')" class="px-6 py-2 rounded-full text-sm font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2">
           <span>Modalidad</span>
         </button>
-        <button id="nav-btn-miembros" onclick="switchTab('miembros')" class="px-7 py-2 rounded-full text-sm font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2">
+        <button id="nav-btn-miembros" onclick="switchTab('miembros')" class="px-6 py-2 rounded-full text-sm font-medium text-pastel-plum hover:text-pastel-denim transition-all duration-200 flex items-center gap-2">
           <span>Miembros</span>
         </button>
       </nav>

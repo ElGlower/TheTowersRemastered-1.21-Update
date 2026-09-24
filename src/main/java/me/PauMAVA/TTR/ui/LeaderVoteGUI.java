@@ -27,7 +27,7 @@ public class LeaderVoteGUI {
     public static void open(Player player, LeaderVoteManager.TeamVoteState state) {
         String title = ChatColor.DARK_GRAY + "★ " + ChatColor.GOLD +
                 TextUtil.toTiny("Votación de Líder - Ronda ") + state.getRound();
-        Inventory gui = Bukkit.createInventory(null, 27, title);
+        Inventory gui = Bukkit.createInventory(null, 54, title);
 
         ItemStack border = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta bm = border.getItemMeta();
@@ -36,10 +36,19 @@ public class LeaderVoteGUI {
             border.setItemMeta(bm);
         }
 
+        // Borde exterior del inventario de 54 slots
         for (int i = 0; i < 9; i++) gui.setItem(i, border);
-        for (int i = 18; i < 27; i++) gui.setItem(i, border);
+        for (int i = 45; i < 54; i++) gui.setItem(i, border);
+        gui.setItem(9, border);
+        gui.setItem(17, border);
+        gui.setItem(18, border);
+        gui.setItem(26, border);
+        gui.setItem(27, border);
+        gui.setItem(35, border);
+        gui.setItem(36, border);
+        gui.setItem(44, border);
 
-        // Center clock in bottom row
+        // Reloj central en la fila inferior (slot 49)
         ItemStack timer = new ItemStack(Material.CLOCK);
         ItemMeta tm = timer.getItemMeta();
         if (tm != null) {
@@ -48,11 +57,17 @@ public class LeaderVoteGUI {
                     TTRCore.getInstance().getLeaderVoteManager().getSecondsRemaining() + "s");
             timer.setItemMeta(tm);
         }
-        gui.setItem(22, timer);
+        gui.setItem(49, timer);
 
-        // Populate candidate heads in middle row
+        // Slots centrales para cabezas de candidatos (hasta 28 candidatos)
+        int[] slots = {
+                10, 11, 12, 13, 14, 15, 16,
+                19, 20, 21, 22, 23, 24, 25,
+                28, 29, 30, 31, 32, 33, 34,
+                37, 38, 39, 40, 41, 42, 43
+        };
+
         List<UUID> candidates = state.getCandidates();
-        int[] slots = {10, 11, 12, 13, 14, 15, 16};
         UUID votedFor = state.getVotes().get(player.getUniqueId());
 
         for (int i = 0; i < candidates.size() && i < slots.length; i++) {
@@ -69,8 +84,11 @@ public class LeaderVoteGUI {
                 lore.add(ChatColor.GRAY + TextUtil.toTiny("Candidato a líder de tu equipo"));
                 lore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
 
-                if (TTRCore.isAdmin(player)) {
-                    lore.add(ChatColor.GRAY + TextUtil.toTiny("Supervisión Staff (No votas)"));
+                int currentVotes = state.getVotesFor(candUuid);
+                lore.add(ChatColor.GOLD + "★ " + TextUtil.toTiny("Votos actuales: ") + ChatColor.WHITE + "" + ChatColor.BOLD + currentVotes);
+
+                if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR) {
+                    lore.add(ChatColor.GRAY + TextUtil.toTiny("Espectador (No votas)"));
                 } else if (candUuid.equals(votedFor)) {
                     lore.add(ChatColor.GREEN + "✔ " + TextUtil.toTiny("¡Tu voto emitido!"));
                 } else {
@@ -97,7 +115,7 @@ public class LeaderVoteGUI {
                         TextUtil.toTiny("Tiempo restante: ") + ChatColor.WHITE + seconds + "s");
                 timer.setItemMeta(tm);
             }
-            inv.setItem(22, timer);
+            inv.setItem(49, timer);
         }
     }
 }

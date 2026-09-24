@@ -44,15 +44,19 @@ public class TTRCustomTab extends BukkitRunnable {
 
         animStep++;
 
-        // 1. Actualizar el nombre en lista de cada jugador solo si cambió (O(N) en vez de O(N^2))
+        // 1. Actualizar el nombre en lista de cada jugador solo si esta en the-towers
         for (Player target : Bukkit.getOnlinePlayers()) {
-            updatePlayerListName(target);
+            if (TTRCore.isTowersWorld(target.getWorld())) {
+                updatePlayerListName(target);
+            }
         }
 
-        // 2. Actualizar Header y Footer de cada jugador (solo si cambió el texto)
+        // 2. Actualizar Header y Footer de cada jugador (solo si esta en the-towers)
         for (Player player : Bukkit.getOnlinePlayers()) {
-            updateTabHeaderFooter(player);
-            updatePlayerSorting(player);
+            if (TTRCore.isTowersWorld(player.getWorld())) {
+                updateTabHeaderFooter(player);
+                updatePlayerSorting(player);
+            }
         }
     }
 
@@ -69,10 +73,7 @@ public class TTRCustomTab extends BukkitRunnable {
         String rolePrefix;
         ChatColor nameColor;
 
-        if (isStaff) {
-            rolePrefix = DestinyTheme.DESTINY_ROLE_BADGE + " ";
-            nameColor = ChatColor.WHITE;
-        } else if (team != null) {
+        if (team != null) {
             boolean isLeader = team.isLeader(target.getUniqueId());
             boolean isRed = team.getIdentifier().equalsIgnoreCase("Red");
 
@@ -89,7 +90,7 @@ public class TTRCustomTab extends BukkitRunnable {
                 rolePrefix = "§7[" + TextUtil.toTiny("Espec") + "] ";
                 nameColor = ChatColor.GRAY;
             } else {
-                rolePrefix = "§7[" + TextUtil.toTiny("Lobby") + "] ";
+                rolePrefix = "";
                 nameColor = ChatColor.WHITE;
             }
         }
@@ -117,8 +118,8 @@ public class TTRCustomTab extends BukkitRunnable {
                 ChatColor.DARK_GRAY + "§m                             \n" +
                 getMatchStatus() + "\n";
 
-        int playingCount = Bukkit.getOnlinePlayers().size();
-        int maxPlayers = Bukkit.getMaxPlayers();
+        int playingCount = (int) Bukkit.getOnlinePlayers().stream().filter(p -> TTRCore.isTowersWorld(p.getWorld())).count();
+        int maxPlayers = 20;
         int realPing = player.getPing();
 
         String footer = "\n" +
@@ -143,6 +144,7 @@ public class TTRCustomTab extends BukkitRunnable {
         if (board == null) return;
 
         for (Player target : Bukkit.getOnlinePlayers()) {
+            if (!TTRCore.isTowersWorld(target.getWorld())) continue;
             syncPlayerTeamInScoreboard(board, target);
         }
     }

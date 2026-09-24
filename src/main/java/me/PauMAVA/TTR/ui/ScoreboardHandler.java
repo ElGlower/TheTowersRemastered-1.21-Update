@@ -79,6 +79,14 @@ public class ScoreboardHandler {
             ScoreboardManager manager = Bukkit.getScoreboardManager();
             if (manager == null || !player.isOnline()) return;
 
+            if (!TTRCore.isTowersWorld(player.getWorld())) {
+                if (playerBoards.containsKey(player.getUniqueId())) {
+                    removePlayer(player);
+                    player.setScoreboard(manager.getMainScoreboard());
+                }
+                return;
+            }
+
             Scoreboard board = playerBoards.computeIfAbsent(player.getUniqueId(), uuid -> manager.getNewScoreboard());
             if (player.getScoreboard() != board) {
                 player.setScoreboard(board);
@@ -134,6 +142,7 @@ public class ScoreboardHandler {
                         playerTeam.getColor() + TextUtil.toTiny(capitalize(playerTeam.getIdentifier())) : 
                         ChatColor.GRAY + TextUtil.toTiny("Espectador");
                 newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Tu Equipo: ") + teamName);
+                newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Tu Rol: ") + getPlayerRole(player));
 
                 // Kills
                 int kills = plugin.getCurrentMatch().getKills(player);
@@ -142,8 +151,8 @@ public class ScoreboardHandler {
             } else {
                 newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Estado: ") + getMatchState(status));
 
-                int playingCount = Bukkit.getOnlinePlayers().size();
-                int maxPlayers = Bukkit.getMaxPlayers();
+                int playingCount = (int) Bukkit.getOnlinePlayers().stream().filter(p -> TTRCore.isTowersWorld(p.getWorld())).count();
+                int maxPlayers = 20;
                 newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Jugadores: ") + ChatColor.AQUA + TextUtil.toTiny(String.valueOf(playingCount)) + ChatColor.DARK_GRAY + "/" + ChatColor.GRAY + TextUtil.toTiny(String.valueOf(maxPlayers)));
 
                 if (status == MatchStatus.PREPARATION) {
@@ -157,15 +166,11 @@ public class ScoreboardHandler {
                 newLines.add("§1§r");
 
                 TTRTeam playerTeam = plugin.getTeamHandler() != null ? plugin.getTeamHandler().getPlayerTeam(player) : null;
-                String teamName;
-                if (playerTeam != null) {
-                    teamName = playerTeam.getColor() + TextUtil.toTiny(capitalize(playerTeam.getIdentifier()));
-                } else if (TTRCore.isAdmin(player)) {
-                    teamName = DestinyTheme.DESTINY_ROLE_BADGE;
-                } else {
-                    teamName = ChatColor.GRAY + TextUtil.toTiny("Lobby");
-                }
-                newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + (playerTeam != null ? TextUtil.toTiny("Tu Equipo: ") : TextUtil.toTiny("Tu Rol: ")) + teamName);
+                String teamName = (playerTeam != null)
+                        ? playerTeam.getColor() + TextUtil.toTiny(capitalize(playerTeam.getIdentifier()))
+                        : ChatColor.GRAY + TextUtil.toTiny("Sin Equipo");
+                newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Tu Equipo: ") + teamName);
+                newLines.add(ChatColor.GRAY + "» " + ChatColor.WHITE + TextUtil.toTiny("Tu Rol: ") + getPlayerRole(player));
             }
 
             // Footer DestinyOwners (Estático para evitar reseteo continuo de líneas y saturación de paquetes)
@@ -213,5 +218,31 @@ public class ScoreboardHandler {
     private String capitalize(String str) {
         if (str == null || str.isEmpty()) return str;
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+    }
+
+    private String getPlayerRole(Player player) {
+        try {
+            var perms = Bukkit.getPluginManager().getPlugin("DestinyPerms");
+            if (perms != null) {
+                var um = perms.getClass().getMethod("getUserManager").invoke(perms);
+                var user = um.getClass().getMethod("getUser", java.util.UUID.class).invoke(um, player.getUniqueId());
+                if (user != null) {
+                    var groupName = (String) user.getClass().getMethod("getPrimaryGroup").invoke(user);
+                    var gm = perms.getClass().getMethod("getGroupManager").invoke(perms);
+                    var group = gm.getClass().getMethod("getGroup", String.class).invoke(gm, groupName);
+                    if (group != null) {
+                        String p = (String) group.getClass().getMethod("getPrefix").invoke(group);
+                        if (p != null && !p.isBlank()) {
+                            return ChatColor.translateAlternateColorCodes('&', p.trim().replaceAll("<[^>]*>", ""));
+                        }
+                        if (groupName != null && !groupName.isBlank()) {
+                            return ChatColor.GOLD + TextUtil.toTiny(groupName.toUpperCase());
+                        }
+                    }
+                }
+            }
+        } catch (Throwable ignored) {}
+        if (player.isOp()) return ChatColor.RED + TextUtil.toTiny("OP");
+        return ChatColor.GRAY + TextUtil.toTiny("USUARIO");
     }
 }

@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.format.TextDecoration;
 
 /**
  * Gestor de la Varita de Zonas Administrativa (/dt wand).
@@ -44,7 +46,7 @@ public class ZoneWandManager {
         ItemStack wand = new ItemStack(Material.BLAZE_ROD);
         ItemMeta meta = wand.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "⚡ " + TextUtil.toTiny("Vara de Zonas Destiny"));
+            meta.displayName(LegacyComponentSerializer.legacySection().deserialize(ChatColor.GOLD + "" + ChatColor.BOLD + "⚡ " + TextUtil.toTiny("Vara de Zonas Destiny")).decoration(TextDecoration.ITALIC, false));
             List<String> lore = new ArrayList<>();
             lore.add(ChatColor.GRAY + TextUtil.toTiny("Herramienta administrativa con delimitador 3D"));
             lore.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
@@ -58,7 +60,7 @@ public class ZoneWandManager {
             lore.add(ChatColor.WHITE + "/dt wand setcage <red|blue>");
             lore.add(ChatColor.WHITE + "/dt wand setbase <red|blue>");
             lore.add(ChatColor.WHITE + "/dt wand setlobby");
-            meta.setLore(lore);
+            meta.lore(lore.stream().map(l -> LegacyComponentSerializer.legacySection().deserialize(l).decoration(TextDecoration.ITALIC, false)).toList());
             meta.getPersistentDataContainer().set(KEY_WAND, PersistentDataType.BYTE, (byte) 1);
             wand.setItemMeta(meta);
         }

@@ -81,6 +81,21 @@ public class MainCommand implements CommandExecutor {
             case "stats":
             case "estadisticas":
                 return new StatsCommand().onCommand(sender, command, label, subArgs);
+            case "top":
+            case "leaderboard":
+            case "ranking": {
+                org.bukkit.plugin.Plugin dl = Bukkit.getPluginManager().getPlugin("DestinyLobby");
+                if (dl != null && dl.isEnabled() && sender instanceof Player p) {
+                    try {
+                        Object gui = dl.getClass().getMethod("getLeaderboardGUI").invoke(dl);
+                        if (gui != null) {
+                            gui.getClass().getMethod("open", Player.class).invoke(gui, p);
+                            return true;
+                        }
+                    } catch (Throwable ignored) {}
+                }
+                return new StatsCommand().onCommand(sender, command, label, subArgs);
+            }
             case "ping":
             case "ms":
             case "latencia": {
@@ -266,8 +281,12 @@ public class MainCommand implements CommandExecutor {
                     return true;
                 } else if (wandSub.equals("setlobby")) {
                     Location loc = p.getLocation();
+                    if (loc.getWorld() == null || !loc.getWorld().getName().equalsIgnoreCase("the-towers")) {
+                        p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡Error! El lobby de The Towers SOLO puede establecerse dentro del mundo 'the-towers'."));
+                        return true;
+                    }
                     TTRCore.getInstance().getConfigManager().setLobby(loc);
-                    p.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Lobby establecido en tu ubicación."));
+                    p.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Lobby de The Towers establecido en tu ubicación."));
                     return true;
                 } else if (wandSub.equals("chest") && subArgs.length > 1) {
                     org.bukkit.block.Block target = p.getTargetBlockExact(5);
@@ -366,12 +385,12 @@ public class MainCommand implements CommandExecutor {
                 Player execPlayer = (sender instanceof Player pl) ? pl : null;
                 List<Player> eligible = new ArrayList<>();
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (p.getGameMode() != GameMode.SPECTATOR && !TTRCore.isAdmin(p) && (execPlayer == null || !p.equals(execPlayer))) {
+                    if (TTRCore.isTowersWorld(p.getWorld()) && p.getGameMode() != GameMode.SPECTATOR) {
                         eligible.add(p);
                     }
                 }
                 if (eligible.isEmpty()) {
-                    sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No hay suficientes jugadores (no admins) para barajar."));
+                    sender.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No hay suficientes jugadores para barajar."));
                     return true;
                 }
                 Collections.shuffle(eligible);
@@ -382,14 +401,14 @@ public class MainCommand implements CommandExecutor {
                     TTRCore.getInstance().getTeamHandler().addPlayerToTeam(target, teamId, false);
                 }
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (TTRCore.isAdmin(p) || (execPlayer != null && p.equals(execPlayer))) {
+                    if (p.getGameMode() == GameMode.SPECTATOR) {
                         TTRCore.getInstance().getTeamHandler().removePlayer(p);
                     }
                 }
                 Location lobby = TTRCore.getInstance().getConfigManager().getLobbyLocation();
                 if (lobby != null) {
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        if (!TTRCore.isAdmin(p) && (execPlayer == null || !p.equals(execPlayer))) {
+                        if (TTRCore.isTowersWorld(p.getWorld()) && p.getGameMode() != GameMode.SPECTATOR) {
                             p.teleport(lobby);
                         }
                     }

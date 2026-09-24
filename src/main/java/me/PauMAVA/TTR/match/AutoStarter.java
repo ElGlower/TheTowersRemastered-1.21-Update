@@ -40,7 +40,7 @@ public class AutoStarter {
         int required = plugin.getConfigManager().getAutoStartPlayers();
         int currentOnline = 0;
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (!TTRCore.isAdmin(p)) currentOnline++;
+            if (TTRCore.isTowersWorld(p.getWorld()) && p.getGameMode() != org.bukkit.GameMode.SPECTATOR) currentOnline++;
         }
 
         if (currentOnline >= required) {
@@ -50,9 +50,12 @@ public class AutoStarter {
         } else {
             if (plugin.isCounting()) {
                 cancel();
-                Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + 
+                String msg = TTRPrefix.TTR_GAME + ChatColor.YELLOW + 
                         TextUtil.toTiny("Conteo cancelado. Se necesitan al menos ") + 
-                        ChatColor.GOLD + required + ChatColor.YELLOW + TextUtil.toTiny(" jugadores."));
+                        ChatColor.GOLD + required + ChatColor.YELLOW + TextUtil.toTiny(" jugadores.");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (TTRCore.isTowersWorld(p.getWorld())) p.sendMessage(msg);
+                }
             }
         }
     }
@@ -72,13 +75,16 @@ public class AutoStarter {
                 int required = plugin.getConfigManager().getAutoStartPlayers();
                 int activeCount = 0;
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (!TTRCore.isAdmin(p)) activeCount++;
+                    if (TTRCore.isTowersWorld(p.getWorld()) && p.getGameMode() != org.bukkit.GameMode.SPECTATOR) activeCount++;
                 }
                 if (activeCount < required) {
                     cancel();
                     plugin.setCounting(false);
-                    Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.RED + 
-                            TextUtil.toTiny("¡Conteo cancelado por falta de jugadores!"));
+                    String cancelMsg = TTRPrefix.TTR_GAME + ChatColor.RED + 
+                            TextUtil.toTiny("¡Conteo cancelado por falta de jugadores!");
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (TTRCore.isTowersWorld(p.getWorld())) p.sendMessage(cancelMsg);
+                    }
                     return;
                 }
 
@@ -86,8 +92,10 @@ public class AutoStarter {
                     String title = ChatColor.GOLD + TextUtil.toTiny("Iniciando en");
                     String sub = ChatColor.YELLOW + String.valueOf(countdown) + TextUtil.toTiny("s");
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        p.sendTitle(title, sub, 5, 20, 5);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, (countdown <= 3) ? 2.0f : 1.0f);
+                        if (TTRCore.isTowersWorld(p.getWorld())) {
+                            p.sendTitle(title, sub, 5, 20, 5);
+                            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, (countdown <= 3) ? 2.0f : 1.0f);
+                        }
                     }
                 }
 
@@ -136,8 +144,10 @@ public class AutoStarter {
                     String title = TextUtil.color("&#FFFFFF" + TextUtil.toTiny("Iniciando en"));
                     String sub = TextUtil.color("&#FF2E2E§l" + countdown + "s");
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        p.sendTitle(title, sub, 0, 25, 5);
-                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, (countdown <= 3) ? 2.0f : 1.0f);
+                        if (TTRCore.isTowersWorld(p.getWorld())) {
+                            p.sendTitle(title, sub, 0, 25, 5);
+                            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, (countdown <= 3) ? 2.0f : 1.0f);
+                        }
                     }
                 }
 

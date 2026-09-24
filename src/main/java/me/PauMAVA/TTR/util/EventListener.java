@@ -12,6 +12,7 @@ import java.util.List;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Fireball;
@@ -21,7 +22,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import me.PauMAVA.TTR.modes.LeaderVoteManager;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
@@ -61,6 +65,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getBlock().getWorld())) return;
         Player p = event.getPlayer();
 
         // Evitar romper bloques accidentalmente con la varita en modo creativo
@@ -89,15 +94,13 @@ public class EventListener implements Listener {
             return;
         }
 
-        if (event.getBlock().getType() == Material.COBWEB) {
-            // Las telarañas siempre son rompibles durante la partida
+        if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
+            event.setCancelled(true);
             return;
         }
 
-        if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
-            if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
-                event.setCancelled(true);
-            }
+        if (p.getGameMode() != GameMode.SURVIVAL) {
+            event.setCancelled(true);
             return;
         }
 
@@ -135,15 +138,20 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
+        if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getBlock().getWorld())) return;
         Player p = event.getPlayer();
         if (plugin.getRollbackManager() != null && plugin.getRollbackManager().isEditMode() && TTRCore.isAdmin(p)) {
             return;
         }
 
         if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
-            if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
-                event.setCancelled(true);
-            }
+            event.setCancelled(true);
+            return;
+        }
+
+        if (p.getGameMode() != GameMode.SURVIVAL) {
+            event.setCancelled(true);
             return;
         }
 
@@ -181,6 +189,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onBucketEmpty(org.bukkit.event.player.PlayerBucketEmptyEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getBlockClicked().getWorld())) return;
         if (event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
         Location target = event.getBlockClicked().getRelative(event.getBlockFace()).getLocation();
         if (isCageZone(target) || isSpawnZone(target)) {
@@ -192,6 +201,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onBlockFromTo(org.bukkit.event.block.BlockFromToEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getBlock().getWorld())) return;
         if (isCageZone(event.getToBlock().getLocation()) || isSpawnZone(event.getToBlock().getLocation())) {
             event.setCancelled(true);
         }
@@ -200,6 +210,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPistonExtend(org.bukkit.event.block.BlockPistonExtendEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getBlock().getWorld())) return;
         for (org.bukkit.block.Block b : event.getBlocks()) {
             if (isCageZone(b.getLocation()) || isSpawnZone(b.getLocation()) ||
                 isCageZone(b.getRelative(event.getDirection()).getLocation()) || isSpawnZone(b.getRelative(event.getDirection()).getLocation())) {
@@ -212,6 +223,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPistonRetract(org.bukkit.event.block.BlockPistonRetractEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getBlock().getWorld())) return;
         for (org.bukkit.block.Block b : event.getBlocks()) {
             if (isCageZone(b.getLocation()) || isSpawnZone(b.getLocation())) {
                 event.setCancelled(true);
@@ -223,12 +235,14 @@ public class EventListener implements Listener {
     @EventHandler
     public void onEntityExplode(org.bukkit.event.entity.EntityExplodeEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getLocation().getWorld())) return;
         event.blockList().removeIf(b -> isCageZone(b.getLocation()) || isSpawnZone(b.getLocation()));
     }
 
     @EventHandler
     public void onBlockExplode(org.bukkit.event.block.BlockExplodeEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getBlock().getWorld())) return;
         event.blockList().removeIf(b -> isCageZone(b.getLocation()) || isSpawnZone(b.getLocation()));
     }
 
@@ -281,6 +295,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getPlayer().getWorld())) return;
         Player p = event.getPlayer();
 
         // Control de caída rápida al vacío en partida (Y < 130)
@@ -298,7 +313,7 @@ public class EventListener implements Listener {
             Location lobby = plugin.getConfigManager().getLobbyLocation();
 
             // Mantener a todos los jugadores en el spawn durante la fase de subasta hasta que inicie la estrategia
-            if (plugin.getAuctionDraftManager() != null && plugin.getAuctionDraftManager().isActive() && !TTRCore.isAdmin(p)) {
+            if (plugin.getAuctionDraftManager() != null && plugin.getAuctionDraftManager().isActive() && p.getGameMode() != GameMode.SPECTATOR) {
                 if (lobby != null && lobby.getWorld() != null) {
                     if (!p.getWorld().equals(lobby.getWorld()) || p.getLocation().distanceSquared(lobby) > 1225.0) {
                         p.teleport(lobby);
@@ -347,6 +362,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getPlayer().getWorld())) return;
         Player player = event.getPlayer();
 
         // Herramienta Vara de Zonas (/dt wand)
@@ -380,6 +396,25 @@ public class EventListener implements Listener {
             }
         }
 
+        // Ítem de Votación de Líderes
+        if (event.getItem() != null && plugin.getLeaderVoteManager().isVoteItem(event.getItem())) {
+            event.setCancelled(true);
+            if (plugin.getLeaderVoteManager().isActive()) {
+                TTRTeam team = plugin.getTeamHandler().getPlayerTeam(player);
+                if (team != null) {
+                    LeaderVoteManager.TeamVoteState state = plugin.getLeaderVoteManager().getState(team.getIdentifier());
+                    if (state != null) {
+                        me.PauMAVA.TTR.ui.LeaderVoteGUI.open(player, state);
+                        return;
+                    }
+                }
+                player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No estás asignado a un equipo en votación."));
+            } else {
+                player.sendMessage(TTRPrefix.TTR_GAME + TextUtil.toTiny("No hay votación activa en este momento."));
+            }
+            return;
+        }
+
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null) {
             if (isChestOrContainer(event.getClickedBlock())) {
                 String baseTeam = plugin.getConfigManager().getTeamForChest(event.getClickedBlock().getLocation());
@@ -409,14 +444,9 @@ public class EventListener implements Listener {
 
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (event.getItem() != null) {
-                if (event.getItem().getType() == Material.COMPARATOR && (player.hasPermission("destinytowers.admin") || player.hasPermission("ttr.admin") || player.isOp())) {
+                if (event.getItem().getType() == Material.COMPARATOR && player.getWorld().getName().equalsIgnoreCase("the-towers") && (player.hasPermission("destinytowers.admin") || player.hasPermission("ttr.admin") || player.isOp())) {
                     event.setCancelled(true);
                     ConfigGUI.open(player);
-                    return;
-                }
-                if (event.getItem().getType() == Material.NETHER_STAR && plugin.getCurrentMatch() != null && plugin.getCurrentMatch().getStatus() == MatchStatus.LOBBY) {
-                    event.setCancelled(true);
-                    new TeamSelectListener(plugin).openTeamSelection(player);
                     return;
                 }
                 if (event.getItem().getType() == Material.FIRE_CHARGE) {
@@ -431,6 +461,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onInventoryOpen(InventoryOpenEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getPlayer().getWorld())) return;
         if (event.getInventory().getHolder() instanceof Container || event.getInventory().getHolder() instanceof DoubleChest) {
             ChestRestockManager.getInstance().purgeLiquids(event.getInventory());
         }
@@ -456,6 +487,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getWhoClicked().getWorld())) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
         // Fase de preparación: pueden mirar los cofres pero NO agarrar ningún ítem
@@ -481,6 +513,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getEntity().getWorld())) return;
         event.setDroppedExp(0);
 
         Player victim = event.getEntity();
@@ -518,6 +551,7 @@ public class EventListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getEntity().getWorld())) return;
         if (event.getEntity() instanceof Player victim) {
             double damage = event.getFinalDamage();
             if (damage <= 0.1) return;
@@ -570,16 +604,51 @@ public class EventListener implements Listener {
         } catch (Throwable ignored) {}
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onSpectatorDamageBlock(EntityDamageByEntityEvent event) {
+        if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getEntity().getWorld())) return;
+
+        Player attacker = null;
+        if (event.getDamager() instanceof Player p) {
+            attacker = p;
+        } else if (event.getDamager() instanceof org.bukkit.entity.Projectile proj && proj.getShooter() instanceof Player p) {
+            attacker = p;
+        }
+
+        if (attacker != null) {
+            if (attacker.getGameMode() != GameMode.SURVIVAL || plugin.getTeamHandler().getPlayerTeam(attacker) == null) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
+        if (event.getEntity() instanceof Player victim) {
+            if (victim.getGameMode() != GameMode.SURVIVAL || plugin.getTeamHandler().getPlayerTeam(victim) == null) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
     @EventHandler
     public void onGameModeChange(org.bukkit.event.player.PlayerGameModeChangeEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getPlayer().getWorld())) return;
         Player p = event.getPlayer();
-        if (event.getNewGameMode() != GameMode.CREATIVE) {
-            // Anti-abuso de creativo: al salir de creativo se purgan los ítems ilegales
+        if (event.getNewGameMode() == GameMode.SPECTATOR) {
             p.getInventory().clear();
             p.getInventory().setArmorContents(null);
             p.getInventory().setItemInOffHand(null);
-
+            for (Player other : Bukkit.getOnlinePlayers()) {
+                if (other.getGameMode() != GameMode.SPECTATOR) {
+                    other.hidePlayer(plugin, p);
+                }
+            }
+        } else if (event.getNewGameMode() == GameMode.SURVIVAL) {
+            for (Player other : Bukkit.getOnlinePlayers()) {
+                other.showPlayer(plugin, p);
+            }
             if (plugin.getCurrentMatch() != null && plugin.getCurrentMatch().getStatus() == MatchStatus.INGAME) {
                 TTRTeam team = plugin.getTeamHandler().getPlayerTeam(p);
                 if (team != null) {
@@ -591,12 +660,20 @@ public class EventListener implements Listener {
                     }.runTaskLater(plugin, 1L);
                 }
             }
+        } else {
+            for (Player other : Bukkit.getOnlinePlayers()) {
+                other.showPlayer(plugin, p);
+            }
+            p.getInventory().clear();
+            p.getInventory().setArmorContents(null);
+            p.getInventory().setItemInOffHand(null);
         }
     }
 
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getPlayer().getWorld())) return;
 
         if (plugin.getCurrentMatch().getStatus() == MatchStatus.INGAME) {
             Player player = event.getPlayer();
@@ -622,16 +699,58 @@ public class EventListener implements Listener {
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
         if (!plugin.enabled()) return;
-        if (plugin.getCurrentMatch() == null) return;
-        MatchStatus status = plugin.getCurrentMatch().getStatus();
-        if (status == MatchStatus.LOBBY || status == MatchStatus.PREPARATION) {
-            event.setCancelled(true);
+        if (!TTRCore.isTowersWorld(event.getPlayer().getWorld())) return;
+        Player p = event.getPlayer();
+
+        if (plugin.getRollbackManager() != null && plugin.getRollbackManager().isEditMode() && TTRCore.isAdmin(p)) {
+            return;
         }
+
+        if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME || p.getGameMode() != GameMode.SURVIVAL) {
+            if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPickup(EntityPickupItemEvent event) {
+        if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getEntity().getWorld())) return;
+        if (!(event.getEntity() instanceof Player p)) return;
+
+        if (plugin.getRollbackManager() != null && plugin.getRollbackManager().isEditMode() && TTRCore.isAdmin(p)) {
+            return;
+        }
+
+        if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME || p.getGameMode() != GameMode.SURVIVAL) {
+            if (!(p.getGameMode() == GameMode.CREATIVE && TTRCore.isAdmin(p))) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onCreatureSpawn(CreatureSpawnEvent event) {
+        if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getEntity().getWorld())) return;
+
+        CreatureSpawnEvent.SpawnReason reason = event.getSpawnReason();
+        if (reason == CreatureSpawnEvent.SpawnReason.SPAWNER_EGG ||
+                reason == CreatureSpawnEvent.SpawnReason.COMMAND ||
+                reason == CreatureSpawnEvent.SpawnReason.CUSTOM ||
+                reason == CreatureSpawnEvent.SpawnReason.DEFAULT) {
+            return; // Permitir invocaciones manuales con huevos, /summon o plugins
+        }
+
+        // Bloquear spawns automáticos o naturales de mobs en Hard difficulty
+        event.setCancelled(true);
     }
 
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getEntity().getWorld())) return;
         if (event.getEntity() instanceof Player player) {
             if (plugin.getCurrentMatch() == null || plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
                 event.setCancelled(true);
@@ -641,9 +760,15 @@ public class EventListener implements Listener {
                     } else {
                         Location lobby = plugin.getConfigManager().getLobbyLocation();
                         if (lobby != null) {
-                            player.teleport(lobby);
-                            player.setVelocity(new Vector(0, 0, 0));
+                            player.teleport(lobby.clone().add(0, 4, 0));
+                            player.setVelocity(new Vector(0, 1.2, 0));
                             player.setFallDistance(0f);
+                            player.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.SLOW_FALLING, 60, 0, false, false, false));
+                            if (lobby.getWorld() != null) {
+                                lobby.getWorld().spawnParticle(Particle.FIREWORK, lobby, 30, 0.4, 0.4, 0.4, 0.1);
+                                lobby.getWorld().spawnParticle(Particle.CLOUD, lobby, 20, 0.3, 0.2, 0.3, 0.05);
+                            }
+                            player.playSound(lobby, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1.0f, 1.2f);
                         }
                     }
                 }
@@ -675,6 +800,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onHunger(FoodLevelChangeEvent event) {
         if (!plugin.enabled()) return;
+        if (!TTRCore.isTowersWorld(event.getEntity().getWorld())) return;
         if (plugin.getCurrentMatch().getStatus() != MatchStatus.INGAME) {
             event.setCancelled(true);
             event.setFoodLevel(20);
@@ -684,6 +810,7 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPrepareCraft(PrepareItemCraftEvent event) {
         if (!plugin.enabled()) return;
+        if (event.getView().getPlayer() != null && !TTRCore.isTowersWorld(event.getView().getPlayer().getWorld())) return;
         if (event.getRecipe() != null && event.getRecipe().getResult().getType() == Material.SHIELD) {
             event.getInventory().setResult(new ItemStack(Material.AIR));
         }
@@ -692,30 +819,34 @@ public class EventListener implements Listener {
     @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
     public void onChat(org.bukkit.event.player.AsyncPlayerChatEvent event) {
         if (!plugin.enabled()) return;
-        // Garantizar que el chat NUNCA esté cancelado para nadie en ningún momento ni fase
-        event.setCancelled(false);
-        // Garantizar que todos los jugadores conectados reciban siempre el mensaje
-        event.getRecipients().addAll(Bukkit.getOnlinePlayers());
-
         Player p = event.getPlayer();
+        if (!TTRCore.isTowersWorld(p.getWorld())) {
+            // No intervenir en el chat de jugadores que están en el Lobby general o en SkyWars
+            return;
+        }
+
+        // Garantizar que el chat NUNCA esté cancelado para nadie en ningún momento ni fase dentro de The Towers
+        event.setCancelled(false);
+        // Filtrar destinatarios: solo jugadores dentro de The Towers
+        event.getRecipients().removeIf(target -> !TTRCore.isTowersWorld(target.getWorld()));
+
         TTRTeam team = plugin.getTeamHandler().getPlayerTeam(p);
-        boolean isStaff = p.isOp() || p.hasPermission("destinytowers.admin") || p.hasPermission("ttr.admin");
-        String staffPrefix = isStaff ? me.PauMAVA.TTR.ui.DestinyTheme.DESTINY_ROLE_BADGE + " " : "";
+        boolean isStaff = TTRCore.isAdmin(p);
 
         if (team != null && team.isLeader(p.getUniqueId())) {
             String leaderBadge = ChatColor.GOLD + "★ [" + team.getColor() + TextUtil.toTiny("Líder ") + team.getColor() + TextUtil.toTiny(team.getIdentifier()) + ChatColor.GOLD + "] " + ChatColor.RESET;
-            event.setFormat(staffPrefix + leaderBadge + team.getColor() + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
+            event.setFormat(leaderBadge + team.getColor() + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
         } else if (team != null) {
             String teamPrefix = ChatColor.DARK_GRAY + "[" + team.getColor() + TextUtil.toTiny(team.getIdentifier()) + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
-            event.setFormat(staffPrefix + teamPrefix + team.getColor() + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
+            event.setFormat(teamPrefix + team.getColor() + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
         } else if (p.getGameMode() == GameMode.SPECTATOR) {
             String specPrefix = ChatColor.DARK_GRAY + "[" + ChatColor.GRAY + TextUtil.toTiny("Espectador") + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
-            event.setFormat(staffPrefix + specPrefix + ChatColor.GRAY + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
+            event.setFormat(specPrefix + ChatColor.GRAY + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
         } else if (isStaff) {
-            event.setFormat(staffPrefix + ChatColor.WHITE + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
+            event.setFormat(ChatColor.WHITE + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
         } else {
-            // Jugador en lobby o sin equipo asignado
-            event.setFormat(staffPrefix + ChatColor.GRAY + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
+            // Jugador en lobby de The Towers o sin equipo asignado
+            event.setFormat(ChatColor.GRAY + "%1$s" + ChatColor.DARK_GRAY + " » " + ChatColor.WHITE + "%2$s");
         }
     }
 }

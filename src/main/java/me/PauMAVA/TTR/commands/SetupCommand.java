@@ -45,8 +45,12 @@ public class SetupCommand implements CommandExecutor {
 
         switch (sub) {
             case "lobby":
+                if (!p.getWorld().getName().equalsIgnoreCase("the-towers")) {
+                    p.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡Error! El lobby de The Towers SOLO puede establecerse en el mundo 'the-towers'."));
+                    return true;
+                }
                 TTRCore.getInstance().getConfigManager().setLobby(p.getLocation());
-                p.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Lobby establecido con éxito."));
+                p.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Lobby de The Towers establecido con éxito."));
                 break;
             case "redspawn":
                 TTRCore.getInstance().getConfigManager().setTeamSpawn("Red", p.getLocation());

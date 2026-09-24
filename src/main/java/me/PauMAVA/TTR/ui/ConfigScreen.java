@@ -102,7 +102,7 @@ public class ConfigScreen {
                 .append(Component.text("-------------------\n", NamedTextColor.DARK_GRAY))
                 .append(Component.text(TextUtil.toTiny("Fijar en tu posición:") + "\n\n", NamedTextColor.BLACK))
                 .append(Component.text(TextUtil.toTiny("[ 📍 FIJAR LOBBY ]") + "\n", NamedTextColor.GOLD, TextDecoration.BOLD)
-                        .clickEvent(ClickEvent.runCommand("/setlobby"))
+                        .clickEvent(ClickEvent.runCommand("/ttrsetlobby"))
                         .hoverEvent(HoverEvent.showText(Component.text(TextUtil.toTiny("Establecer lobby en tu posición")))))
                 .append(Component.text(TextUtil.toTiny("[ 🚩 BASE ROJA ]") + "\n", NamedTextColor.RED, TextDecoration.BOLD)
                         .clickEvent(ClickEvent.runCommand("/ttr set redspawn"))

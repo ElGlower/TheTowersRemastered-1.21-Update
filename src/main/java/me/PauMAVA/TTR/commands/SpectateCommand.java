@@ -14,29 +14,44 @@ public class SpectateCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("ttr.admin")) {
-            sender.sendMessage(TTRPrefix.TTR_ADMIN + " No tienes permisos.");
-            return true;
-        }
-
+        Player target;
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.RED + "Uso: /ttrspectate <jugador>");
-            return true;
-        }
-
-        Player target = Bukkit.getPlayer(args[0]);
-        if (target == null) {
-            sender.sendMessage(ChatColor.RED + "Jugador no encontrado.");
-            return true;
+            if (!(sender instanceof Player p)) {
+                sender.sendMessage(ChatColor.RED + "Uso: /dt spectate <jugador>");
+                return true;
+            }
+            target = p;
+        } else {
+            if (!sender.hasPermission("ttr.admin")) {
+                sender.sendMessage(TTRPrefix.TTR_ADMIN + " No tienes permisos.");
+                return true;
+            }
+            target = Bukkit.getPlayer(args[0]);
+            if (target == null) {
+                sender.sendMessage(ChatColor.RED + "Jugador no encontrado.");
+                return true;
+            }
         }
 
         TTRCore.getInstance().getTeamHandler().removePlayer(target);
 
         target.setGameMode(GameMode.SPECTATOR);
         target.getInventory().clear();
+        target.getInventory().setArmorContents(null);
+        target.getInventory().setItemInOffHand(null);
 
-        target.sendMessage(ChatColor.GRAY + "Has sido puesto en modo espectador por un administrador.");
-        sender.sendMessage(TTRPrefix.TTR_ADMIN + "Has puesto a " + target.getName() + " en espectador.");
+        for (Player other : Bukkit.getOnlinePlayers()) {
+            if (other.getGameMode() != GameMode.SPECTATOR) {
+                other.hidePlayer(TTRCore.getInstance(), target);
+            }
+        }
+
+        if (target.equals(sender)) {
+            target.sendMessage(TTRPrefix.TTR_GAME + ChatColor.GRAY + "Ahora estás en modo espectador.");
+        } else {
+            target.sendMessage(ChatColor.GRAY + "Has sido puesto en modo espectador por un administrador.");
+            sender.sendMessage(TTRPrefix.TTR_ADMIN + "Has puesto a " + target.getName() + " en espectador.");
+        }
 
         return true;
     }

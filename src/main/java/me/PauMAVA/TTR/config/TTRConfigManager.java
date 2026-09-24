@@ -67,13 +67,22 @@ public class TTRConfigManager {
 
     public Location getLobbyLocation() {
         Location loc = getLocationSafe("map.lobby");
-        if (loc == null && !Bukkit.getWorlds().isEmpty()) {
-            return Bukkit.getWorlds().get(0).getSpawnLocation();
+        if (loc == null || loc.getWorld() == null || !loc.getWorld().getName().equalsIgnoreCase("the-towers")) {
+            World tw = Bukkit.getWorld("the-towers");
+            if (tw != null) {
+                return new Location(tw, 0.5, 200.0, 1152.5, 0f, 0f);
+            }
+            if (loc != null) return loc;
+            return !Bukkit.getWorlds().isEmpty() ? Bukkit.getWorlds().get(0).getSpawnLocation() : null;
         }
         return loc;
     }
 
     public void setLobby(Location location) {
+        if (location == null || location.getWorld() == null || !location.getWorld().getName().equalsIgnoreCase("the-towers")) {
+            Bukkit.getLogger().warning("[DestinyTowers] Intento de setLobby fuera del mundo the-towers bloqueado.");
+            return;
+        }
         saveLocation("map.lobby", location);
     }
 

@@ -144,6 +144,7 @@ public class WebStatsManager {
         state.put("killfeed", new ArrayList<>(killfeed));
         state.put("matches", new ArrayList<>(matchHistory));
         state.put("annualMatches", annualMatchCount);
+        state.put("leaderboard", getLeaderboardMap());
 
         return state;
     }

@@ -36,8 +36,8 @@ public class ModesGUIListener implements Listener {
             ItemStack item = event.getCurrentItem();
             if (item == null || !item.hasItemMeta()) return;
 
-            if (TTRCore.isAdmin(player)) {
-                player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Los administradores no participan en las votaciones."));
+            if (player.getGameMode() == GameMode.SPECTATOR) {
+                player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Los espectadores no participan en las votaciones."));
                 return;
             }
 
@@ -143,12 +143,12 @@ public class ModesGUIListener implements Listener {
                 case "reroll_teams": {
                     List<Player> eligible = new ArrayList<>();
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        if (p.getGameMode() != GameMode.SPECTATOR && !TTRCore.isAdmin(p) && !p.equals(player)) {
+                        if (TTRCore.isTowersWorld(p.getWorld()) && p.getGameMode() != GameMode.SPECTATOR) {
                             eligible.add(p);
                         }
                     }
                     if (eligible.isEmpty()) {
-                        player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No hay suficientes jugadores (no admins) para barajar."));
+                        player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("No hay suficientes jugadores para barajar."));
                         break;
                     }
                     Collections.shuffle(eligible);
@@ -158,9 +158,9 @@ public class ModesGUIListener implements Listener {
                         String teamId = (i % 2 == 0) ? "Red" : "Blue";
                         plugin.getTeamHandler().addPlayerToTeam(target, teamId, false);
                     }
-                    // Quitar estrictamente a todos los administradores de los equipos
+                    // Quitar a los espectadores de los equipos
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        if (TTRCore.isAdmin(p) || p.equals(player)) {
+                        if (p.getGameMode() == GameMode.SPECTATOR) {
                             plugin.getTeamHandler().removePlayer(p);
                         }
                     }
@@ -168,7 +168,7 @@ public class ModesGUIListener implements Listener {
                     Location lobby = plugin.getConfigManager().getLobbyLocation();
                     if (lobby != null) {
                         for (Player p : Bukkit.getOnlinePlayers()) {
-                            if (!TTRCore.isAdmin(p) && !p.equals(player)) {
+                            if (TTRCore.isTowersWorld(p.getWorld()) && p.getGameMode() != GameMode.SPECTATOR) {
                                 p.teleport(lobby);
                             }
                         }

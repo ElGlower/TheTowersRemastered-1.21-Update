@@ -41,6 +41,7 @@ public class AuctionDraftManager {
     public int getTurnDuration() { return TTRCore.getInstance().getConfig().getInt("auction.turn_seconds", 15); }
     public int getTeamCredits(String team) { return credits.getOrDefault(team.toLowerCase(), getStartingCredits()); }
     public boolean hasPassed(String team) { return passed.getOrDefault(team.toLowerCase(), false); }
+    public List<UUID> getPool() { return pool; }
 
     public void startDraft() {
         TTRCore plugin = TTRCore.getInstance();
@@ -59,12 +60,14 @@ public class AuctionDraftManager {
             // Intentar asignar automáticamente el primer miembro como líder si ya existen miembros (no administradores)
             if (red != null && red.getLeader() == null && !red.getPlayers().isEmpty()) {
                 for (UUID u : red.getPlayers()) {
-                    if (!TTRCore.isAdmin(u)) { red.setLeader(u); break; }
+                    Player pl = Bukkit.getPlayer(u);
+                    if (pl != null && pl.getGameMode() != org.bukkit.GameMode.SPECTATOR) { red.setLeader(u); break; }
                 }
             }
             if (blue != null && blue.getLeader() == null && !blue.getPlayers().isEmpty()) {
                 for (UUID u : blue.getPlayers()) {
-                    if (!TTRCore.isAdmin(u)) { blue.setLeader(u); break; }
+                    Player pl = Bukkit.getPlayer(u);
+                    if (pl != null && pl.getGameMode() != org.bukkit.GameMode.SPECTATOR) { blue.setLeader(u); break; }
                 }
             }
 
@@ -77,10 +80,11 @@ public class AuctionDraftManager {
             }
         }
 
-        // Populate pool with players who are not leaders and NOT admins
+        // Populate pool with players in The Towers who are not leaders and not spectators
         pool.clear();
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (TTRCore.isAdmin(p)) continue; // Administradores no se subastan
+            if (!TTRCore.isTowersWorld(p.getWorld())) continue;
+            if (p.getGameMode() == org.bukkit.GameMode.SPECTATOR) continue;
             TTRTeam team = plugin.getTeamHandler().getPlayerTeam(p);
             if (team != null && team.isLeader(p.getUniqueId())) {
                 continue; // Leaders don't get auctioned
@@ -106,6 +110,7 @@ public class AuctionDraftManager {
         // Retirar la estrella del nether a TODOS los jugadores y teletransportar a spawn
         Location lobby = plugin.getConfigManager().getLobbyLocation();
         for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!TTRCore.isTowersWorld(p.getWorld())) continue;
             p.getInventory().remove(Material.NETHER_STAR);
             if (lobby != null && lobby.getWorld() != null) {
                 p.teleport(lobby);
@@ -163,7 +168,7 @@ public class AuctionDraftManager {
 
         if (red != null && red.getLeader() == null) {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                if (TTRCore.isAdmin(p)) continue;
+                if (!TTRCore.isTowersWorld(p.getWorld()) || p.getGameMode() == org.bukkit.GameMode.SPECTATOR) continue;
                 red.setLeader(p.getUniqueId());
                 red.addPlayer(p);
                 break;
@@ -171,7 +176,7 @@ public class AuctionDraftManager {
         }
         if (blue != null && blue.getLeader() == null) {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                if (TTRCore.isAdmin(p)) continue;
+                if (!TTRCore.isTowersWorld(p.getWorld()) || p.getGameMode() == org.bukkit.GameMode.SPECTATOR) continue;
                 if (red != null && !p.getUniqueId().equals(red.getLeader())) {
                     blue.setLeader(p.getUniqueId());
                     blue.addPlayer(p);

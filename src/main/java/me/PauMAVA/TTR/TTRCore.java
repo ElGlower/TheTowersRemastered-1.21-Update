@@ -163,8 +163,8 @@ public class TTRCore extends JavaPlugin {
         registerCmd("ttrspectate", new SpectateCommand());
         registerCmd("ttrplay", new JoinCommand());
 
-        // Comando /setlobby directamente soportado
-        PluginCommand setLobbyCmd = getCommand("setlobby");
+        // Comando /ttrsetlobby para The Towers
+        PluginCommand setLobbyCmd = getCommand("ttrsetlobby");
         if (setLobbyCmd != null) {
             setLobbyCmd.setExecutor(new CommandExecutor() {
                 @Override
@@ -179,13 +179,17 @@ public class TTRCore extends JavaPlugin {
                         return true;
                     }
                     Location loc = player.getLocation();
+                    if (loc.getWorld() == null || !loc.getWorld().getName().equalsIgnoreCase("the-towers")) {
+                        player.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("¡Error! El lobby de The Towers SOLO puede establecerse dentro del mundo 'the-towers'."));
+                        return true;
+                    }
                     configManager.setLobby(loc);
-                    if (worldHandler == null && loc.getWorld() != null) {
+                    if (worldHandler == null) {
                         worldHandler = new TTRWorldHandler(TTRCore.this, loc.getWorld());
                         worldHandler.setUpWorld();
                     }
                     player.sendMessage(TTRPrefix.TTR_SUCCESS + 
-                            TextUtil.toTiny("¡Lobby establecido con éxito en tu posición!"));
+                            TextUtil.toTiny("¡Lobby de The Towers establecido con éxito en tu posición!"));
                     return true;
                 }
             });
@@ -243,7 +247,13 @@ public class TTRCore extends JavaPlugin {
         if (this.auctionDraftManager != null) this.auctionDraftManager.cancelDraft();
         if (this.autoStarter != null) this.autoStarter.cancelCountdown();
 
+        Location lobby = this.configManager.getLobbyLocation();
+
         for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!isTowersWorld(p.getWorld())) {
+                // Jugador en Lobby general o en SkyWars: NO TOCAR
+                continue;
+            }
             p.getInventory().clear();
             p.getInventory().setArmorContents(null);
             p.getInventory().setItemInOffHand(null);
@@ -260,12 +270,8 @@ public class TTRCore extends JavaPlugin {
             p.setGameMode(org.bukkit.GameMode.ADVENTURE);
             this.currentMatch.giveLobbyItems(p);
 
-            Location lobby = this.configManager.getLobbyLocation();
             if (lobby != null && lobby.getWorld() != null) {
-                // Solo teletransportar si el jugador no está en el mundo del lobby
-                if (!p.getWorld().equals(lobby.getWorld())) {
-                    p.teleport(lobby);
-                }
+                p.teleport(lobby);
             }
 
             if (this.scoreboard != null) this.scoreboard.update(p);
@@ -280,13 +286,19 @@ public class TTRCore extends JavaPlugin {
     public void setCounting(boolean counting) { this.counting = counting; }
     public boolean enabled() { return isEnabled(); }
 
+    public static boolean isTowersWorld(org.bukkit.World world) {
+        if (world == null) return false;
+        String name = world.getName().toLowerCase();
+        if (name.equals("lobby") || name.equals("world") || name.startsWith("arena-") || name.startsWith("skywars")) {
+            return false;
+        }
+        return name.equalsIgnoreCase("the-towers");
+    }
+
     public static boolean isAdmin(Player player) {
         if (player == null) return false;
-        String name = player.getName();
-        if (name.equalsIgnoreCase("ElGlower") || name.equalsIgnoreCase("CeStart") || name.equalsIgnoreCase("Sombradr")) {
-            return true;
-        }
-        return player.isOp() || player.hasPermission("destinytowers.admin") || player.hasPermission("ttr.admin");
+        return player.isOp() || player.hasPermission("destinytowers.admin") || player.hasPermission("ttr.admin")
+                || player.hasPermission("destinyperms.admin") || player.hasPermission("group.owner") || player.hasPermission("group.admin");
     }
 
     public static boolean isAdmin(UUID uuid) {
@@ -294,12 +306,6 @@ public class TTRCore extends JavaPlugin {
         Player p = Bukkit.getPlayer(uuid);
         if (p != null) return isAdmin(p);
         OfflinePlayer off = Bukkit.getOfflinePlayer(uuid);
-        if (off.getName() != null) {
-            String name = off.getName();
-            if (name.equalsIgnoreCase("ElGlower") || name.equalsIgnoreCase("CeStart") || name.equalsIgnoreCase("Sombradr")) {
-                return true;
-            }
-        }
         return off.isOp();
     }
 }

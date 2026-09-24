@@ -12,10 +12,49 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LeaderVoteManager {
+
+    public static final NamespacedKey KEY_VOTE_ITEM = new NamespacedKey(TTRCore.getInstance(), "ttr_vote_item");
+
+    public boolean isVoteItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return false;
+        return item.getItemMeta().getPersistentDataContainer().has(KEY_VOTE_ITEM, PersistentDataType.BYTE);
+    }
+
+    public void giveVoteItem(Player p) {
+        if (p == null) return;
+        ItemStack item = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "🗳 " + TextUtil.toTiny("Votación de Líder") + ChatColor.GRAY + " (" + TextUtil.toTiny("Clic Derecho") + ")");
+            List<String> lore = new ArrayList<>();
+            lore.add(ChatColor.GRAY + TextUtil.toTiny("Haz clic derecho para abrir el menú"));
+            lore.add(ChatColor.GRAY + TextUtil.toTiny("y votar por el capitán de tu equipo."));
+            meta.setLore(lore);
+            meta.getPersistentDataContainer().set(KEY_VOTE_ITEM, PersistentDataType.BYTE, (byte) 1);
+            item.setItemMeta(meta);
+        }
+        p.getInventory().setItem(0, item);
+    }
+
+    public void removeVoteItem(Player p) {
+        if (p == null) return;
+        for (int i = 0; i < p.getInventory().getSize(); i++) {
+            ItemStack it = p.getInventory().getItem(i);
+            if (isVoteItem(it)) {
+                p.getInventory().setItem(i, null);
+            }
+        }
+    }
 
     public static class TeamVoteState {
         private final TTRTeam team;
@@ -28,9 +67,11 @@ public class LeaderVoteManager {
         public TeamVoteState(TTRTeam team) {
             this.team = team;
             for (UUID uuid : team.getPlayers()) {
-                if (!TTRCore.isAdmin(uuid)) {
-                    this.candidates.add(uuid);
+                Player p = Bukkit.getPlayer(uuid);
+                if (p != null && (p.getGameMode() == org.bukkit.GameMode.SPECTATOR || !TTRCore.isTowersWorld(p.getWorld()))) {
+                    continue;
                 }
+                this.candidates.add(uuid);
             }
         }
 
@@ -78,13 +119,13 @@ public class LeaderVoteManager {
 
         List<Player> playing = new ArrayList<>();
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (!TTRCore.isAdmin(p)) {
+            if (TTRCore.isTowersWorld(p.getWorld()) && p.getGameMode() != org.bukkit.GameMode.SPECTATOR) {
                 playing.add(p);
             }
         }
 
         if (playing.size() < 2) {
-            Bukkit.broadcastMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Se requieren al menos 2 jugadores (no administradores) para iniciar la fase."));
+            Bukkit.broadcastMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Se requieren al menos 2 jugadores para iniciar la fase."));
             return;
         }
 
@@ -111,13 +152,15 @@ public class LeaderVoteManager {
             }
         }
 
-        // Si los equipos están vacíos (jugadores en lobby), repartir equitativamente SOLO jugadores participantes
-        if (red != null && blue != null && red.getPlayers().isEmpty() && blue.getPlayers().isEmpty()) {
-            for (int i = 0; i < playing.size(); i++) {
-                if (i % 2 == 0) {
-                    plugin.getTeamHandler().setPlayerTeam(playing.get(i), red);
-                } else {
-                    plugin.getTeamHandler().setPlayerTeam(playing.get(i), blue);
+        // Asegurar que TODOS los jugadores jugando estén repartidos entre Rojo y Azul
+        if (red != null && blue != null) {
+            for (Player p : playing) {
+                if (plugin.getTeamHandler().getPlayerTeam(p) == null) {
+                    if (red.getPlayers().size() <= blue.getPlayers().size()) {
+                        plugin.getTeamHandler().setPlayerTeam(p, red);
+                    } else {
+                        plugin.getTeamHandler().setPlayerTeam(p, blue);
+                    }
                 }
             }
         }
@@ -156,7 +199,8 @@ public class LeaderVoteManager {
                 TextUtil.toTiny("Vota a tu compañero de equipo para líder (Ronda 1)."));
 
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (TTRCore.isAdmin(p)) continue; // Administradores no participan en votación
+            if (!TTRCore.isTowersWorld(p.getWorld()) || p.getGameMode() == org.bukkit.GameMode.SPECTATOR) continue;
+            giveVoteItem(p);
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1.2f);
             TTRTeam team = plugin.getTeamHandler().getPlayerTeam(p);
             if (team != null) {
@@ -203,8 +247,8 @@ public class LeaderVoteManager {
 
     public boolean castVote(Player voter, UUID candidate) {
         if (!active) return false;
-        if (TTRCore.isAdmin(voter)) {
-            voter.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Los administradores no participan en las votaciones."));
+        if (voter.getGameMode() == org.bukkit.GameMode.SPECTATOR || !TTRCore.isTowersWorld(voter.getWorld())) {
+            voter.sendMessage(TTRPrefix.TTR_ERROR + TextUtil.toTiny("Los espectadores no participan en las votaciones."));
             return false;
         }
         TTRCore plugin = TTRCore.getInstance();
@@ -223,10 +267,19 @@ public class LeaderVoteManager {
         String name = (target != null) ? target.getName() : "jugador";
         voter.sendMessage(TTRPrefix.TTR_SUCCESS + TextUtil.toTiny("Has votado por ") + ChatColor.YELLOW + name);
 
-        // Check if all team members have voted (excluding admins)
+        // Refrescar el GUI para todos los miembros del equipo que lo tengan abierto
+        for (UUID member : state.getTeam().getPlayers()) {
+            Player p = Bukkit.getPlayer(member);
+            if (p != null && p.getOpenInventory() != null && p.getOpenInventory().getTitle().contains(TextUtil.toTiny("Votación de Líder"))) {
+                LeaderVoteGUI.open(p, state);
+            }
+        }
+
+        // Check if all team members have voted (excluding spectators)
         int totalOnline = 0;
         for (UUID member : state.getTeam().getPlayers()) {
-            if (!TTRCore.isAdmin(member) && Bukkit.getPlayer(member) != null) totalOnline++;
+            Player p = Bukkit.getPlayer(member);
+            if (p != null && p.getGameMode() != org.bukkit.GameMode.SPECTATOR && TTRCore.isTowersWorld(p.getWorld())) totalOnline++;
         }
         if (state.getVotes().size() >= totalOnline && totalOnline > 0) {
             checkEarlyRoundAdvance(state);
@@ -241,7 +294,8 @@ public class LeaderVoteManager {
             if (s.isFinished()) continue;
             int totalOnline = 0;
             for (UUID member : s.getTeam().getPlayers()) {
-                if (!TTRCore.isAdmin(member) && Bukkit.getPlayer(member) != null) totalOnline++;
+                Player p = Bukkit.getPlayer(member);
+                if (p != null && p.getGameMode() != org.bukkit.GameMode.SPECTATOR && TTRCore.isTowersWorld(p.getWorld())) totalOnline++;
             }
             if (s.getVotes().size() < totalOnline) {
                 allFinishedOrEarly = false;
@@ -302,9 +356,8 @@ public class LeaderVoteManager {
                 String name2 = (c2 != null) ? c2.getName() : "Finalista 2";
 
                 state.getTeam().getPlayers().forEach(uuid -> {
-                    if (TTRCore.isAdmin(uuid)) return;
                     Player p = Bukkit.getPlayer(uuid);
-                    if (p != null) {
+                    if (p != null && p.getGameMode() != org.bukkit.GameMode.SPECTATOR && TTRCore.isTowersWorld(p.getWorld())) {
                         p.sendMessage(TTRPrefix.TTR_GAME + ChatColor.AQUA +
                                 TextUtil.toTiny("Ronda ") + state.getRound() + TextUtil.toTiny(" (Final): ") +
                                 ChatColor.YELLOW + name1 + ChatColor.WHITE + " vs " + ChatColor.YELLOW + name2);
@@ -350,6 +403,7 @@ public class LeaderVoteManager {
         Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 
         for (Player p : Bukkit.getOnlinePlayers()) {
+            removeVoteItem(p);
             p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f);
             if (p.getOpenInventory().getTitle().contains(TextUtil.toTiny("Votación de Líder"))) {
                 p.closeInventory();
@@ -410,6 +464,7 @@ public class LeaderVoteManager {
         cancelTaskOnly();
         this.active = false;
         for (Player p : Bukkit.getOnlinePlayers()) {
+            removeVoteItem(p);
             if (p.getOpenInventory().getTitle().contains(TextUtil.toTiny("Votación de Líder"))) {
                 p.closeInventory();
             }

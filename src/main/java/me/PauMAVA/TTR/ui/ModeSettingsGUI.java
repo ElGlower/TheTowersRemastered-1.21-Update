@@ -14,6 +14,8 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.format.TextDecoration;
 
 public class ModeSettingsGUI {
 
@@ -102,8 +104,10 @@ public class ModeSettingsGUI {
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(name);
-            if (lore != null) meta.setLore(lore);
+            meta.displayName(LegacyComponentSerializer.legacySection().deserialize(name).decoration(TextDecoration.ITALIC, false));
+            if (lore != null) {
+                meta.lore(lore.stream().map(l -> LegacyComponentSerializer.legacySection().deserialize(l).decoration(TextDecoration.ITALIC, false)).toList());
+            }
             meta.getPersistentDataContainer().set(KEY_ACTION, PersistentDataType.STRING, action);
             item.setItemMeta(meta);
         }

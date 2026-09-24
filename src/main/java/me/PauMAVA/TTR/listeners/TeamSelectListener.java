@@ -43,13 +43,25 @@ public class TeamSelectListener implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             ItemStack item = event.getItem();
             if (item != null && item.getType() == Material.NETHER_STAR) {
-                event.setCancelled(true);
-                if (plugin.getAuctionDraftManager() != null && plugin.getAuctionDraftManager().isActive()) {
-                    event.getPlayer().sendMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + TextUtil.toTiny("La subasta está activa. Los capitanes están armando los equipos."));
-                    me.PauMAVA.TTR.ui.AuctionDraftGUI.open(event.getPlayer(), plugin.getAuctionDraftManager());
+                // Solo ejecutar si el jugador está estrictamente en el mundo the-towers
+                Player player = event.getPlayer();
+                if (!player.getWorld().getName().equalsIgnoreCase("the-towers")) {
                     return;
                 }
-                openTeamGUI(event.getPlayer());
+                // Verificar que sea la estrella de equipos y no otro ítem
+                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+                    String name = item.getItemMeta().getDisplayName();
+                    if (!name.contains("Seleccionar") && !name.contains("Equipo") && !name.contains("ᴇQᴜɪᴘᴏ")) {
+                        return;
+                    }
+                }
+                event.setCancelled(true);
+                if (plugin.getAuctionDraftManager() != null && plugin.getAuctionDraftManager().isActive()) {
+                    player.sendMessage(TTRPrefix.TTR_GAME + ChatColor.YELLOW + TextUtil.toTiny("La subasta está activa. Los capitanes están armando los equipos."));
+                    me.PauMAVA.TTR.ui.AuctionDraftGUI.open(player, plugin.getAuctionDraftManager());
+                    return;
+                }
+                openTeamGUI(player);
             }
         }
     }
@@ -104,7 +116,16 @@ public class TeamSelectListener implements Listener {
         else if (mat == Material.BLUE_WOOL) attemptJoin(player, "Blue");
         else if (mat == Material.ENDER_EYE) {
             player.closeInventory();
+            plugin.getTeamHandler().removePlayer(player);
             player.setGameMode(GameMode.SPECTATOR);
+            player.getInventory().clear();
+            player.getInventory().setArmorContents(null);
+            player.getInventory().setItemInOffHand(null);
+            for (Player other : org.bukkit.Bukkit.getOnlinePlayers()) {
+                if (other.getGameMode() != GameMode.SPECTATOR) {
+                    other.hidePlayer(plugin, player);
+                }
+            }
             player.sendMessage(TTRPrefix.TTR_GAME + ChatColor.GRAY + TextUtil.toTiny("Ahora eres espectador."));
         }
     }
@@ -192,12 +213,12 @@ public class TeamSelectListener implements Listener {
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(name);
-            List<String> lore = new ArrayList<>();
+            meta.displayName(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(name).decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false));
+            List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
             for (String line : loreLines) {
-                lore.add(line);
+                lore.add(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(line).decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false));
             }
-            meta.setLore(lore);
+            meta.lore(lore);
             item.setItemMeta(meta);
         }
         return item;

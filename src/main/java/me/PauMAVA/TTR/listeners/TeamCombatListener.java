@@ -46,11 +46,18 @@ public class TeamCombatListener implements Listener {
         TTRTeam victimTeam = plugin.getTeamHandler().getPlayerTeam(victim);
         TTRTeam attackerTeam = plugin.getTeamHandler().getPlayerTeam(attacker);
 
-        if (victimTeam != null && attackerTeam != null) {
-            if (victimTeam.getIdentifier().equalsIgnoreCase(attackerTeam.getIdentifier())) {
-                event.setCancelled(true);
-                return;
-            }
+        // Bloquear combate si alguno no tiene equipo o si no están en SURVIVAL (ej. espectadores o late-joins)
+        if (victimTeam == null || attackerTeam == null ||
+            victim.getGameMode() != org.bukkit.GameMode.SURVIVAL ||
+            attacker.getGameMode() != org.bukkit.GameMode.SURVIVAL) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (victimTeam.getIdentifier().equalsIgnoreCase(attackerTeam.getIdentifier())) {
+            event.setCancelled(true);
+            return;
+        }
 
             // Spawn-kill Protection: Prohibido atacar a jugadores dentro de su propia base/spawn
             org.bukkit.Location victimSpawn = plugin.getConfigManager().getTeamSpawn(victimTeam.getIdentifier());
@@ -60,7 +67,6 @@ public class TeamCombatListener implements Listener {
                     attacker.sendMessage(me.PauMAVA.TTR.util.TTRPrefix.TTR_ERROR + me.PauMAVA.TTR.util.TextUtil.toTiny("¡Spawn-Kill prohibido! No puedes atacar a jugadores en su base."));
                     attacker.playSound(attacker.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.7f);
                     return;
-                }
             }
         }
     }

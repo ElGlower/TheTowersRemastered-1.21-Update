@@ -83,16 +83,25 @@ public class GameEventManager {
         stopCurrentEvent();
         this.currentEvent = eventName;
 
+        int playingCount = 0;
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (isPlaying(p)) playingCount++;
+        }
+        if (playingCount == 0) {
+            return;
+        }
+
         String tinyName = TextUtil.toTiny(eventName.toUpperCase());
 
-        Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-        Bukkit.broadcastMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "¡" + TextUtil.toTiny("EVENTO: ") + tinyName + "!");
-        Bukkit.broadcastMessage(ChatColor.YELLOW + TextUtil.toTiny("Duración: 60 segundos"));
-        Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-
         for (Player p : Bukkit.getOnlinePlayers()) {
-            p.sendTitle(ChatColor.GOLD + "¡" + tinyName + "!", ChatColor.YELLOW + TextUtil.toTiny("Evento de caos activado"), 10, 40, 10);
-            p.playSound(p.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 1f, 0.5f);
+            if (isPlaying(p)) {
+                p.sendMessage(ChatColor.DARK_AQUA + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+                p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "¡" + TextUtil.toTiny("EVENTO: ") + tinyName + "!");
+                p.sendMessage(ChatColor.YELLOW + TextUtil.toTiny("Duración: 60 segundos"));
+                p.sendMessage(ChatColor.DARK_AQUA + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+                p.sendTitle(ChatColor.GOLD + "¡" + tinyName + "!", ChatColor.YELLOW + TextUtil.toTiny("Evento de caos activado"), 10, 40, 10);
+                p.playSound(p.getLocation(), Sound.BLOCK_END_PORTAL_SPAWN, 1f, 0.5f);
+            }
         }
 
         switch (eventName.toLowerCase()) {
@@ -126,7 +135,7 @@ public class GameEventManager {
                 }
                 break;
             case "wind":
-                // Evento 1.21: Cargas de viento para todos
+                // Evento 1.21: Cargas de viento para los jugadores de la partida
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (isPlaying(p)) {
                         p.getInventory().addItem(new ItemStack(Material.WIND_CHARGE, 3));
@@ -149,9 +158,13 @@ public class GameEventManager {
             @Override
             public void run() {
                 stopCurrentEvent();
-                Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.GREEN + 
-                        TextUtil.toTiny("El evento ") + ChatColor.YELLOW + tinyName + 
-                        ChatColor.GREEN + TextUtil.toTiny(" ha terminado."));
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (isPlaying(p)) {
+                        p.sendMessage(TTRPrefix.TTR_GAME + ChatColor.GREEN + 
+                                TextUtil.toTiny("El evento ") + ChatColor.YELLOW + tinyName + 
+                                ChatColor.GREEN + TextUtil.toTiny(" ha terminado."));
+                    }
+                }
             }
         }.runTaskLater(TTRCore.getInstance(), 1200L).getTaskId();
     }
@@ -178,7 +191,16 @@ public class GameEventManager {
     }
 
     private boolean isPlaying(Player p) {
-        return p.getGameMode() == GameMode.SURVIVAL || p.getGameMode() == GameMode.ADVENTURE;
+        if (p == null || !p.isOnline()) return false;
+        if (TTRCore.getInstance().getCurrentMatch() == null || 
+            TTRCore.getInstance().getCurrentMatch().getStatus() != MatchStatus.INGAME) {
+            return false;
+        }
+        if (p.getGameMode() != GameMode.SURVIVAL) return false;
+        if (TTRCore.getInstance().getTeamHandler().getPlayerTeam(p) == null) return false;
+        String w = p.getWorld().getName().toLowerCase();
+        if (w.equals("lobby") || w.equals("world")) return false;
+        return true;
     }
 
     private void applyEffectToAll(PotionEffectType type, int amp) {
@@ -204,7 +226,11 @@ public class GameEventManager {
             int count = 0;
             @Override
             public void run() {
-                if (count >= 20) { this.cancel(); return; }
+                if (count >= 20 || TTRCore.getInstance().getCurrentMatch() == null || 
+                    TTRCore.getInstance().getCurrentMatch().getStatus() != MatchStatus.INGAME) {
+                    this.cancel();
+                    return;
+                }
 
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (!isPlaying(p)) continue;

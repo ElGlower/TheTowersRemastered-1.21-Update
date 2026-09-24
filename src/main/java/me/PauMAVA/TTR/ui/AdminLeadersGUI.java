@@ -7,6 +7,7 @@ import me.PauMAVA.TTR.util.SkullUtil;
 import me.PauMAVA.TTR.util.TextUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
@@ -21,6 +22,8 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.format.TextDecoration;
 
 public class AdminLeadersGUI {
 
@@ -109,7 +112,8 @@ public class AdminLeadersGUI {
             int playingCount = 0;
             int adminCount = 0;
             for (Player p : Bukkit.getOnlinePlayers()) {
-                if (TTRCore.isAdmin(p)) adminCount++;
+                if (!TTRCore.isTowersWorld(p.getWorld())) continue;
+                if (p.getGameMode() == GameMode.SPECTATOR) adminCount++;
                 else playingCount++;
             }
             int required = plugin.getConfig().getInt("autostart.count", 4);
@@ -235,7 +239,8 @@ public class AdminLeadersGUI {
             int playingCount = 0;
             int adminCount = 0;
             for (Player p : Bukkit.getOnlinePlayers()) {
-                if (TTRCore.isAdmin(p)) adminCount++;
+                if (!TTRCore.isTowersWorld(p.getWorld())) continue;
+                if (p.getGameMode() == GameMode.SPECTATOR) adminCount++;
                 else playingCount++;
             }
             int required = plugin.getConfig().getInt("autostart.count", 4);
@@ -299,7 +304,7 @@ public class AdminLeadersGUI {
         // Unassigned Players Shelf (Row 5: slots 45 - 53) - solo jugadores activos (no admins)
         List<Player> unassigned = new ArrayList<>();
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (!TTRCore.isAdmin(p) && plugin.getTeamHandler().getPlayerTeam(p) == null) {
+            if (TTRCore.isTowersWorld(p.getWorld()) && p.getGameMode() != GameMode.SPECTATOR && plugin.getTeamHandler().getPlayerTeam(p) == null) {
                 unassigned.add(p);
             }
         }
@@ -388,8 +393,10 @@ public class AdminLeadersGUI {
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(name);
-            if (lore != null) meta.setLore(lore);
+            meta.displayName(LegacyComponentSerializer.legacySection().deserialize(name).decoration(TextDecoration.ITALIC, false));
+            if (lore != null) {
+                meta.lore(lore.stream().map(l -> LegacyComponentSerializer.legacySection().deserialize(l).decoration(TextDecoration.ITALIC, false)).toList());
+            }
             meta.getPersistentDataContainer().set(KEY_ACTION, PersistentDataType.STRING, action);
             item.setItemMeta(meta);
         }

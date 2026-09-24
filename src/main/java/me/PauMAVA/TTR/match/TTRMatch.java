@@ -27,7 +27,6 @@ public class TTRMatch {
     private CageChecker checker;
     private final HashMap<Player, Integer> kills = new HashMap<>();
     private BossBar gameBar;
-    private int regenTaskID;
     private int matchTaskID;
     private int prepTaskID = -1;
     private int prepRemaining = 0;
@@ -49,6 +48,14 @@ public class TTRMatch {
         return this.status == MatchStatus.PREPARATION;
     }
 
+    public void broadcastToTowers(String message) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (TTRCore.isTowersWorld(p.getWorld())) {
+                p.sendMessage(message);
+            }
+        }
+    }
+
     public void startPreparationPhase(int seconds) {
         this.status = MatchStatus.PREPARATION;
         this.prepRemaining = seconds;
@@ -58,17 +65,17 @@ public class TTRMatch {
         ChestRestockManager.getInstance().restockAndPurgeArenaChests(true);
 
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (TTRCore.isAdmin(p)) {
+            if (!TTRCore.isTowersWorld(p.getWorld())) continue;
+            if (p.getGameMode() == GameMode.SPECTATOR) {
                 TTRCore.getInstance().getTeamHandler().removePlayer(p);
-                p.setGameMode(GameMode.SPECTATOR);
             }
         }
 
         TTRTeam red = TTRCore.getInstance().getTeamHandler().getTeam("Red");
         TTRTeam blue = TTRCore.getInstance().getTeamHandler().getTeam("Blue");
         for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!TTRCore.isTowersWorld(p.getWorld())) continue;
             if (p.getGameMode() == GameMode.SPECTATOR) continue;
-            if (TTRCore.isAdmin(p)) continue; // Administradores no se meten a la partida automáticamente
             if (TTRCore.getInstance().getTeamHandler().getPlayerTeam(p) == null) {
                 if (red != null && blue != null) {
                     if (red.getPlayers().size() <= blue.getPlayers().size()) {
@@ -81,6 +88,7 @@ public class TTRMatch {
         }
 
         for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!TTRCore.isTowersWorld(p.getWorld())) continue;
             TTRTeam team = TTRCore.getInstance().getTeamHandler().getPlayerTeam(p);
             if (team != null) {
                 Location sp = team.getSpawnPoint();
@@ -99,8 +107,8 @@ public class TTRMatch {
                 for (PotionEffect pe : p.getActivePotionEffects()) {
                     p.removePotionEffect(pe.getType());
                 }
-            } else if (TTRCore.isAdmin(p)) {
-                p.setGameMode(GameMode.SPECTATOR);
+            } else if (p.getGameMode() == GameMode.SPECTATOR) {
+                // Espectadores se mantienen como espectadores
             }
         }
 
@@ -113,16 +121,18 @@ public class TTRMatch {
                 BarStyle.SOLID
         );
         for (Player p : Bukkit.getOnlinePlayers()) {
-            this.prepBar.addPlayer(p);
+            if (TTRCore.isTowersWorld(p.getWorld())) {
+                this.prepBar.addPlayer(p);
+            }
         }
 
-        Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-        Bukkit.broadcastMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "🛡 " +
+        broadcastToTowers(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+        broadcastToTowers(ChatColor.YELLOW + "" + ChatColor.BOLD + "🛡 " +
                 TextUtil.toTiny("¡FASE DE PREPARACIÓN EN BASES!") + " 🛡");
-        Bukkit.broadcastMessage(ChatColor.GRAY + TextUtil.toTiny("Tienes ") + ChatColor.WHITE + seconds + "s" +
+        broadcastToTowers(ChatColor.GRAY + TextUtil.toTiny("Tienes ") + ChatColor.WHITE + seconds + "s" +
                 ChatColor.GRAY + TextUtil.toTiny(" para inspeccionar los cofres de tu isla y preparar tu estrategia."));
-        Bukkit.broadcastMessage(ChatColor.RED + TextUtil.toTiny("Nota: No puedes romper bloques ni extraer objetos hasta que inicie el combate."));
-        Bukkit.broadcastMessage(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+        broadcastToTowers(ChatColor.RED + TextUtil.toTiny("Nota: No puedes romper bloques ni extraer objetos hasta que inicie el combate."));
+        broadcastToTowers(ChatColor.GOLD + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 
         if (prepTaskID != -1) {
             Bukkit.getScheduler().cancelTask(prepTaskID);
@@ -171,6 +181,10 @@ public class TTRMatch {
         }
 
         for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!TTRCore.isTowersWorld(p.getWorld())) {
+                if (prepBar.getPlayers().contains(p)) prepBar.removePlayer(p);
+                continue;
+            }
             if (!prepBar.getPlayers().contains(p)) {
                 prepBar.addPlayer(p);
             }
@@ -265,9 +279,9 @@ public class TTRMatch {
         TTRTeam red = TTRCore.getInstance().getTeamHandler().getTeam("Red");
         TTRTeam blue = TTRCore.getInstance().getTeamHandler().getTeam("Blue");
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (TTRCore.isAdmin(p)) {
+            if (!TTRCore.isTowersWorld(p.getWorld())) continue;
+            if (p.getGameMode() == GameMode.SPECTATOR) {
                 TTRCore.getInstance().getTeamHandler().removePlayer(p);
-                p.setGameMode(GameMode.SPECTATOR);
                 continue;
             }
             if (TTRCore.getInstance().getTeamHandler().getPlayerTeam(p) == null) {
@@ -330,13 +344,12 @@ public class TTRMatch {
 
         TTRCore.getInstance().getScoreboard().startScoreboardTask();
 
-        startRegenTask();
         startMatchTimer();
         updateBossBar();
 
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            if (TTRCore.isAdmin(player)) {
-                player.setGameMode(GameMode.SPECTATOR);
+            if (!TTRCore.isTowersWorld(player.getWorld())) continue;
+            if (player.getGameMode() == GameMode.SPECTATOR) {
                 continue;
             }
             joinPlayerToMatch(player);
@@ -394,6 +407,11 @@ public class TTRMatch {
     }
 
     public void equipPlayer(Player player, String teamIdentifier) {
+        if (player == null || !player.isOnline()) return;
+        if (!TTRCore.isTowersWorld(player.getWorld())) return;
+        if (player.getGameMode() != GameMode.SURVIVAL) return;
+        if (TTRCore.getInstance().getTeamHandler().getPlayerTeam(player) == null) return;
+
         TTRTeam team = TTRCore.getInstance().getTeamHandler().getTeam(teamIdentifier);
         ChatColor chatColor = TTRCore.getInstance().getConfigManager().getTeamColor(teamIdentifier);
         Color armorColor = (chatColor == ChatColor.RED) ? Color.RED : Color.BLUE;
@@ -490,25 +508,6 @@ public class TTRMatch {
         if (draw) endMatch(null); else endMatch(winner);
     }
 
-    private void startRegenTask() {
-        this.regenTaskID = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (status != MatchStatus.INGAME) { this.cancel(); return; }
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    TTRTeam team = TTRCore.getInstance().getTeamHandler().getPlayerTeam(p);
-                    if (team == null) continue;
-                    Location spawn = TTRCore.getInstance().getConfigManager().getTeamSpawn(team.getIdentifier());
-                    if (spawn != null && p.getWorld().equals(spawn.getWorld())) {
-                        if (p.getLocation().distanceSquared(spawn) < 64.0) {
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 40, 2, true, false));
-                        }
-                    }
-                }
-            }
-        }.runTaskTimer(TTRCore.getInstance(), 0L, 20L).getTaskId();
-    }
-
     public void updateBossBar() {
         if (this.gameBar == null) return;
         StringBuilder sb = new StringBuilder();
@@ -529,6 +528,13 @@ public class TTRMatch {
         double progress = (maxPointsToWin > 0) ? (double) highestPoints / maxPointsToWin : 0.0;
         if (progress > 1.0) progress = 1.0;
         this.gameBar.setProgress(progress);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (TTRCore.isTowersWorld(p.getWorld())) {
+                if (!gameBar.getPlayers().contains(p)) gameBar.addPlayer(p);
+            } else {
+                if (gameBar.getPlayers().contains(p)) gameBar.removePlayer(p);
+            }
+        }
     }
 
     public void cleanup() {
@@ -545,7 +551,6 @@ public class TTRMatch {
         if (this.lootSpawner != null) this.lootSpawner.stopSpawning();
         if (this.checker != null) this.checker.stopChecking();
 
-        Bukkit.getScheduler().cancelTask(this.regenTaskID);
         Bukkit.getScheduler().cancelTask(this.matchTaskID);
 
         if (TTRCore.getInstance().getEventManager() != null) {
@@ -572,7 +577,7 @@ public class TTRMatch {
         if (TTRCore.getInstance().getRollbackManager() != null) {
             if (TTRCore.getInstance().getConfigManager().isAutoRestoreMap()) {
                 int restored = TTRCore.getInstance().getRollbackManager().restoreMap();
-                Bukkit.broadcastMessage(TTRPrefix.TTR_GAME + ChatColor.AQUA + 
+                broadcastToTowers(TTRPrefix.TTR_GAME + ChatColor.AQUA + 
                         TextUtil.toTiny("Mapa regenerado automáticamente (") + 
                         ChatColor.YELLOW + TextUtil.toTiny(String.valueOf(restored)) + ChatColor.AQUA + TextUtil.toTiny(" bloques restaurados)."));
             }
@@ -595,6 +600,8 @@ public class TTRMatch {
 
         String divider = ChatColor.DARK_GRAY + "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬";
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+            if (!TTRCore.isTowersWorld(player.getWorld())) continue;
+
             String titleWinner = teamColor + "" + ChatColor.BOLD + TextUtil.toTiny("GANADOR: " + teamName.toUpperCase());
             player.sendTitle(titleWinner, ChatColor.AQUA + TextUtil.toTiny("¡Partida Finalizada!"), 10, 100, 20);
             player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 10, 1);

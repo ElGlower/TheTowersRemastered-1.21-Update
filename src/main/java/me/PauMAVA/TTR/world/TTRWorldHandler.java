@@ -24,8 +24,9 @@ public class TTRWorldHandler {
         world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
 
-        // Dificultad Normal para que haya hambre
-        world.setDifficulty(Difficulty.NORMAL);
+        // Dificultad Hard siempre y mob spawning natural desactivado
+        world.setDifficulty(Difficulty.HARD);
+        world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
 
         // Configurar tiempo y clima inicial usando tu config
         configureTime();
@@ -74,8 +75,9 @@ public class TTRWorldHandler {
 
     public void restoreDifficulty() {
         if (world != null) {
-            // Al terminar la partida, lo ponemos en pacífico
-            world.setDifficulty(Difficulty.PEACEFUL);
+            // Mantener dificultad Difícil (Hard) y sin spawns naturales
+            world.setDifficulty(Difficulty.HARD);
+            world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
         }
     }
 }

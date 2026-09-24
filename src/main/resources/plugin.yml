@@ -22,9 +22,10 @@ commands:
   stats:
     description: Ver estadísticas del jugador
     aliases: [estadisticas, dtstats]
-  setlobby:
-    description: Establece el punto de aparición del Lobby
+  ttrsetlobby:
+    description: Establece el punto de aparición del Lobby de The Towers
     permission: destinytowers.admin
+    aliases: [dtsetlobby]
   ttrstart:
     description: Inicia la partida
     permission: destinytowers.admin

@@ -196,14 +196,37 @@ public class RollbackManager implements Listener {
      * Restaura todos los bloques a su estado original exacto y limpia entidades residuales.
      * @return Número de bloques regenerados.
      */
+    private World getSafeWorld(Location loc) {
+        if (loc == null) return null;
+        try {
+            if (loc.isWorldLoaded()) {
+                return loc.getWorld();
+            }
+        } catch (Throwable ignored) {}
+        World tw = Bukkit.getWorld("the-towers");
+        if (tw != null) {
+            loc.setWorld(tw);
+            return tw;
+        }
+        return null;
+    }
+
     public int restoreMap() {
+        World tw = Bukkit.getWorld("the-towers");
+        if (tw == null) {
+            try {
+                tw = Bukkit.createWorld(new org.bukkit.WorldCreator("the-towers"));
+            } catch (Throwable ignored) {}
+        }
+
         int count = originalBlockData.size();
 
         if (count > 0) {
             for (Map.Entry<Location, BlockData> entry : originalBlockData.entrySet()) {
                 Location loc = entry.getKey();
                 BlockData data = entry.getValue();
-                if (loc.getWorld() != null) {
+                World w = getSafeWorld(loc);
+                if (w != null) {
                     loc.getBlock().setBlockData(data, false);
                 }
             }
@@ -215,7 +238,8 @@ public class RollbackManager implements Listener {
             for (Map.Entry<Location, org.bukkit.inventory.ItemStack[]> entry : originalChestContents.entrySet()) {
                 Location loc = entry.getKey();
                 org.bukkit.inventory.ItemStack[] contents = entry.getValue();
-                if (loc.getWorld() != null) {
+                World w = getSafeWorld(loc);
+                if (w != null) {
                     Block b = loc.getBlock();
                     if (b.getState() instanceof org.bukkit.block.Container container) {
                         container.getInventory().clear();
@@ -235,11 +259,12 @@ public class RollbackManager implements Listener {
 
         cleanArenaEntities();
 
-        // Solo teletransportar si los jugadores están fuera del mundo del lobby (ej. al resetear mapa en partida)
+        // Solo teletransportar si los jugadores están dentro del mundo de The Towers y lejos del punto de lobby
         Location lobby = plugin.getConfigManager().getLobbyLocation();
-        if (lobby != null && lobby.getWorld() != null) {
+        World lobbyWorld = getSafeWorld(lobby);
+        if (lobby != null && lobbyWorld != null) {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                if (!p.getWorld().equals(lobby.getWorld()) || p.getLocation().distanceSquared(lobby) > 100.0) {
+                if (p.getWorld().equals(lobbyWorld) && p.getLocation().distanceSquared(lobby) > 100.0) {
                     p.teleport(lobby);
                 }
             }
@@ -253,8 +278,11 @@ public class RollbackManager implements Listener {
     }
 
     public void cleanArenaEntities() {
-        Location lobby = plugin.getConfigManager().getLobbyLocation();
-        World arenaWorld = (lobby != null) ? lobby.getWorld() : (Bukkit.getWorlds().isEmpty() ? null : Bukkit.getWorlds().get(0));
+        World arenaWorld = Bukkit.getWorld("the-towers");
+        if (arenaWorld == null) {
+            Location lobby = plugin.getConfigManager().getLobbyLocation();
+            arenaWorld = getSafeWorld(lobby);
+        }
 
         if (arenaWorld != null) {
             for (Entity entity : arenaWorld.getEntities()) {

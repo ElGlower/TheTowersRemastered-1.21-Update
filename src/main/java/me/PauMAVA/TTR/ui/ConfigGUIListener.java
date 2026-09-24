@@ -108,7 +108,7 @@ public class ConfigGUIListener implements Listener {
                 }
                 case "lobby": {
                     player.closeInventory();
-                    player.performCommand("setlobby");
+                    player.performCommand("ttrsetlobby");
                     break;
                 }
                 case "spawns": {

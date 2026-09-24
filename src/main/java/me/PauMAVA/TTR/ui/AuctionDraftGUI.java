@@ -21,6 +21,8 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.format.TextDecoration;
 
 public class AuctionDraftGUI {
 
@@ -128,7 +130,9 @@ public class AuctionDraftGUI {
         // Controls (Slots 18 to 26)
         TTRTeam viewerTeam = plugin.getTeamHandler().getPlayerTeam(viewer);
         boolean isCaptain = viewerTeam != null && viewerTeam.isLeader(viewer.getUniqueId());
-        boolean isAdmin = TTRCore.isAdmin(viewer);
+        boolean isCandidate = draft.getCurrentCandidate() != null && draft.getCurrentCandidate().equals(viewer.getUniqueId());
+        boolean inPool = draft.getPool().contains(viewer.getUniqueId());
+        boolean isAdmin = TTRCore.isAdmin(viewer) && !isCandidate && !inPool;
 
         if (isCaptain) {
             gui.setItem(18, createActionItem(Material.LIME_DYE, ChatColor.GREEN + "+1 " + TextUtil.toTiny("Crédito"), "bid_1", 1, null));
@@ -165,16 +169,34 @@ public class AuctionDraftGUI {
             }
             gui.setItem(20, liveStatus);
 
-            ItemStack spectatorItem = new ItemStack(Material.ENDER_EYE);
+            ItemStack spectatorItem = new ItemStack(isCandidate ? Material.TOTEM_OF_UNDYING : Material.ENDER_EYE);
             ItemMeta spMeta = spectatorItem.getItemMeta();
             if (spMeta != null) {
-                spMeta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "👁 " + TextUtil.toTiny("Modo Espectador"));
-                List<String> sl = new ArrayList<>();
-                sl.add(ChatColor.GRAY + TextUtil.toTiny("Solo los líderes de equipo pueden"));
-                sl.add(ChatColor.GRAY + TextUtil.toTiny("pujar con créditos por los jugadores."));
-                sl.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-                sl.add(ChatColor.AQUA + TextUtil.toTiny("Observa la subasta en vivo."));
-                spMeta.setLore(sl);
+                if (isCandidate) {
+                    spMeta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "★ " + TextUtil.toTiny("¡Estás en la Mesa de Subasta!"));
+                    List<String> sl = new ArrayList<>();
+                    sl.add(ChatColor.YELLOW + TextUtil.toTiny("Los capitanes están decidiendo tu destino"));
+                    sl.add(ChatColor.YELLOW + TextUtil.toTiny("pujando con créditos de su equipo."));
+                    sl.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+                    sl.add(ChatColor.GREEN + TextUtil.toTiny("¡Pronto sabrás tu equipo!"));
+                    spMeta.setLore(sl);
+                } else if (inPool) {
+                    spMeta.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "⏳ " + TextUtil.toTiny("En Cola de Subasta"));
+                    List<String> sl = new ArrayList<>();
+                    sl.add(ChatColor.GRAY + TextUtil.toTiny("Estás en lista para ser subastado"));
+                    sl.add(ChatColor.GRAY + TextUtil.toTiny("en los siguientes turnos."));
+                    sl.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+                    sl.add(ChatColor.YELLOW + TextUtil.toTiny("Observa las pujas actuales."));
+                    spMeta.setLore(sl);
+                } else {
+                    spMeta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "👁 " + TextUtil.toTiny("Modo Espectador"));
+                    List<String> sl = new ArrayList<>();
+                    sl.add(ChatColor.GRAY + TextUtil.toTiny("Solo los líderes de equipo pueden"));
+                    sl.add(ChatColor.GRAY + TextUtil.toTiny("pujar con créditos por los jugadores."));
+                    sl.add(ChatColor.DARK_GRAY + "§m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+                    sl.add(ChatColor.AQUA + TextUtil.toTiny("Observa la subasta en vivo."));
+                    spMeta.setLore(sl);
+                }
                 spectatorItem.setItemMeta(spMeta);
             }
             gui.setItem(22, spectatorItem);
@@ -222,8 +244,10 @@ public class AuctionDraftGUI {
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(name);
-            if (lore != null) meta.setLore(lore);
+            meta.displayName(LegacyComponentSerializer.legacySection().deserialize(name).decoration(TextDecoration.ITALIC, false));
+            if (lore != null) {
+                meta.lore(lore.stream().map(l -> LegacyComponentSerializer.legacySection().deserialize(l).decoration(TextDecoration.ITALIC, false)).toList());
+            }
             meta.getPersistentDataContainer().set(KEY_ACTION, PersistentDataType.STRING, action);
             if (amount > 0) {
                 meta.getPersistentDataContainer().set(KEY_BID_AMOUNT, PersistentDataType.INTEGER, amount);
